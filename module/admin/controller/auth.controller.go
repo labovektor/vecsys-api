@@ -71,6 +71,13 @@ func (ac *authController) Register(c *fiber.Ctx) error {
 		})
 	}
 
+	emailValid := util.ValidateEmail(req.Email)
+	if !emailValid {
+		return c.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Error{
+			Message: "Email tidak valid",
+		})
+	}
+
 	passwordHash, err := util.HashPassword(req.Password)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
