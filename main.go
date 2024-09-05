@@ -83,7 +83,7 @@ func main() {
 	database.InitStore()
 
 	// Setup route
-	route.SetupAdminRoute(app, context.Background())
+	route.SetupRoute(app, context.Background())
 
 	if err := app.Listen(":8787"); err != nil {
 		panic(err)

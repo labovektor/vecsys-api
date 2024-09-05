@@ -10,13 +10,28 @@ import (
 )
 
 const (
-	ROLE_USER = "role_user"
+	ROLE_ADMIN = "role_admin"
+	ROLE_USER  = "role_user"
 )
 
-func GenerateSession(c *fiber.Ctx, admin *entity.Admin) error {
+func GenerateSessionAdmin(c *fiber.Ctx, admin *entity.Admin) error {
 	sess := c.Locals("session").(*session.Session)
 
 	sess.Set("username", admin.Username)
+	sess.Set("role", ROLE_ADMIN)
+
+	// Save session
+	if err := sess.Save(); err != nil {
+		return fmt.Errorf("failed to create session")
+	}
+
+	return nil
+}
+
+func GenerateSessionUser(c *fiber.Ctx, participant *entity.Participant) error {
+	sess := c.Locals("session").(*session.Session)
+
+	sess.Set("email", participant.Email)
 	sess.Set("role", ROLE_USER)
 
 	// Save session
@@ -46,11 +61,34 @@ func RegenerateSession(c *fiber.Ctx) error {
 	return nil
 }
 
-func ValidateSession(c *fiber.Ctx) bool {
+func ValidateSessionAdmin(c *fiber.Ctx) bool {
 	sess := c.Locals("session").(*session.Session)
 
 	username := sess.Get("username")
+	if username == nil {
+		return false
+	}
+
+	role := sess.Get("role")
+	return role == ROLE_ADMIN
+}
+
+func ValidateSessionUser(c *fiber.Ctx) bool {
+	sess := c.Locals("session").(*session.Session)
+
+	username := sess.Get("email")
 	return username != nil
+}
+
+func GetEmailSession(c *fiber.Ctx) string {
+	sess := c.Locals("session").(*session.Session)
+
+	username := sess.Get("email")
+	if username == nil {
+		return ""
+	}
+
+	return username.(string)
 }
 
 func GetUsernameSession(c *fiber.Ctx) string {

@@ -3,7 +3,6 @@ package repository
 import (
 	"github.com/labovector/vecsys-api/database"
 	"github.com/labovector/vecsys-api/entity"
-	"gorm.io/gorm"
 )
 
 type userRepositoryImpl struct{}
@@ -39,28 +38,12 @@ func (u *userRepositoryImpl) FindParticipantById(id string) (*entity.Participant
 }
 
 // FindParticipantByUsername implements UserRepository.
-func (u *userRepositoryImpl) FindParticipantByUsername(username string) (*entity.Participant, error) {
+func (u *userRepositoryImpl) FindParticipantByEmail(email string) (*entity.Participant, error) {
 	participant := &entity.Participant{}
-	if err := database.DB.First(participant, "username = ?", username).Error; err != nil {
+	if err := database.DB.First(participant, "email = ?", email).Error; err != nil {
 		return nil, err
 	}
 	return participant, nil
-}
-
-// IsParticipantExist implements UserRepository.
-func (u *userRepositoryImpl) IsParticipantExist(username string) (bool, error) {
-	participant := &entity.Participant{}
-	if err := database.DB.First(participant, "username = ?", username).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			// User does not exist
-			return false, nil
-		}
-		// Other errors (e.g., DB connection issues)
-		return false, err
-	}
-
-	// User exists
-	return true, nil
 }
 
 // UpdateParticipant implements UserRepository.

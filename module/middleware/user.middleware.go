@@ -2,12 +2,12 @@ package middleware
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/labovector/vecsys-api/module/admin/usecase"
+	"github.com/labovector/vecsys-api/module/usecase"
 )
 
-func AdminMiddleware() fiber.Handler {
+func UserMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		valid := usecase.ValidateSession(c)
+		valid := usecase.ValidateSessionUser(c)
 		if !valid {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
 				Message: "You are not allowed to access this",
@@ -25,9 +25,9 @@ func AdminMiddleware() fiber.Handler {
 }
 
 // Strict session means you cannot extend your session time (only valid for 1 hour long)
-func AdminMiddlewareStrictSession() fiber.Handler {
+func UserMiddlewareStrictSession() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		valid := usecase.ValidateSession(c)
+		valid := usecase.ValidateSessionUser(c)
 		if !valid {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
 				Message: "You are not allowed to access this",

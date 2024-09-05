@@ -6,8 +6,7 @@ type UserRepository interface {
 	CreateParticipant(participant *entity.Participant) (entity.Participant, error)
 	FindAllParticipant() ([]entity.Participant, error)
 	FindParticipantById(id string) (*entity.Participant, error)
-	FindParticipantByUsername(username string) (*entity.Participant, error)
-	IsParticipantExist(username string) (bool, error)
+	FindParticipantByEmail(email string) (*entity.Participant, error)
 	UpdateParticipant(id string, participant *entity.Participant) error
 	DeleteParticipant(id string) error
 }

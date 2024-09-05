@@ -64,3 +64,12 @@
 117524  404 - POST /login Cannot POST /login
 117524  200 - POST /admin/login -
 117524  404 - GET /favicon.ico Cannot GET /favicon.ico
+81530  200 - POST /admin/signup -
+86929  200 - POST /admin/signup -
+91998  200 - POST /admin/signup -
+92790  500 - POST /admin/signup -
+99407  200 - POST /admin/signup -
+162507  200 - POST /admin/login -
+162507  404 - GET /logout Cannot GET /logout
+162507  200 - GET /admin/logout -
+162507  200 - POST /admin/login -
