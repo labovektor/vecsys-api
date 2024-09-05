@@ -18,6 +18,7 @@ func GenerateSessionAdmin(c *fiber.Ctx, admin *entity.Admin) error {
 	sess := c.Locals("session").(*session.Session)
 
 	sess.Set("username", admin.Username)
+	sess.Set("id", admin.Id.String())
 	sess.Set("role", ROLE_ADMIN)
 
 	// Save session
@@ -32,6 +33,7 @@ func GenerateSessionUser(c *fiber.Ctx, participant *entity.Participant) error {
 	sess := c.Locals("session").(*session.Session)
 
 	sess.Set("email", participant.Email)
+	sess.Set("id", participant.Id.String())
 	sess.Set("role", ROLE_USER)
 
 	// Save session
@@ -65,7 +67,8 @@ func ValidateSessionAdmin(c *fiber.Ctx) bool {
 	sess := c.Locals("session").(*session.Session)
 
 	username := sess.Get("username")
-	if username == nil {
+	id := sess.Get("id")
+	if username == nil || id == nil {
 		return false
 	}
 
@@ -77,18 +80,19 @@ func ValidateSessionUser(c *fiber.Ctx) bool {
 	sess := c.Locals("session").(*session.Session)
 
 	username := sess.Get("email")
-	return username != nil
+	id := sess.Get("id")
+	return username != nil && id != nil
 }
 
 func GetEmailSession(c *fiber.Ctx) string {
 	sess := c.Locals("session").(*session.Session)
 
-	username := sess.Get("email")
-	if username == nil {
+	email := sess.Get("email")
+	if email == nil {
 		return ""
 	}
 
-	return username.(string)
+	return email.(string)
 }
 
 func GetUsernameSession(c *fiber.Ctx) string {
@@ -100,6 +104,17 @@ func GetUsernameSession(c *fiber.Ctx) string {
 	}
 
 	return username.(string)
+}
+
+func GetIdSession(c *fiber.Ctx) string {
+	sess := c.Locals("session").(*session.Session)
+
+	id := sess.Get("id")
+	if id == nil {
+		return ""
+	}
+
+	return id.(string)
 }
 
 func InvalidateSession(c *fiber.Ctx) error {
