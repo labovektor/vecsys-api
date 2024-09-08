@@ -8,7 +8,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/entity"
 	"github.com/labovector/vecsys-api/module/repository"
-	"github.com/labovector/vecsys-api/module/usecase"
 	"github.com/labovector/vecsys-api/util"
 )
 
@@ -47,7 +46,7 @@ func (ac *authController) LoginAdmin(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := usecase.GenerateSessionAdmin(c, admin); err != nil {
+	if err := util.GenerateSessionAdmin(c, admin); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
 			Message: "Kesalahan saat membuat sesi",
 		})
@@ -138,7 +137,7 @@ func (ac *authController) RegisterAdmin(c *fiber.Ctx) error {
 }
 
 func (ac *authController) LogoutAdmin(c *fiber.Ctx) error {
-	if err := usecase.InvalidateSession(c); err != nil {
+	if err := util.InvalidateSession(c); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
 			Message: "Kesalahan saat menghapus sesi",
 		})
@@ -172,7 +171,7 @@ func (ac *authController) LoginUser(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := usecase.GenerateSessionUser(c, user); err != nil {
+	if err := util.GenerateSessionUser(c, user); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
 			Message: "Kesalahan saat membuat sesi",
 		})
@@ -233,7 +232,7 @@ func (ac *authController) RegisterUser(c *fiber.Ctx) error {
 }
 
 func (ac *authController) LogoutUser(c *fiber.Ctx) error {
-	if err := usecase.InvalidateSession(c); err != nil {
+	if err := util.InvalidateSession(c); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
 			Message: "Kesalahan saat menghapus sesi",
 		})
