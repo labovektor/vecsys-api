@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -56,6 +57,12 @@ func main() {
 		c.Locals("session", sess)
 		return c.Next()
 	})
+
+	app.Use(cors.New(
+		cors.Config{
+			AllowOrigins: "*",
+		},
+	))
 
 	app.Use(encryptcookie.New(encryptcookie.Config{
 		Key: "YuUkkdJqEi6u8uGMU7Hn2YvF5fSranbO",
