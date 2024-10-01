@@ -1,2 +1,4 @@
 .env
 __public/profile/*
+Makefile
+vecsys

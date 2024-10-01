@@ -32,6 +32,7 @@ func InitDB() {
 		&entity.Institution{},
 		&entity.Payment{},
 		&entity.Participant{},
+		&entity.Biodata{},
 	)
 
 	db, err := database.DB()
