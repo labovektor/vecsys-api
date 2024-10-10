@@ -11,6 +11,8 @@ type UserRepository interface {
 	DeleteParticipant(id string) error
 
 	// Biodata
+	FindBiodataByParticipantId(participantId string) ([]entity.Biodata, error)
+	FindBiodataById(id string) (*entity.Biodata, error)
 	AddBiodata(participantId string, biodata *entity.Biodata) (entity.Biodata, error)
 	RemoveBiodata(id string) error
 }

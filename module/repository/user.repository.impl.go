@@ -7,6 +7,24 @@ import (
 
 type userRepositoryImpl struct{}
 
+// FindBiodataById implements UserRepository.
+func (u *userRepositoryImpl) FindBiodataById(id string) (*entity.Biodata, error) {
+	biodata := &entity.Biodata{}
+	if err := database.DB.First(biodata, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	return biodata, nil
+}
+
+// FindBiodataByParticipantId implements UserRepository.
+func (u *userRepositoryImpl) FindBiodataByParticipantId(participantId string) ([]entity.Biodata, error) {
+	var biodatas []entity.Biodata
+	if err := database.DB.Find(&biodatas, "participant_id = ?", participantId).Error; err != nil {
+		return nil, err
+	}
+	return biodatas, nil
+}
+
 // AddBiodata implements UserRepository.
 func (u *userRepositoryImpl) AddBiodata(participantId string, biodata *entity.Biodata) (entity.Biodata, error) {
 	biodata.ParticipantId = participantId
