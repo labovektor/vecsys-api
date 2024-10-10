@@ -7,6 +7,20 @@ import (
 
 type userRepositoryImpl struct{}
 
+// AddBiodata implements UserRepository.
+func (u *userRepositoryImpl) AddBiodata(participantId string, biodata *entity.Biodata) (entity.Biodata, error) {
+	biodata.ParticipantId = participantId
+
+	db := database.DB.Create(biodata)
+	return *biodata, db.Error
+}
+
+// RemoveBiodata implements UserRepository.
+func (u *userRepositoryImpl) RemoveBiodata(id string) error {
+	db := database.DB.Where("id = ?", id).Delete(&entity.Biodata{})
+	return db.Error
+}
+
 // CreateParticipant implements UserRepository.
 func (u *userRepositoryImpl) CreateParticipant(participant *entity.Participant) (entity.Participant, error) {
 	db := database.DB.Create(participant)

@@ -9,4 +9,8 @@ type UserRepository interface {
 	FindParticipantByEmail(email string) (*entity.Participant, error)
 	UpdateParticipant(id string, participant *entity.Participant) error
 	DeleteParticipant(id string) error
+
+	// Biodata
+	AddBiodata(participantId string, biodata *entity.Biodata) (entity.Biodata, error)
+	RemoveBiodata(id string) error
 }
