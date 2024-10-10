@@ -3,10 +3,41 @@ package repository
 import (
 	"github.com/labovector/vecsys-api/database"
 	"github.com/labovector/vecsys-api/entity"
-	"gorm.io/gorm"
 )
 
 type userRepositoryImpl struct{}
+
+// FindBiodataById implements UserRepository.
+func (u *userRepositoryImpl) FindBiodataById(id string) (*entity.Biodata, error) {
+	biodata := &entity.Biodata{}
+	if err := database.DB.First(biodata, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	return biodata, nil
+}
+
+// FindBiodataByParticipantId implements UserRepository.
+func (u *userRepositoryImpl) FindBiodataByParticipantId(participantId string) ([]entity.Biodata, error) {
+	var biodatas []entity.Biodata
+	if err := database.DB.Find(&biodatas, "participant_id = ?", participantId).Error; err != nil {
+		return nil, err
+	}
+	return biodatas, nil
+}
+
+// AddBiodata implements UserRepository.
+func (u *userRepositoryImpl) AddBiodata(participantId string, biodata *entity.Biodata) (entity.Biodata, error) {
+	biodata.ParticipantId = participantId
+
+	db := database.DB.Create(biodata)
+	return *biodata, db.Error
+}
+
+// RemoveBiodata implements UserRepository.
+func (u *userRepositoryImpl) RemoveBiodata(id string) error {
+	db := database.DB.Where("id = ?", id).Delete(&entity.Biodata{})
+	return db.Error
+}
 
 // CreateParticipant implements UserRepository.
 func (u *userRepositoryImpl) CreateParticipant(participant *entity.Participant) (entity.Participant, error) {
@@ -39,28 +70,12 @@ func (u *userRepositoryImpl) FindParticipantById(id string) (*entity.Participant
 }
 
 // FindParticipantByUsername implements UserRepository.
-func (u *userRepositoryImpl) FindParticipantByUsername(username string) (*entity.Participant, error) {
+func (u *userRepositoryImpl) FindParticipantByEmail(email string) (*entity.Participant, error) {
 	participant := &entity.Participant{}
-	if err := database.DB.First(participant, "username = ?", username).Error; err != nil {
+	if err := database.DB.First(participant, "email = ?", email).Error; err != nil {
 		return nil, err
 	}
 	return participant, nil
-}
-
-// IsParticipantExist implements UserRepository.
-func (u *userRepositoryImpl) IsParticipantExist(username string) (bool, error) {
-	participant := &entity.Participant{}
-	if err := database.DB.First(participant, "username = ?", username).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			// User does not exist
-			return false, nil
-		}
-		// Other errors (e.g., DB connection issues)
-		return false, err
-	}
-
-	// User exists
-	return true, nil
 }
 
 // UpdateParticipant implements UserRepository.

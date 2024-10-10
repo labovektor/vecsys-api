@@ -1,4 +1,4 @@
-package usecase
+package util
 
 import (
 	"fmt"
@@ -10,13 +10,30 @@ import (
 )
 
 const (
-	ROLE_USER = "role_user"
+	ROLE_ADMIN = "role_admin"
+	ROLE_USER  = "role_user"
 )
 
-func GenerateSession(c *fiber.Ctx, admin *entity.Admin) error {
+func GenerateSessionAdmin(c *fiber.Ctx, admin *entity.Admin) error {
 	sess := c.Locals("session").(*session.Session)
 
 	sess.Set("username", admin.Username)
+	sess.Set("id", admin.Id.String())
+	sess.Set("role", ROLE_ADMIN)
+
+	// Save session
+	if err := sess.Save(); err != nil {
+		return fmt.Errorf("failed to create session")
+	}
+
+	return nil
+}
+
+func GenerateSessionUser(c *fiber.Ctx, participant *entity.Participant) error {
+	sess := c.Locals("session").(*session.Session)
+
+	sess.Set("email", participant.Email)
+	sess.Set("id", participant.Id.String())
 	sess.Set("role", ROLE_USER)
 
 	// Save session
@@ -46,11 +63,36 @@ func RegenerateSession(c *fiber.Ctx) error {
 	return nil
 }
 
-func ValidateSession(c *fiber.Ctx) bool {
+func ValidateSessionAdmin(c *fiber.Ctx) bool {
 	sess := c.Locals("session").(*session.Session)
 
 	username := sess.Get("username")
-	return username != nil
+	id := sess.Get("id")
+	if username == nil || id == nil {
+		return false
+	}
+
+	role := sess.Get("role")
+	return role == ROLE_ADMIN
+}
+
+func ValidateSessionUser(c *fiber.Ctx) bool {
+	sess := c.Locals("session").(*session.Session)
+
+	username := sess.Get("email")
+	id := sess.Get("id")
+	return username != nil && id != nil
+}
+
+func GetEmailSession(c *fiber.Ctx) string {
+	sess := c.Locals("session").(*session.Session)
+
+	email := sess.Get("email")
+	if email == nil {
+		return ""
+	}
+
+	return email.(string)
 }
 
 func GetUsernameSession(c *fiber.Ctx) string {
@@ -62,6 +104,17 @@ func GetUsernameSession(c *fiber.Ctx) string {
 	}
 
 	return username.(string)
+}
+
+func GetIdSession(c *fiber.Ctx) string {
+	sess := c.Locals("session").(*session.Session)
+
+	id := sess.Get("id")
+	if id == nil {
+		return ""
+	}
+
+	return id.(string)
 }
 
 func InvalidateSession(c *fiber.Ctx) error {
