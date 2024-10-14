@@ -10,8 +10,4 @@ createdb:
 dropdb:
 	docker exec -it mypostgres dropdb vecsys
 
-deploy_dev:
-	env CGO_ENABLED=0 go build -o vecsys
-	scp -P 2285 vecsys root@182.253.225.226:~/vecsys
-
 .PHONY: postgres createdb dropdb redis deploy_dev
