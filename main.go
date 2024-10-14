@@ -8,7 +8,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
@@ -64,9 +63,9 @@ func main() {
 		},
 	))
 
-	app.Use(encryptcookie.New(encryptcookie.Config{
-		Key: "YuUkkdJqEi6u8uGMU7Hn2YvF5fSranbO",
-	}))
+	// app.Use(encryptcookie.New(encryptcookie.Config{
+	// 	Key: "YuUkkdJqEi6u8uGMU7Hn2YvF5fSranbO",
+	// }))
 
 	// Prevent client to send too many request
 	app.Use(limiter.New(limiter.Config{
