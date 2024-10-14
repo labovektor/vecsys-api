@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/entity"
+	"github.com/labovector/vecsys-api/module/dto"
 	"github.com/labovector/vecsys-api/module/repository"
 	"github.com/labovector/vecsys-api/util"
 )
@@ -24,7 +25,7 @@ func NewAuthController(adminRepo repository.AdminRepository, userRepo repository
 }
 
 func (ac *authController) LoginAdmin(c *fiber.Ctx) error {
-	req := new(entity.AdminLoginReq)
+	req := new(dto.AdminLoginReq)
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Error{
@@ -57,7 +58,7 @@ func (ac *authController) LoginAdmin(c *fiber.Ctx) error {
 }
 
 func (ac *authController) RegisterAdmin(c *fiber.Ctx) error {
-	req := new(entity.AdminSignUpReq)
+	req := new(dto.AdminSignUpReq)
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Error{
