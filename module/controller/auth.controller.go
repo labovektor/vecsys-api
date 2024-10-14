@@ -137,6 +137,24 @@ func (ac *authController) RegisterAdmin(c *fiber.Ctx) error {
 
 }
 
+func (ac *authController) GetAdmin(c *fiber.Ctx) error {
+	usernameSession := util.GetUsernameSession(c)
+	if usernameSession == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
+			Message: "Sesi tidak valid",
+		})
+	}
+
+	admin, err := ac.adminRepo.FindAdminByUsername(usernameSession)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
+			Message: "Kesalahan saat mengambil data user",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(admin)
+}
+
 func (ac *authController) LogoutAdmin(c *fiber.Ctx) error {
 	if err := util.InvalidateSession(c); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
@@ -230,6 +248,24 @@ func (ac *authController) RegisterUser(c *fiber.Ctx) error {
 		"Status": "Success",
 	})
 
+}
+
+func (ac *authController) GetUser(c *fiber.Ctx) error {
+	emailSession := util.GetEmailSession(c)
+	if emailSession == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
+			Message: "Sesi tidak valid",
+		})
+	}
+
+	participant, err := ac.userRepo.FindParticipantByEmail(emailSession)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
+			Message: "Kesalahan saat mengambil data user",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(participant)
 }
 
 func (ac *authController) LogoutUser(c *fiber.Ctx) error {

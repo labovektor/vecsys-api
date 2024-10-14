@@ -15,10 +15,12 @@ func AuthRoute(adminRoute fiber.Router, userRoute fiber.Router, ctx context.Cont
 	authController := controller.NewAuthController(adminRepo, userRepo)
 
 	// Admin Auth Route
+	adminRoute.Get("/", authController.GetAdmin, middleware.AdminMiddleware())
 	adminRoute.Post("/signup", authController.RegisterAdmin)
 	adminRoute.Post("/login", authController.LoginAdmin)
 	adminRoute.Get("/logout", authController.LogoutAdmin, middleware.AdminMiddleware())
 
+	userRoute.Get("/", authController.GetUser, middleware.UserMiddleware())
 	userRoute.Post("/signup", authController.RegisterUser)
 	userRoute.Post("/login", authController.LoginUser)
 	userRoute.Get("/logout", authController.LogoutUser, middleware.UserMiddleware())
