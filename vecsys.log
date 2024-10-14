@@ -86,3 +86,6 @@
 35186  200 - POST /admin/login -
 35186  204 - OPTIONS /admin/login -
 35186  200 - POST /admin/login -
+229274  200 - POST /admin/signup -
+229274  200 - POST /admin/login -
+229274  400 - POST /admin/login -
