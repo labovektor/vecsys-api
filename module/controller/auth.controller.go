@@ -138,8 +138,8 @@ func (ac *authController) RegisterAdmin(c *fiber.Ctx) error {
 }
 
 func (ac *authController) GetAdmin(c *fiber.Ctx) error {
-	usernameSession := util.GetUsernameSession(c)
-	if usernameSession == "" {
+	usernameSession, err := util.GetUsernameSession(c)
+	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
 			Message: "Sesi tidak valid",
 		})
@@ -251,8 +251,8 @@ func (ac *authController) RegisterUser(c *fiber.Ctx) error {
 }
 
 func (ac *authController) GetUser(c *fiber.Ctx) error {
-	emailSession := util.GetEmailSession(c)
-	if emailSession == "" {
+	emailSession, err := util.GetEmailSession(c)
+	if err == nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
 			Message: "Sesi tidak valid",
 		})

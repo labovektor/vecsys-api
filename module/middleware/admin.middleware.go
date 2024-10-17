@@ -14,13 +14,18 @@ func AdminMiddleware() fiber.Handler {
 			})
 		}
 
+		err := c.Next()
+		if err != nil {
+			return err
+		}
+
 		if err := util.RegenerateSession(c); err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
 				Message: "Kesalahan saat membuat sesi",
 			})
 		}
 
-		return c.Next()
+		return nil
 	}
 }
 
