@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/gofiber/fiber/v2"
@@ -66,8 +64,6 @@ func (ac *authController) RegisterAdmin(c *fiber.Ctx) error {
 		})
 	}
 
-	fmt.Println(req)
-
 	_, err := ac.adminRepo.FindAdminByUsername(req.Username)
 	if err == nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
@@ -98,30 +94,27 @@ func (ac *authController) RegisterAdmin(c *fiber.Ctx) error {
 
 	file, _ := c.FormFile("profile_picture")
 
-	var newFileName string
-
 	if file != nil {
-		// Generate nama file baru
-		newFileName = ac.generateNewFilename(req.Username, file.Filename)
+		if file.Size > 10*1024*1024 {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
+				Message: "Max file size 10MB",
+			})
+		}
+		ext := filepath.Ext(file.Filename)
+		if ext != ".png" && ext != ".jpg" && ext != ".jpeg" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
+				Message: "Only accept image file",
+			})
+		}
 
-		filePath := filepath.Join("./__public/profile/", newFileName)
-
-		// Membuat direktori jika belum ada
-		err := os.MkdirAll("./__public/profile/", os.ModePerm)
+		profileUrl, err := util.FileSaver(file, admin.Username, "profile/")
 		if err != nil {
-			return c.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Error{
-				Message: "Error when processing data",
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
+				Message: err.Error(),
 			})
 		}
 
-		// Simpan file ke server
-		if err := c.SaveFile(file, filePath); err != nil {
-			return c.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Error{
-				Message: "Error when processing data",
-			})
-		}
-
-		admin.ProfilePicture = filepath.Join("/public", newFileName)
+		admin.ProfilePicture = profileUrl
 	}
 
 	_, err = ac.adminRepo.CreateAdmin(&admin)
@@ -135,24 +128,6 @@ func (ac *authController) RegisterAdmin(c *fiber.Ctx) error {
 		"Status": "Success",
 	})
 
-}
-
-func (ac *authController) GetAdmin(c *fiber.Ctx) error {
-	usernameSession, err := util.GetUsernameSession(c)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
-			Message: "Sesi tidak valid",
-		})
-	}
-
-	admin, err := ac.adminRepo.FindAdminByUsername(usernameSession)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Kesalahan saat mengambil data user",
-		})
-	}
-
-	return c.Status(fiber.StatusOK).JSON(admin)
 }
 
 func (ac *authController) LogoutAdmin(c *fiber.Ctx) error {
@@ -250,24 +225,6 @@ func (ac *authController) RegisterUser(c *fiber.Ctx) error {
 
 }
 
-func (ac *authController) GetUser(c *fiber.Ctx) error {
-	emailSession, err := util.GetEmailSession(c)
-	if err == nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
-			Message: "Sesi tidak valid",
-		})
-	}
-
-	participant, err := ac.userRepo.FindParticipantByEmail(emailSession)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Kesalahan saat mengambil data user",
-		})
-	}
-
-	return c.Status(fiber.StatusOK).JSON(participant)
-}
-
 func (ac *authController) LogoutUser(c *fiber.Ctx) error {
 	if err := util.InvalidateSession(c); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
@@ -278,10 +235,4 @@ func (ac *authController) LogoutUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"Status": "Success",
 	})
-}
-
-func (ac *authController) generateNewFilename(userID string, filename string) string {
-	ext := filepath.Ext(filename)
-	newFilename := fmt.Sprintf("%s%s", userID, ext)
-	return newFilename
 }

@@ -11,4 +11,6 @@ func SetupRoute(r *fiber.App, ctx context.Context) {
 	userRoutes := r.Group("/user")
 
 	AuthRoute(adminRoutes, userRoutes, ctx)
+	AdminRoute(adminRoutes, ctx)
+	UserRoute(userRoutes, ctx)
 }
