@@ -27,6 +27,7 @@ func InitStore() {
 	store := session.New(session.Config{
 		Storage:        storage,
 		CookieSameSite: "None",
+		CookieSecure:   false,
 		CookieHTTPOnly: true,
 		Expiration:     2 * time.Hour,
 	})
