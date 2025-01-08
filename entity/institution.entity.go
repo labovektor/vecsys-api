@@ -7,7 +7,7 @@ import (
 )
 
 type Institution struct {
-	Id              uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
+	Id              uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	EventId         string     `json:"event_id"`
 	Event           *Event     `json:"event" gorm:"foreignKey:EventId;references:Id"`
 	Name            string     `json:"name"`

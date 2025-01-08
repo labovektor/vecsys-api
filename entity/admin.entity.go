@@ -7,7 +7,7 @@ import (
 )
 
 type Admin struct {
-	Id             uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
+	Id             uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	Username       string     `gorm:"unique" json:"username"`
 	DisplayName    string     `json:"display_name"`
 	ProfilePicture string     `json:"profile_picture"`
