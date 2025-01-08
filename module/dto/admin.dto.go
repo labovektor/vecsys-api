@@ -11,3 +11,8 @@ type AdminSignUpReq struct {
 	Email       string `json:"email" form:"email"`
 	Password    string `json:"password" form:"password"`
 }
+
+type AdminEditReq struct {
+	DisplayName string `json:"display_name" form:"display_name"`
+	Email       string `json:"email" form:"email"`
+}

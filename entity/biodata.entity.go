@@ -7,7 +7,7 @@ import (
 )
 
 type Biodata struct {
-	Id            uuid.UUID    `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
+	Id            uuid.UUID    `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	ParticipantId string       `json:"participant_id"`
 	Participant   *Participant `json:"participant" gorm:"foreignKey:ParticipantId;references:Id"`
 	Name          string       `json:"name,omitempty"`

@@ -7,7 +7,7 @@ import (
 )
 
 type Participant struct {
-	Id            uuid.UUID    `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
+	Id            uuid.UUID    `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	EventId       string       `json:"event_id"`
 	Event         *Event       `json:"event" gorm:"foreignKey:EventId;references:Id"`
 	RegionId      string       `json:"region_id"`
@@ -18,7 +18,7 @@ type Participant struct {
 	InstitutionId string       `json:"institution_id"`
 	Institution   *Institution `json:"institution" gorm:"foreignKey:InstitutionId;references:Id"`
 	Email         string       `gorm:"unique" json:"email"`
-	Password      string       `json:"password"`
+	Password      string       `json:"-"`
 	PaymentDataId string       `gorm:"unique" json:"payment_data_id"`
 	Payment       *Payment     `json:"payment_data" gorm:"foreignKey:PaymentDataId;references:Id"`
 	VerifiedAt    *time.Time   `json:"verified_at,omitempty"`

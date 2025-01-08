@@ -8,7 +8,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
@@ -34,7 +33,7 @@ func main() {
 	})
 
 	// Custom File Writer for logger
-	file, err := os.OpenFile("./vecsys.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	file, err := os.OpenFile("./vecsys-logger.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
@@ -60,13 +59,14 @@ func main() {
 
 	app.Use(cors.New(
 		cors.Config{
-			AllowOrigins: "*",
+			AllowOrigins:     "http://localhost:3000, https://vecsys.vercel.app",
+			AllowCredentials: true,
 		},
 	))
 
-	app.Use(encryptcookie.New(encryptcookie.Config{
-		Key: "YuUkkdJqEi6u8uGMU7Hn2YvF5fSranbO",
-	}))
+	// app.Use(encryptcookie.New(encryptcookie.Config{
+	// 	Key: "YuUkkdJqEi6u8uGMU7Hn2YvF5fSranbO",
+	// }))
 
 	// Prevent client to send too many request
 	app.Use(limiter.New(limiter.Config{

@@ -2,3 +2,4 @@
 __public/profile/*
 Makefile
 vecsys
+vecsys-logger.log

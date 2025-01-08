@@ -2,7 +2,6 @@ package util
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
@@ -47,9 +46,6 @@ func GenerateSessionUser(c *fiber.Ctx, participant *entity.Participant) error {
 func RegenerateSession(c *fiber.Ctx) error {
 	sess := c.Locals("session").(*session.Session)
 
-	// Extend the session for the next 1 hour
-	sess.SetExpiry(1 * time.Hour)
-
 	// Regenerate session
 	if err := sess.Regenerate(); err != nil {
 		return fmt.Errorf("failed to create session")
@@ -68,12 +64,12 @@ func ValidateSessionAdmin(c *fiber.Ctx) bool {
 
 	username := sess.Get("username")
 	id := sess.Get("id")
-	if username == nil || id == nil {
+	role := sess.Get("role")
+	if username == nil || id == nil || role == nil {
 		return false
 	}
 
-	role := sess.Get("role")
-	return role == ROLE_ADMIN
+	return role.(string) == ROLE_ADMIN
 }
 
 func ValidateSessionUser(c *fiber.Ctx) bool {
@@ -81,40 +77,39 @@ func ValidateSessionUser(c *fiber.Ctx) bool {
 
 	username := sess.Get("email")
 	id := sess.Get("id")
-	return username != nil && id != nil
+	role := sess.Get("role")
+	return username != nil && id != nil && role != nil
 }
 
-func GetEmailSession(c *fiber.Ctx) string {
+func GetEmailSession(c *fiber.Ctx) (string, error) {
 	sess := c.Locals("session").(*session.Session)
 
 	email := sess.Get("email")
 	if email == nil {
-		return ""
+		return "", fmt.Errorf("failed to get email from session")
 	}
-
-	return email.(string)
+	return email.(string), nil
 }
 
-func GetUsernameSession(c *fiber.Ctx) string {
+func GetUsernameSession(c *fiber.Ctx) (string, error) {
 	sess := c.Locals("session").(*session.Session)
 
 	username := sess.Get("username")
 	if username == nil {
-		return ""
+		return "", fmt.Errorf("failed to get username from session")
 	}
-
-	return username.(string)
+	return username.(string), nil
 }
 
-func GetIdSession(c *fiber.Ctx) string {
+func GetIdSession(c *fiber.Ctx) (string, error) {
 	sess := c.Locals("session").(*session.Session)
 
 	id := sess.Get("id")
 	if id == nil {
-		return ""
+		return "", &fiber.Error{Message: "Username Not Found"}
 	}
 
-	return id.(string)
+	return id.(string), nil
 }
 
 func InvalidateSession(c *fiber.Ctx) error {
