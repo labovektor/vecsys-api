@@ -18,7 +18,7 @@ https://www.docker.com/
 Postgresql akan digunakan sebagai database utama. Install Postgresql dengan command berikut di terminal:
 
 ```
-docker pull postgres=16-alpine
+docker pull postgres:16-alpine
 ```
 
 #### - Redis

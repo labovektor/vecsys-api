@@ -7,7 +7,10 @@ redis:
 createdb:
 	docker exec -it mypostgres createdb --username=root --owner=root vecsys
 
+createextension:
+	docker exec -it mypostgres psql -U root -d vecsys -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'
+
 dropdb:
 	docker exec -it mypostgres dropdb vecsys
 
-.PHONY: postgres createdb dropdb redis deploy_dev
+.PHONY: postgres createdb dropdb redis createextension deploy_dev
