@@ -3,32 +3,28 @@ package controller
 import (
 	"path/filepath"
 
+	repository "github.com/labovector/vecsys-api/module/repository/admin"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/entity"
 	"github.com/labovector/vecsys-api/module/dto"
-	"github.com/labovector/vecsys-api/module/repository"
 	"github.com/labovector/vecsys-api/util"
 )
 
-type adminController struct {
+type AdminController struct {
 	adminRepo repository.AdminRepository
 }
 
-func NewAdminController(adminRepo repository.AdminRepository) *adminController {
-	return &adminController{
+func NewAdminController(adminRepo repository.AdminRepository) *AdminController {
+	return &AdminController{
 		adminRepo: adminRepo,
 	}
 }
 
-func (ac *adminController) UpdateAdminProfile(c *fiber.Ctx) error {
+func (ac *AdminController) UpdateAdminProfile(c *fiber.Ctx) error {
 	req := new(dto.AdminEditReq)
 
-	id, err := util.GetIdSession(c)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
-			Message: err.Error(),
-		})
-	}
+	id, _ := util.GetIdSession(c)
 
 	cAdmin, err := ac.adminRepo.FindAdminById(id)
 	if err != nil {
@@ -85,13 +81,8 @@ func (ac *adminController) UpdateAdminProfile(c *fiber.Ctx) error {
 	})
 }
 
-func (ac *adminController) GetAdmin(c *fiber.Ctx) error {
-	usernameSession, err := util.GetUsernameSession(c)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
-			Message: "Sesi tidak valid",
-		})
-	}
+func (ac *AdminController) GetAdmin(c *fiber.Ctx) error {
+	usernameSession, _ := util.GetUsernameSession(c)
 
 	admin, err := ac.adminRepo.FindAdminByUsername(usernameSession)
 	if err != nil {

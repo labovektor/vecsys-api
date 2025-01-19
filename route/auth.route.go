@@ -6,12 +6,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/module/controller"
 	"github.com/labovector/vecsys-api/module/middleware"
-	"github.com/labovector/vecsys-api/module/repository"
+	adminRepo "github.com/labovector/vecsys-api/module/repository/admin"
+	userRepo "github.com/labovector/vecsys-api/module/repository/user"
 )
 
 func AuthRoute(adminRoute fiber.Router, userRoute fiber.Router, ctx context.Context) {
-	adminRepo := repository.NewAdminRepositoryImpl()
-	userRepo := repository.NewUserRepositoryImpl()
+	adminRepo := adminRepo.NewAdminRepositoryImpl()
+	userRepo := userRepo.NewUserRepositoryImpl()
 	authController := controller.NewAuthController(adminRepo, userRepo)
 
 	// Admin Auth Route

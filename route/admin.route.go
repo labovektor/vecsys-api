@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/module/controller"
 	"github.com/labovector/vecsys-api/module/middleware"
-	"github.com/labovector/vecsys-api/module/repository"
+	repository "github.com/labovector/vecsys-api/module/repository/admin"
 )
 
 func AdminRoute(adminRoute fiber.Router, ctx context.Context) {

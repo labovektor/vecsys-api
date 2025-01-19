@@ -3,19 +3,21 @@ package controller
 import (
 	"path/filepath"
 
+	adminRepo "github.com/labovector/vecsys-api/module/repository/admin"
+	userRepo "github.com/labovector/vecsys-api/module/repository/user"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/entity"
 	"github.com/labovector/vecsys-api/module/dto"
-	"github.com/labovector/vecsys-api/module/repository"
 	"github.com/labovector/vecsys-api/util"
 )
 
 type authController struct {
-	adminRepo repository.AdminRepository
-	userRepo  repository.UserRepository
+	adminRepo adminRepo.AdminRepository
+	userRepo  userRepo.UserRepository
 }
 
-func NewAuthController(adminRepo repository.AdminRepository, userRepo repository.UserRepository) *authController {
+func NewAuthController(adminRepo adminRepo.AdminRepository, userRepo userRepo.UserRepository) *authController {
 	return &authController{
 		adminRepo: adminRepo,
 		userRepo:  userRepo,
@@ -143,7 +145,7 @@ func (ac *authController) LogoutAdmin(c *fiber.Ctx) error {
 }
 
 func (ac *authController) LoginUser(c *fiber.Ctx) error {
-	req := new(entity.ParticipantLoginReq)
+	req := new(dto.ParticipantLoginReq)
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Error{
@@ -176,7 +178,7 @@ func (ac *authController) LoginUser(c *fiber.Ctx) error {
 }
 
 func (ac *authController) RegisterUser(c *fiber.Ctx) error {
-	req := new(entity.ParticipantSignUpReq)
+	req := new(dto.ParticipantSignUpReq)
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Error{

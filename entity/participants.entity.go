@@ -27,14 +27,10 @@ type Participant struct {
 	UpdatedAt     *time.Time   `json:"updated_at"`
 }
 
-type ParticipantLoginReq struct {
-	Email    string `json:"email" form:"email"`
-	Password string `json:"password" form:"password"`
+func (p *Participant) IsVerified() bool {
+	return p.VerifiedAt != nil
 }
 
-type ParticipantSignUpReq struct {
-	EventId  string `json:"event_id" form:"event_id"`
-	Name     string `json:"name" form:"name"`
-	Email    string ` json:"email" form:"email"`
-	Password string `json:"password" form:"password"`
+func (p *Participant) IsLocked() bool {
+	return p.LockedAt != nil
 }
