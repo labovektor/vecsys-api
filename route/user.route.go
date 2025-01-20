@@ -1,15 +1,14 @@
 package route
 
 import (
-	"context"
+	repository "github.com/labovector/vecsys-api/module/repository/user"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/module/controller"
 	"github.com/labovector/vecsys-api/module/middleware"
-	"github.com/labovector/vecsys-api/module/repository"
 )
 
-func UserRoute(userRoute fiber.Router, ctx context.Context) {
+func UserRoute(userRoute fiber.Router) {
 	userRepo := repository.NewUserRepositoryImpl()
 	userController := controller.NewUserController(userRepo)
 

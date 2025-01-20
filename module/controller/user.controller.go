@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/labovector/vecsys-api/module/repository"
+	repository "github.com/labovector/vecsys-api/module/repository/user"
 	"github.com/labovector/vecsys-api/util"
 )
 
@@ -17,12 +17,7 @@ func NewUserController(userRepo repository.UserRepository) userController {
 }
 
 func (ac *userController) GetUser(c *fiber.Ctx) error {
-	emailSession, err := util.GetEmailSession(c)
-	if err == nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
-			Message: "Sesi tidak valid",
-		})
-	}
+	emailSession, _ := util.GetEmailSession(c)
 
 	participant, err := ac.userRepo.FindParticipantByEmail(emailSession)
 	if err != nil {
