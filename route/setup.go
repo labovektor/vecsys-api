@@ -9,8 +9,10 @@ import (
 func SetupRoute(r *fiber.App, ctx context.Context) {
 	adminRoutes := r.Group("/admin")
 	userRoutes := r.Group("/user")
+	globalRoutes := r.Group("/")
 
-	AuthRoute(adminRoutes, userRoutes, ctx)
-	AdminRoute(adminRoutes, ctx)
-	UserRoute(userRoutes, ctx)
+	AuthRoute(adminRoutes, userRoutes)
+	AdminRoute(adminRoutes)
+	UserRoute(userRoutes)
+	EventRoute(adminRoutes, globalRoutes)
 }

@@ -1,8 +1,6 @@
 package route
 
 import (
-	"context"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/module/controller"
 	"github.com/labovector/vecsys-api/module/middleware"
@@ -10,7 +8,7 @@ import (
 	userRepo "github.com/labovector/vecsys-api/module/repository/user"
 )
 
-func AuthRoute(adminRoute fiber.Router, userRoute fiber.Router, ctx context.Context) {
+func AuthRoute(adminRoute fiber.Router, userRoute fiber.Router) {
 	adminRepo := adminRepo.NewAdminRepositoryImpl()
 	userRepo := userRepo.NewUserRepositoryImpl()
 	authController := controller.NewAuthController(adminRepo, userRepo)

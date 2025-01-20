@@ -6,6 +6,7 @@ import (
 	"github.com/labovector/vecsys-api/module/dto"
 	repository "github.com/labovector/vecsys-api/module/repository/event"
 	"github.com/labovector/vecsys-api/util"
+	"path/filepath"
 )
 
 type EventController struct {
@@ -44,7 +45,8 @@ func (ec *EventController) CreateEvent(c *fiber.Ctx) error {
 }
 
 func (ec *EventController) GetAllEvent(c *fiber.Ctx) error {
-	event, err := ec.eventRepo.FindAllEvent()
+	id, _ := util.GetIdSession(c)
+	event, err := ec.eventRepo.FindAllEvent(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
 			Message: "Something wrong when getting event",
@@ -52,4 +54,108 @@ func (ec *EventController) GetAllEvent(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(event)
+}
+
+func (ec *EventController) GetEventById(c *fiber.Ctx) error {
+	id := c.Params("id")
+	event, err := ec.eventRepo.FindEventById(id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
+			Message: "Something wrong when getting event",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(event)
+}
+
+func (ec *EventController) DeleteEvent(c *fiber.Ctx) error {
+	id := c.Params("id")
+	err := ec.eventRepo.DeleteEvent(id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
+			Message: "Something wrong when deleting event",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"Status": "Success",
+	})
+}
+
+func (ec *EventController) UpdateEvent(c *fiber.Ctx) error {
+	id := c.Params("id")
+	req := new(dto.EventEditReq)
+	if err := c.BodyParser(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
+			Message: "Masukkan data dengan benar",
+		})
+	}
+
+	event := entity.Event{
+		Name:              req.Name,
+		Desc:              req.Desc,
+		GroupMemberNum:    req.GroupMemberNum,
+		ParticipantTarget: req.ParticipantTarget,
+		Period:            req.Period,
+	}
+
+	file, _ := c.FormFile("icon")
+	if file != nil {
+		if file.Size > 10*1024*1024 {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
+				Message: "Max file size 10MB",
+			})
+		}
+		ext := filepath.Ext(file.Filename)
+		if ext != ".png" && ext != ".jpg" && ext != ".jpeg" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
+				Message: "Only accept image file",
+			})
+		}
+
+		iconUrl, err := util.FileSaver(file, id, "event/")
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
+				Message: err.Error(),
+			})
+		}
+
+		event.Icon = iconUrl
+	}
+
+	err := ec.eventRepo.UpdateEvent(id, &event)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
+			Message: "Something wrong when updating event",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"Status": "Success",
+	})
+}
+
+func (ec *EventController) ToggleEventActive(c *fiber.Ctx) error {
+	id := c.Params("id")
+	event, err := ec.eventRepo.FindEventById(id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
+			Message: "Something wrong when getting event",
+		})
+	}
+
+	event = &entity.Event{
+		Active: event.Active,
+	}
+
+	err = ec.eventRepo.UpdateEvent(id, event)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
+			Message: "Something wrong when updating event",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"Status": "Success",
+	})
 }
