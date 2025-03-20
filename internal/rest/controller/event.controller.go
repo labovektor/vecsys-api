@@ -28,7 +28,7 @@ func (ec *EventController) CreateEvent(c *fiber.Ctx) error {
 		})
 	}
 
-	id, _ := util.GetIdSession(c)
+	id := c.Locals(util.CurrentUserIdKey).(string)
 
 	event := entity.Event{
 		AdminId: id,
@@ -46,7 +46,7 @@ func (ec *EventController) CreateEvent(c *fiber.Ctx) error {
 }
 
 func (ec *EventController) GetAllEvent(c *fiber.Ctx) error {
-	id, _ := util.GetIdSession(c)
+	id := c.Locals(util.CurrentUserIdKey).(string)
 	event, err := ec.eventRepo.FindAllEvent(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{

@@ -60,10 +60,11 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 	// userRoutes.Patch("/", middleware.UserMiddleware(), allController.UserController.)
 
 	// Event Route
-	adminRoutes.Post("/", middleware.AdminMiddleware(), allController.EventController.CreateEvent)
-	adminRoutes.Patch("/:id", middleware.AdminMiddleware(), allController.EventController.UpdateEvent)
-	adminRoutes.Get("/", middleware.AdminMiddleware(), allController.EventController.GetAllEvent)
-	globalRoutes.Get("/event/:id", middleware.UserMiddleware(), allController.EventController.GetEventById)
-	adminRoutes.Put("/:id", middleware.AdminMiddleware(), allController.EventController.ToggleEventActive)
-	adminRoutes.Delete("/:id", middleware.AdminMiddleware(), allController.EventController.DeleteEvent)
+	event := adminRoutes.Group("/event", middleware.AdminMiddleware())
+	event.Post("/", allController.EventController.CreateEvent)
+	event.Patch("/:id", allController.EventController.UpdateEvent)
+	event.Get("/", allController.EventController.GetAllEvent)
+	event.Put("/:id", allController.EventController.ToggleEventActive)
+	event.Delete("/:id", allController.EventController.DeleteEvent)
+	globalRoutes.Get("/event/:id", allController.EventController.GetEventById)
 }

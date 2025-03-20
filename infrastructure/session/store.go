@@ -2,7 +2,6 @@ package session
 
 import (
 	"runtime"
-	"time"
 
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/storage/redis/v3"
@@ -25,7 +24,6 @@ func InitStore(config *config.RedisConfig) *session.Store {
 		Storage:        storage,
 		CookieSameSite: "None",
 		CookieHTTPOnly: true,
-		Expiration:     2 * time.Hour,
 	})
 
 	return store

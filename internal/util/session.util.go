@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
@@ -9,8 +10,11 @@ import (
 )
 
 const (
-	ROLE_ADMIN = "role_admin"
-	ROLE_USER  = "role_user"
+	ROLE_ADMIN         = "role_admin"
+	ROLE_USER          = "role_user"
+	EXP                = 24 * time.Hour
+	CurrentUserIdKey   = "current_user_id"
+	CurrentUserNameKey = "current_user_name"
 )
 
 func GenerateSessionAdmin(c *fiber.Ctx, admin *entity.Admin) error {
@@ -43,73 +47,52 @@ func GenerateSessionUser(c *fiber.Ctx, participant *entity.Participant) error {
 	return nil
 }
 
-func RegenerateSession(c *fiber.Ctx) error {
-	sess := c.Locals("session").(*session.Session)
-
-	// Regenerate session
-	if err := sess.Regenerate(); err != nil {
-		return fmt.Errorf("failed to create session")
-	}
-
-	// Save session
-	if err := sess.Save(); err != nil {
-		return fmt.Errorf("failed to create session")
-	}
-
-	return nil
-}
-
-func ValidateSessionAdmin(c *fiber.Ctx) bool {
+func ValidateSessionAdmin(c *fiber.Ctx) error {
 	sess := c.Locals("session").(*session.Session)
 
 	username := sess.Get("username")
 	id := sess.Get("id")
 	role := sess.Get("role")
 	if username == nil || id == nil || role == nil {
-		return false
+		return fmt.Errorf("failed to get session")
+	}
+	fmt.Println(username, id, role)
+
+	if role.(string) != ROLE_ADMIN {
+		return fmt.Errorf("role is not admin")
 	}
 
-	return role.(string) == ROLE_ADMIN
+	sess.SetExpiry(EXP)
+
+	if err := sess.Save(); err != nil {
+		return fmt.Errorf("failed to save session")
+	}
+
+	c.Locals(CurrentUserIdKey, id)
+	c.Locals(CurrentUserNameKey, username)
+
+	return nil
 }
 
-func ValidateSessionUser(c *fiber.Ctx) bool {
+func ValidateSessionUser(c *fiber.Ctx) error {
 	sess := c.Locals("session").(*session.Session)
 
 	username := sess.Get("email")
 	id := sess.Get("id")
 	role := sess.Get("role")
-	return username != nil && id != nil && role != nil
-}
-
-func GetEmailSession(c *fiber.Ctx) (string, error) {
-	sess := c.Locals("session").(*session.Session)
-
-	email := sess.Get("email")
-	if email == nil {
-		return "", fmt.Errorf("failed to get email from session")
+	if username == nil || id == nil || role == nil {
+		return fmt.Errorf("failed to get session")
 	}
-	return email.(string), nil
-}
+	sess.SetExpiry(EXP)
 
-func GetUsernameSession(c *fiber.Ctx) (string, error) {
-	sess := c.Locals("session").(*session.Session)
-
-	username := sess.Get("username")
-	if username == nil {
-		return "", fmt.Errorf("failed to get username from session")
-	}
-	return username.(string), nil
-}
-
-func GetIdSession(c *fiber.Ctx) (string, error) {
-	sess := c.Locals("session").(*session.Session)
-
-	id := sess.Get("id")
-	if id == nil {
-		return "", &fiber.Error{Message: "Username Not Found"}
+	if err := sess.Save(); err != nil {
+		return fmt.Errorf("failed to save session")
 	}
 
-	return id.(string), nil
+	c.Locals(CurrentUserIdKey, id)
+	c.Locals(CurrentUserNameKey, username)
+
+	return nil
 }
 
 func InvalidateSession(c *fiber.Ctx) error {

@@ -23,7 +23,7 @@ func NewAdminController(adminRepo repository.AdminRepository) *AdminController {
 func (ac *AdminController) UpdateAdminProfile(c *fiber.Ctx) error {
 	req := new(dto.AdminEditReq)
 
-	id, _ := util.GetIdSession(c)
+	id := c.Locals(util.CurrentUserIdKey).(string)
 
 	cAdmin, err := ac.adminRepo.FindAdminById(id)
 	if err != nil {
@@ -81,7 +81,7 @@ func (ac *AdminController) UpdateAdminProfile(c *fiber.Ctx) error {
 }
 
 func (ac *AdminController) GetAdmin(c *fiber.Ctx) error {
-	usernameSession, _ := util.GetUsernameSession(c)
+	usernameSession := c.Locals(util.CurrentUserNameKey).(string)
 
 	admin, err := ac.adminRepo.FindAdminByUsername(usernameSession)
 	if err != nil {

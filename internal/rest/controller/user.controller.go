@@ -17,7 +17,8 @@ func NewUserController(userRepo repository.UserRepository) *UserController {
 }
 
 func (ac *UserController) GetUser(c *fiber.Ctx) error {
-	emailSession, _ := util.GetEmailSession(c)
+	// Because in user, email is set as username
+	emailSession := c.Locals(util.CurrentUserNameKey).(string)
 
 	participant, err := ac.userRepo.FindParticipantByEmail(emailSession)
 	if err != nil {
