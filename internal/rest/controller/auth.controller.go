@@ -3,28 +3,27 @@ package controller
 import (
 	"path/filepath"
 
-	adminRepo "github.com/labovector/vecsys-api/module/repository/admin"
-	userRepo "github.com/labovector/vecsys-api/module/repository/user"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/entity"
-	"github.com/labovector/vecsys-api/module/dto"
-	"github.com/labovector/vecsys-api/util"
+	"github.com/labovector/vecsys-api/internal/rest/dto"
+	adminRepo "github.com/labovector/vecsys-api/internal/rest/repository/admin"
+	userRepo "github.com/labovector/vecsys-api/internal/rest/repository/user"
+	"github.com/labovector/vecsys-api/internal/util"
 )
 
-type authController struct {
+type AuthController struct {
 	adminRepo adminRepo.AdminRepository
 	userRepo  userRepo.UserRepository
 }
 
-func NewAuthController(adminRepo adminRepo.AdminRepository, userRepo userRepo.UserRepository) *authController {
-	return &authController{
+func NewAuthController(adminRepo adminRepo.AdminRepository, userRepo userRepo.UserRepository) *AuthController {
+	return &AuthController{
 		adminRepo: adminRepo,
 		userRepo:  userRepo,
 	}
 }
 
-func (ac *authController) LoginAdmin(c *fiber.Ctx) error {
+func (ac *AuthController) LoginAdmin(c *fiber.Ctx) error {
 	req := new(dto.AdminLoginReq)
 
 	if err := c.BodyParser(req); err != nil {
@@ -57,7 +56,7 @@ func (ac *authController) LoginAdmin(c *fiber.Ctx) error {
 
 }
 
-func (ac *authController) RegisterAdmin(c *fiber.Ctx) error {
+func (ac *AuthController) RegisterAdmin(c *fiber.Ctx) error {
 	req := new(dto.AdminSignUpReq)
 
 	if err := c.BodyParser(req); err != nil {
@@ -132,7 +131,7 @@ func (ac *authController) RegisterAdmin(c *fiber.Ctx) error {
 
 }
 
-func (ac *authController) LogoutAdmin(c *fiber.Ctx) error {
+func (ac *AuthController) LogoutAdmin(c *fiber.Ctx) error {
 	if err := util.InvalidateSession(c); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
 			Message: "Kesalahan saat menghapus sesi",
@@ -144,7 +143,7 @@ func (ac *authController) LogoutAdmin(c *fiber.Ctx) error {
 	})
 }
 
-func (ac *authController) LoginUser(c *fiber.Ctx) error {
+func (ac *AuthController) LoginUser(c *fiber.Ctx) error {
 	req := new(dto.ParticipantLoginReq)
 
 	if err := c.BodyParser(req); err != nil {
@@ -177,7 +176,7 @@ func (ac *authController) LoginUser(c *fiber.Ctx) error {
 
 }
 
-func (ac *authController) RegisterUser(c *fiber.Ctx) error {
+func (ac *AuthController) RegisterUser(c *fiber.Ctx) error {
 	req := new(dto.ParticipantSignUpReq)
 
 	if err := c.BodyParser(req); err != nil {
@@ -227,7 +226,7 @@ func (ac *authController) RegisterUser(c *fiber.Ctx) error {
 
 }
 
-func (ac *authController) LogoutUser(c *fiber.Ctx) error {
+func (ac *AuthController) LogoutUser(c *fiber.Ctx) error {
 	if err := util.InvalidateSession(c); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
 			Message: "Kesalahan saat menghapus sesi",

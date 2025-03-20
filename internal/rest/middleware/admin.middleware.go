@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/labovector/vecsys-api/util"
+	"github.com/labovector/vecsys-api/internal/util"
 )
 
 func AdminMiddleware() fiber.Handler {

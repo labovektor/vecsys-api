@@ -1,23 +1,20 @@
-package database
+package session
 
 import (
-	"os"
 	"runtime"
 	"time"
 
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/storage/redis/v3"
-	"github.com/labovector/vecsys-api/util"
+	"github.com/labovector/vecsys-api/infrastructure/config"
 )
 
-var Store *session.Store
-
-func InitStore() {
+func InitStore(config *config.RedisConfig) *session.Store {
 	storage := redis.New(redis.Config{
-		Host:      os.Getenv("REDIS_HOST"),
-		Port:      util.StringToInteger(os.Getenv("REDIS_PORT"), 6379),
-		Username:  os.Getenv("REDIS_USERNAME"),
-		Password:  os.Getenv("REDIS_PASSWORD"),
+		Host:      config.Host,
+		Port:      config.Port,
+		Username:  config.Username,
+		Password:  config.Password,
 		Database:  0,
 		Reset:     false,
 		TLSConfig: nil,
@@ -31,5 +28,5 @@ func InitStore() {
 		Expiration:     2 * time.Hour,
 	})
 
-	Store = store
+	return store
 }

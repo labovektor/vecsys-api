@@ -1,4 +1,4 @@
-package main
+package rest
 
 import (
 	"context"
@@ -10,22 +10,22 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/joho/godotenv"
-	"github.com/labovector/vecsys-api/database"
-	"github.com/labovector/vecsys-api/route"
+	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/labovector/vecsys-api/internal/rest/route"
+	"gorm.io/gorm"
+
+	ar "github.com/labovector/vecsys-api/internal/rest/repository/admin"
+	er "github.com/labovector/vecsys-api/internal/rest/repository/event"
+	ur "github.com/labovector/vecsys-api/internal/rest/repository/user"
 )
 
-func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalln(".env is not load properly")
-	}
-
+func New(session *session.Store, db *gorm.DB) *fiber.App {
+	_ = context.Background()
 	app := fiber.New(fiber.Config{
 		AppName: "vecsys",
 	})
 
-	app.Static("/public", "./__public", fiber.Static{
+	app.Static("/public", "../../__public", fiber.Static{
 		Compress:      true,
 		ByteRange:     true,
 		Browse:        true,
@@ -33,7 +33,7 @@ func main() {
 	})
 
 	// Custom File Writer for logger
-	file, err := os.OpenFile("./vecsys-logger.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	file, err := os.OpenFile("../../vecsys-logger.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
@@ -49,7 +49,7 @@ func main() {
 	}))
 
 	app.Use(func(c *fiber.Ctx) error {
-		sess, err := database.Store.Get(c)
+		sess, err := session.Get(c)
 		if err != nil {
 			return err
 		}
@@ -83,16 +83,13 @@ func main() {
 		},
 	}))
 
-	// Initialize Database
-	database.InitDB()
+	// TODO: Setup Route
+	route.SetupRoute(app, &route.AllRepository{
 
-	// Initialize Store
-	database.InitStore()
+		AdminRepository: ar.NewAdminRepositoryImpl(db),
+		UserRepository:  ur.NewUserRepositoryImpl(db),
+		EventRepository: er.NewEventRepositositoryImpl(db),
+	})
 
-	// Setup route
-	route.SetupRoute(app, context.Background())
-
-	if err := app.Listen(":8787"); err != nil {
-		panic(err)
-	}
+	return app
 }

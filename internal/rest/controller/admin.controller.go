@@ -3,12 +3,11 @@ package controller
 import (
 	"path/filepath"
 
-	repository "github.com/labovector/vecsys-api/module/repository/admin"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/entity"
-	"github.com/labovector/vecsys-api/module/dto"
-	"github.com/labovector/vecsys-api/util"
+	"github.com/labovector/vecsys-api/internal/rest/dto"
+	repository "github.com/labovector/vecsys-api/internal/rest/repository/admin"
+	"github.com/labovector/vecsys-api/internal/util"
 )
 
 type AdminController struct {

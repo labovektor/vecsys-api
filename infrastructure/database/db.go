@@ -1,19 +1,18 @@
 package database
 
 import (
-	"os"
 	"time"
 
 	"github.com/labovector/vecsys-api/entity"
+	"github.com/labovector/vecsys-api/infrastructure/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-
 // Connnect to postgresql database
-func InitDB() {
-	conn_url := os.Getenv("DB_URL")
+func InitDB(config *config.PostgresConfig) *gorm.DB {
+
+	conn_url := config.ConnUrl
 
 	database, err := gorm.Open(postgres.Open(conn_url), &gorm.Config{})
 	database.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
@@ -42,5 +41,5 @@ func InitDB() {
 	db.SetMaxIdleConns(10)
 	db.SetMaxOpenConns(100)
 	db.SetConnMaxLifetime(time.Hour)
-	DB = database
+	return database
 }

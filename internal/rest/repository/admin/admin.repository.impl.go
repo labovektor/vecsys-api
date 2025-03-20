@@ -1,28 +1,29 @@
 package repository
 
 import (
-	"github.com/labovector/vecsys-api/database"
 	"github.com/labovector/vecsys-api/entity"
+	"gorm.io/gorm"
 )
 
-type adminRepositoryImpl struct{}
+type adminRepositoryImpl struct {
+	db *gorm.DB
+}
 
 // CreateAdmin implements AdminRepository.
 func (a adminRepositoryImpl) CreateAdmin(admin *entity.Admin) (entity.Admin, error) {
-	db := database.DB.Create(admin)
-	return *admin, db.Error
+	return *admin, a.db.Create(admin).Error
 }
 
 // DeleteAdmin implements AdminRepository.
 func (a adminRepositoryImpl) DeleteAdmin(id string) error {
-	db := database.DB.Where("id = ?", id).Delete(&entity.Admin{})
+	db := a.db.Where("id = ?", id).Delete(&entity.Admin{})
 	return db.Error
 }
 
 // FindAdminById implements AdminRepository.
 func (a adminRepositoryImpl) FindAdminById(id string) (*entity.Admin, error) {
 	admin := &entity.Admin{}
-	if err := database.DB.First(admin, "id = ?", id).Error; err != nil {
+	if err := a.db.First(admin, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
 	return admin, nil
@@ -31,7 +32,7 @@ func (a adminRepositoryImpl) FindAdminById(id string) (*entity.Admin, error) {
 // FindAdminByUsername implements AdminRepository.
 func (a adminRepositoryImpl) FindAdminByUsername(username string) (*entity.Admin, error) {
 	admin := &entity.Admin{}
-	if err := database.DB.First(admin, "username = ?", username).Error; err != nil {
+	if err := a.db.First(admin, "username = ?", username).Error; err != nil {
 		return nil, err
 	}
 	return admin, nil
@@ -40,7 +41,7 @@ func (a adminRepositoryImpl) FindAdminByUsername(username string) (*entity.Admin
 // FindAllAdmin implements AdminRepository.
 func (a adminRepositoryImpl) FindAllAdmin() ([]entity.Admin, error) {
 	var admins []entity.Admin
-	if err := database.DB.Find(&admins).Error; err != nil {
+	if err := a.db.Find(&admins).Error; err != nil {
 		return nil, err
 	}
 	return admins, nil
@@ -48,10 +49,12 @@ func (a adminRepositoryImpl) FindAllAdmin() ([]entity.Admin, error) {
 
 // UpdateAdmin implements AdminRepository.
 func (a adminRepositoryImpl) UpdateAdmin(id string, admin *entity.Admin) error {
-	db := database.DB.Model(&entity.Admin{}).Where("id = ?", id).Updates(admin)
+	db := a.db.Model(&entity.Admin{}).Where("id = ?", id).Updates(admin)
 	return db.Error
 }
 
-func NewAdminRepositoryImpl() AdminRepository {
-	return adminRepositoryImpl{}
+func NewAdminRepositoryImpl(db *gorm.DB) AdminRepository {
+	return adminRepositoryImpl{
+		db: db,
+	}
 }

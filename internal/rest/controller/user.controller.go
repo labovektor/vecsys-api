@@ -2,21 +2,21 @@ package controller
 
 import (
 	"github.com/gofiber/fiber/v2"
-	repository "github.com/labovector/vecsys-api/module/repository/user"
-	"github.com/labovector/vecsys-api/util"
+	repository "github.com/labovector/vecsys-api/internal/rest/repository/user"
+	"github.com/labovector/vecsys-api/internal/util"
 )
 
-type userController struct {
+type UserController struct {
 	userRepo repository.UserRepository
 }
 
-func NewUserController(userRepo repository.UserRepository) userController {
-	return userController{
+func NewUserController(userRepo repository.UserRepository) *UserController {
+	return &UserController{
 		userRepo: userRepo,
 	}
 }
 
-func (ac *userController) GetUser(c *fiber.Ctx) error {
+func (ac *UserController) GetUser(c *fiber.Ctx) error {
 	emailSession, _ := util.GetEmailSession(c)
 
 	participant, err := ac.userRepo.FindParticipantByEmail(emailSession)

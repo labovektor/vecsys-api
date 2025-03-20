@@ -1,20 +1,21 @@
 package controller
 
 import (
+	"path/filepath"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/entity"
-	"github.com/labovector/vecsys-api/module/dto"
-	repository "github.com/labovector/vecsys-api/module/repository/event"
-	"github.com/labovector/vecsys-api/util"
-	"path/filepath"
+	"github.com/labovector/vecsys-api/internal/rest/dto"
+	repository "github.com/labovector/vecsys-api/internal/rest/repository/event"
+	"github.com/labovector/vecsys-api/internal/util"
 )
 
 type EventController struct {
 	eventRepo repository.EventRepository
 }
 
-func NewEventController(eventRepo repository.EventRepository) EventController {
-	return EventController{
+func NewEventController(eventRepo repository.EventRepository) *EventController {
+	return &EventController{
 		eventRepo: eventRepo,
 	}
 }
