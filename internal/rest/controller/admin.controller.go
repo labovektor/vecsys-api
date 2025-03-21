@@ -25,16 +25,22 @@ func (ac *AdminController) UpdateAdminProfile(c *fiber.Ctx) error {
 
 	id := c.Locals(util.CurrentUserIdKey).(string)
 
+	if err := c.BodyParser(req); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Failed to process data!"),
+		})
+	}
+
+	if err := util.ValidateStruct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
+		})
+	}
+
 	cAdmin, err := ac.adminRepo.FindAdminById(id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when getting user data"),
-		})
-	}
-
-	if err := c.BodyParser(req); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Failed to process data!"),
 		})
 	}
 

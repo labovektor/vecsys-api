@@ -1,7 +1,7 @@
 package dto
 
 type EventCreateReq struct {
-	Name string `json:"name" form:"name"`
+	Name string `json:"name" form:"name" validate:"required,min=5,max=100"`
 }
 
 type EventEditReq struct {

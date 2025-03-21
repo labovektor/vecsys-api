@@ -28,6 +28,12 @@ func (ec *EventController) CreateEvent(c *fiber.Ctx) error {
 		})
 	}
 
+	if err := util.ValidateStruct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
+		})
+	}
+
 	id := c.Locals(util.CurrentUserIdKey).(string)
 
 	event := entity.Event{
@@ -98,6 +104,12 @@ func (ec *EventController) UpdateEvent(c *fiber.Ctx) error {
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar"),
+		})
+	}
+
+	if err := util.ValidateStruct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
 		})
 	}
 

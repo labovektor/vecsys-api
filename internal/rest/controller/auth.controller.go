@@ -32,6 +32,12 @@ func (ac *AuthController) LoginAdmin(c *fiber.Ctx) error {
 		})
 	}
 
+	if err := util.ValidateStruct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
+		})
+	}
+
 	admin, err := ac.adminRepo.FindAdminByUsername(req.Username)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(dto.APIResponse{
@@ -65,6 +71,12 @@ func (ac *AuthController) RegisterAdmin(c *fiber.Ctx) error {
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
+		})
+	}
+
+	if err := util.ValidateStruct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
 		})
 	}
 
@@ -155,6 +167,12 @@ func (ac *AuthController) LoginUser(c *fiber.Ctx) error {
 		})
 	}
 
+	if err := util.ValidateStruct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
+		})
+	}
+
 	user, err := ac.userRepo.FindParticipantByEmail(req.Email)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(dto.APIResponse{
@@ -188,6 +206,12 @@ func (ac *AuthController) RegisterUser(c *fiber.Ctx) error {
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
+		})
+	}
+
+	if err := util.ValidateStruct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
 		})
 	}
 
