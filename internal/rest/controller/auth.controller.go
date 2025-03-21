@@ -27,32 +27,35 @@ func (ac *AuthController) LoginAdmin(c *fiber.Ctx) error {
 	req := new(dto.AdminLoginReq)
 
 	if err := c.BodyParser(req); err != nil {
-		return c.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Error{
-			Message: "can't handle request",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Gagal memproses data!"),
 		})
 	}
 
 	admin, err := ac.adminRepo.FindAdminByUsername(req.Username)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Error{
-			Message: "Username tidak ditemukan",
+		return c.Status(fiber.StatusNotFound).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Username atau password tidak sesuai"),
 		})
 	}
 
 	match := util.CheckPasswordHash(req.Password, admin.Password)
 	if !match {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
-			Message: "Password salah",
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Username atau password tidak sesuai"),
 		})
 	}
 
 	if err := util.GenerateSessionAdmin(c, admin); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Kesalahan saat membuat sesi",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Kesalahan saat membuat sesi"),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(admin)
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
+		Data:   admin,
+	})
 
 }
 
@@ -60,29 +63,29 @@ func (ac *AuthController) RegisterAdmin(c *fiber.Ctx) error {
 	req := new(dto.AdminSignUpReq)
 
 	if err := c.BodyParser(req); err != nil {
-		return c.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Error{
-			Message: "can't handle request",
+		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
 		})
 	}
 
 	_, err := ac.adminRepo.FindAdminByUsername(req.Username)
 	if err == nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Username tersebut telah dipakai",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Username tersebut telah dipakai"),
 		})
 	}
 
 	emailValid := util.ValidateEmail(req.Email)
 	if !emailValid {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Email tidak valid",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Email tidak valid"),
 		})
 	}
 
 	passwordHash, err := util.HashPassword(req.Password)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: err.Error(),
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
 		})
 	}
 
@@ -97,21 +100,21 @@ func (ac *AuthController) RegisterAdmin(c *fiber.Ctx) error {
 
 	if file != nil {
 		if file.Size > 10*1024*1024 {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
-				Message: "Max file size 10MB",
+			return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+				Status: dto.ErrorStatus.WithMessage("Max file size 10MB"),
 			})
 		}
 		ext := filepath.Ext(file.Filename)
 		if ext != ".png" && ext != ".jpg" && ext != ".jpeg" {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
-				Message: "Only accept image file",
+			return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+				Status: dto.ErrorStatus.WithMessage("Only accept image file"),
 			})
 		}
 
 		profileUrl, err := util.FileSaver(file, admin.Username, "profile/")
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-				Message: err.Error(),
+			return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+				Status: dto.ErrorStatus.WithMessage(err.Error()),
 			})
 		}
 
@@ -120,26 +123,26 @@ func (ac *AuthController) RegisterAdmin(c *fiber.Ctx) error {
 
 	_, err = ac.adminRepo.CreateAdmin(&admin)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Something wrong when creating user",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when creating user"),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"Status": "Success",
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
 	})
 
 }
 
 func (ac *AuthController) LogoutAdmin(c *fiber.Ctx) error {
 	if err := util.InvalidateSession(c); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Kesalahan saat menghapus sesi",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Kesalahan saat menghapus sesi"),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"Status": "Success",
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
 	})
 }
 
@@ -147,32 +150,35 @@ func (ac *AuthController) LoginUser(c *fiber.Ctx) error {
 	req := new(dto.ParticipantLoginReq)
 
 	if err := c.BodyParser(req); err != nil {
-		return c.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Error{
-			Message: "can't handle request",
+		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Gagal memproses data!"),
 		})
 	}
 
 	user, err := ac.userRepo.FindParticipantByEmail(req.Email)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Error{
-			Message: "Username tidak ditemukan",
+		return c.Status(fiber.StatusNotFound).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Email atau password tidak sesuai"),
 		})
 	}
 
 	match := util.CheckPasswordHash(req.Password, user.Password)
 	if !match {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
-			Message: "Password salah",
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Email atau password tidak sesuai"),
 		})
 	}
 
 	if err := util.GenerateSessionUser(c, user); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Kesalahan saat membuat sesi",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Kesalahan saat membuat sesi"),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(user)
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
+		Data:   user,
+	})
 
 }
 
@@ -180,29 +186,29 @@ func (ac *AuthController) RegisterUser(c *fiber.Ctx) error {
 	req := new(dto.ParticipantSignUpReq)
 
 	if err := c.BodyParser(req); err != nil {
-		return c.Status(fiber.ErrInternalServerError.Code).JSON(fiber.Error{
-			Message: "can't handle request",
+		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
 		})
 	}
 
 	_, err := ac.userRepo.FindParticipantByEmail(req.Email)
 	if err == nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Email tersebut telah dipakai",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Email tersebut telah dipakai"),
 		})
 	}
 
 	emailValid := util.ValidateEmail(req.Email)
 	if !emailValid {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Email tidak valid",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Email tidak valid"),
 		})
 	}
 
 	passwordHash, err := util.HashPassword(req.Password)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: err.Error(),
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
 		})
 	}
 
@@ -215,25 +221,25 @@ func (ac *AuthController) RegisterUser(c *fiber.Ctx) error {
 
 	_, err = ac.userRepo.CreateParticipant(&participant)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Something wrong when creating user",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when creating user"),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"Status": "Success",
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
 	})
 
 }
 
 func (ac *AuthController) LogoutUser(c *fiber.Ctx) error {
 	if err := util.InvalidateSession(c); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Kesalahan saat menghapus sesi",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Kesalahan saat menghapus sesi"),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"Status": "Success",
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
 	})
 }

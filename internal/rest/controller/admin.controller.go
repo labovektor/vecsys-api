@@ -27,14 +27,14 @@ func (ac *AdminController) UpdateAdminProfile(c *fiber.Ctx) error {
 
 	cAdmin, err := ac.adminRepo.FindAdminById(id)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Kesalahan saat mengambil data user",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when getting user data"),
 		})
 	}
 
 	if err := c.BodyParser(req); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "can't handle request",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Failed to process data!"),
 		})
 	}
 
@@ -47,21 +47,21 @@ func (ac *AdminController) UpdateAdminProfile(c *fiber.Ctx) error {
 
 	if file != nil {
 		if file.Size > 10*1024*1024 {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
-				Message: "Max file size 10MB",
+			return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+				Status: dto.ErrorStatus.WithMessage("Max file size is 10MB"),
 			})
 		}
 		ext := filepath.Ext(file.Filename)
 		if ext != ".png" && ext != ".jpg" && ext != ".jpeg" {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
-				Message: "Only accept image file",
+			return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+				Status: dto.ErrorStatus.WithMessage("Only accept image file"),
 			})
 		}
 
 		profileUrl, err := util.FileSaver(file, cAdmin.Username, "profile/")
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-				Message: err.Error(),
+			return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+				Status: dto.ErrorStatus.WithMessage(err.Error()),
 			})
 		}
 
@@ -70,13 +70,13 @@ func (ac *AdminController) UpdateAdminProfile(c *fiber.Ctx) error {
 
 	err = ac.adminRepo.UpdateAdmin(id, &admin)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Something wrong when updating user",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when updating user data"),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"Status": "Success",
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
 	})
 }
 
@@ -85,10 +85,13 @@ func (ac *AdminController) GetAdmin(c *fiber.Ctx) error {
 
 	admin, err := ac.adminRepo.FindAdminByUsername(usernameSession)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Kesalahan saat mengambil data user",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when getting user data"),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(admin)
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
+		Data:   admin,
+	})
 }

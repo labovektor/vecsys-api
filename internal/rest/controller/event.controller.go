@@ -23,8 +23,8 @@ func NewEventController(eventRepo repository.EventRepository) *EventController {
 func (ec *EventController) CreateEvent(c *fiber.Ctx) error {
 	req := new(dto.EventCreateReq)
 	if err := c.BodyParser(req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
-			Message: "Masukkan data dengan benar",
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar"),
 		})
 	}
 
@@ -37,49 +37,58 @@ func (ec *EventController) CreateEvent(c *fiber.Ctx) error {
 
 	event, err := ec.eventRepo.CreateEvent(&event)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Something wrong when creating event",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when creating event"),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(event)
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
+		Data:   event,
+	})
 }
 
 func (ec *EventController) GetAllEvent(c *fiber.Ctx) error {
 	id := c.Locals(util.CurrentUserIdKey).(string)
 	event, err := ec.eventRepo.FindAllEvent(id)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Something wrong when getting event",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when getting event"),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(event)
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
+		Data:   event,
+	})
 }
 
 func (ec *EventController) GetEventById(c *fiber.Ctx) error {
 	id := c.Params("id")
 	event, err := ec.eventRepo.FindEventById(id)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Something wrong when getting event",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when getting event"),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(event)
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
+		Data:   event,
+	})
 }
 
 func (ec *EventController) DeleteEvent(c *fiber.Ctx) error {
 	id := c.Params("id")
 	err := ec.eventRepo.DeleteEvent(id)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Something wrong when deleting event",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when deleting event"),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"Status": "Success",
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
 	})
 }
 
@@ -87,8 +96,8 @@ func (ec *EventController) UpdateEvent(c *fiber.Ctx) error {
 	id := c.Params("id")
 	req := new(dto.EventEditReq)
 	if err := c.BodyParser(req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
-			Message: "Masukkan data dengan benar",
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar"),
 		})
 	}
 
@@ -103,21 +112,21 @@ func (ec *EventController) UpdateEvent(c *fiber.Ctx) error {
 	file, _ := c.FormFile("icon")
 	if file != nil {
 		if file.Size > 10*1024*1024 {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
-				Message: "Max file size 10MB",
+			return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+				Status: dto.ErrorStatus.WithMessage("Max file size 10MB"),
 			})
 		}
 		ext := filepath.Ext(file.Filename)
 		if ext != ".png" && ext != ".jpg" && ext != ".jpeg" {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
-				Message: "Only accept image file",
+			return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+				Status: dto.ErrorStatus.WithMessage("Only accept image file"),
 			})
 		}
 
 		iconUrl, err := util.FileSaver(file, id, "event/")
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-				Message: err.Error(),
+			return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+				Status: dto.ErrorStatus.WithMessage(err.Error()),
 			})
 		}
 
@@ -126,13 +135,13 @@ func (ec *EventController) UpdateEvent(c *fiber.Ctx) error {
 
 	err := ec.eventRepo.UpdateEvent(id, &event)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Something wrong when updating event",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when updating event"),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"Status": "Success",
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
 	})
 }
 
@@ -140,23 +149,24 @@ func (ec *EventController) ToggleEventActive(c *fiber.Ctx) error {
 	id := c.Params("id")
 	event, err := ec.eventRepo.FindEventById(id)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Something wrong when getting event",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when getting event"),
 		})
 	}
 
+	// BUG: Need to be solved
 	event = &entity.Event{
 		Active: event.Active,
 	}
 
 	err = ec.eventRepo.UpdateEvent(id, event)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: "Something wrong when updating event",
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when updating event"),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"Status": "Success",
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
 	})
 }
