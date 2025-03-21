@@ -2,7 +2,6 @@ package rest
 
 import (
 	"context"
-	"log"
 	"os"
 	"time"
 
@@ -19,7 +18,7 @@ import (
 	ur "github.com/labovector/vecsys-api/internal/rest/repository/user"
 )
 
-func New(session *session.Store, db *gorm.DB) *fiber.App {
+func New(session *session.Store, db *gorm.DB, logFile *os.File) *fiber.App {
 	_ = context.Background()
 	app := fiber.New(fiber.Config{
 		AppName: "vecsys",
@@ -32,19 +31,12 @@ func New(session *session.Store, db *gorm.DB) *fiber.App {
 		CacheDuration: 30 * time.Second,
 	})
 
-	// Custom File Writer for logger
-	file, err := os.OpenFile("../../vecsys-logger.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("error opening file: %v", err)
-	}
-	defer file.Close()
-
 	// Use Logger
 	app.Use(logger.New(logger.Config{
 		Format:        "${pid} ${locals:requestid} ${status} - ${method} ${path} ${error}\n",
 		TimeFormat:    "02-Jan-2006",
 		TimeZone:      "Asia/Jakarta",
-		Output:        file,
+		Output:        logFile,
 		DisableColors: true,
 	}))
 

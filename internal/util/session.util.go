@@ -56,7 +56,6 @@ func ValidateSessionAdmin(c *fiber.Ctx) error {
 	if username == nil || id == nil || role == nil {
 		return fmt.Errorf("failed to get session")
 	}
-	fmt.Println(username, id, role)
 
 	if role.(string) != ROLE_ADMIN {
 		return fmt.Errorf("role is not admin")
