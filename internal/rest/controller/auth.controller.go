@@ -87,13 +87,6 @@ func (ac *AuthController) RegisterAdmin(c *fiber.Ctx) error {
 		})
 	}
 
-	emailValid := util.ValidateEmail(req.Email)
-	if !emailValid {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Email tidak valid"),
-		})
-	}
-
 	passwordHash, err := util.HashPassword(req.Password)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
@@ -219,13 +212,6 @@ func (ac *AuthController) RegisterUser(c *fiber.Ctx) error {
 	if err == nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Email tersebut telah dipakai"),
-		})
-	}
-
-	emailValid := util.ValidateEmail(req.Email)
-	if !emailValid {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Email tidak valid"),
 		})
 	}
 
