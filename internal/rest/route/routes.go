@@ -41,13 +41,13 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 
 	// Admin Auth Route
 	adminAuth := adminRoutes.Group("/")
-	adminAuth.Post("/signup", allController.AuthController.RegisterAdmin)
+	adminAuth.Post("/register", allController.AuthController.RegisterAdmin)
 	adminAuth.Post("/login", allController.AuthController.LoginAdmin)
 	adminAuth.Get("/logout", middleware.AdminMiddleware(), allController.AuthController.LogoutAdmin)
 
 	// User Auth Route
 	userAuth := userRoutes.Group("/")
-	userAuth.Post("/signup", allController.AuthController.RegisterUser)
+	userAuth.Post("/register", allController.AuthController.RegisterUser)
 	userAuth.Post("/login", allController.AuthController.LoginUser)
 	userAuth.Get("/logout", middleware.UserMiddleware(), allController.AuthController.LogoutUser)
 
