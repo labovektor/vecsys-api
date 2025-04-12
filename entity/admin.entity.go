@@ -13,6 +13,7 @@ type Admin struct {
 	ProfilePicture string     `json:"profile_picture"`
 	Email          string     `json:"email"`
 	Password       string     `json:"-"`
+	Events         []Event    `json:"events" gorm:"foreignKey:AdminId;references:Id"`
 	CreatedAt      time.Time  `gorm:"default:now();" json:"created_at"`
 	UpdatedAt      *time.Time `json:"updated_at"`
 }
