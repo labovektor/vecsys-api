@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"path/filepath"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/entity"
 	"github.com/labovector/vecsys-api/internal/rest/dto"
@@ -123,15 +121,9 @@ func (ec *EventController) UpdateEvent(c *fiber.Ctx) error {
 
 	file, _ := c.FormFile("icon")
 	if file != nil {
-		if file.Size > 10*1024*1024 {
+		if err := util.ValidateFile(file); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-				Status: dto.ErrorStatus.WithMessage("Max file size 10MB"),
-			})
-		}
-		ext := filepath.Ext(file.Filename)
-		if ext != ".png" && ext != ".jpg" && ext != ".jpeg" {
-			return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-				Status: dto.ErrorStatus.WithMessage("Only accept image file"),
+				Status: dto.ErrorStatus.WithMessage(err.Error()),
 			})
 		}
 

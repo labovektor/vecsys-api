@@ -6,6 +6,7 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 func FileSaver(fh *multipart.FileHeader, name string, saveTo ...string) (string, error) {
@@ -16,7 +17,7 @@ func FileSaver(fh *multipart.FileHeader, name string, saveTo ...string) (string,
 	}
 	defer srcFile.Close()
 
-	destDir := "./__public/"
+	destDir := "../../__public/"
 	url := "/public/"
 	if len(saveTo) > 0 {
 		destDir += saveTo[0]
@@ -51,7 +52,7 @@ func FileSaver(fh *multipart.FileHeader, name string, saveTo ...string) (string,
 		return "", fmt.Errorf("could not copy file: %v", err)
 	}
 
-	return urlPath, nil
+	return fmt.Sprintf("%s?t=%d", urlPath, time.Now().Unix()), nil
 }
 
 func generateNewFilename(userID string, filename string) string {
