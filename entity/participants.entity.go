@@ -19,8 +19,8 @@ type Participant struct {
 	Institution   *Institution `json:"institution" gorm:"foreignKey:InstitutionId;references:Id"`
 	Email         string       `gorm:"unique" json:"email"`
 	Password      string       `json:"-"`
-	PaymentDataId string       `gorm:"unique" json:"payment_data_id"`
-	Payment       *Payment     `json:"payment_data" gorm:"foreignKey:PaymentDataId;references:Id"`
+	Biodata       *Biodata     `json:"biodata" gorm:"foreignKey:ParticipantId;references:Id"`
+	Payment       *Payment     `json:"payment" gorm:"foreignKey:ParticipantId;references:Id"`
 	VerifiedAt    *time.Time   `json:"verified_at,omitempty"`
 	LockedAt      *time.Time   `json:"locked_at,omitempty"`
 	CreatedAt     time.Time    `gorm:"default:now();" json:"created_at"`

@@ -29,8 +29,8 @@ func InitDB(config *config.PostgresConfig) *gorm.DB {
 		&entity.Region{},
 		&entity.Category{},
 		&entity.Institution{},
-		&entity.Payment{},
 		&entity.Participant{},
+		&entity.Payment{},
 		&entity.Biodata{},
 	)
 

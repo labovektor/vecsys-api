@@ -1,3 +1,4 @@
+.idea
 .env
 **/config.yml
 __public/profile/*

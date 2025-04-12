@@ -8,6 +8,7 @@ import (
 
 type Payment struct {
 	Id              uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
+	ParticipantId   string         `json:"participant_id"`
 	BankName        string         `json:"bank_name"`
 	BankAccount     string         `json:"bank_account"`
 	VoucherId       string         `json:"voucher_id"`
