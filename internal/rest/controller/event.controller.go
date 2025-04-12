@@ -166,9 +166,10 @@ func (ec *EventController) ToggleEventActive(c *fiber.Ctx) error {
 		})
 	}
 
-	// BUG: Need to be solved
+	newStatus := !*event.Active
+
 	event = &entity.Event{
-		Active: event.Active,
+		Active: &newStatus,
 	}
 
 	err = ec.eventRepo.UpdateEvent(id, event)

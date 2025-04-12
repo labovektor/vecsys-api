@@ -65,6 +65,7 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 	event.Patch("/:id", allController.EventController.UpdateEvent)
 	event.Get("/", allController.EventController.GetAllEvent)
 	event.Put("/:id", allController.EventController.ToggleEventActive)
+	event.Get("/:id/toggle", allController.EventController.ToggleEventActive)
 	event.Delete("/:id", allController.EventController.DeleteEvent)
 	globalRoutes.Get("/event/:id", allController.EventController.GetEventById)
 }
