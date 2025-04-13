@@ -24,7 +24,7 @@ func New(session *session.Store, db *gorm.DB, logFile *os.File) *fiber.App {
 		AppName: "vecsys",
 	})
 
-	app.Static("/public", "./__public", fiber.Static{
+	app.Static("/public", "../../__public", fiber.Static{
 		Compress:      true,
 		ByteRange:     true,
 		Browse:        true,
