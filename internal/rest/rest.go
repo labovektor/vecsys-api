@@ -75,9 +75,7 @@ func New(session *session.Store, db *gorm.DB, logFile *os.File) *fiber.App {
 		},
 	}))
 
-	// TODO: Setup Route
 	route.SetupRoute(app, &route.AllRepository{
-
 		AdminRepository: ar.NewAdminRepositoryImpl(db),
 		UserRepository:  ur.NewUserRepositoryImpl(db),
 		EventRepository: er.NewEventRepositositoryImpl(db),
