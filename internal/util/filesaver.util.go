@@ -17,7 +17,7 @@ func FileSaver(fh *multipart.FileHeader, name string, saveTo ...string) (string,
 	}
 	defer srcFile.Close()
 
-	destDir := "../../__public/"
+	destDir := "./__public/"
 	url := "/public/"
 	if len(saveTo) > 0 {
 		destDir += saveTo[0]
