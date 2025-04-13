@@ -3,10 +3,11 @@ package util
 import (
 	"errors"
 	"fmt"
-	"github.com/go-playground/validator/v10"
 	"mime/multipart"
 	"path/filepath"
 	"regexp"
+
+	"github.com/go-playground/validator/v10"
 )
 
 var validate *validator.Validate
@@ -58,7 +59,7 @@ type FileValidationOpts struct {
 func DefaultFileValidationOpts() *FileValidationOpts {
 	return &FileValidationOpts{
 		MinSize:           0,                                 // 0MB
-		MaxSize:           toBytes(0.5),                      // 5MB
+		MaxSize:           toBytes(5),                        // 5MB
 		AllowedExtensions: []string{".jpg", ".jpeg", ".png"}, // Image
 	}
 }
