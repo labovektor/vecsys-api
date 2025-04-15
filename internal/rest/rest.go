@@ -14,8 +14,13 @@ import (
 	"gorm.io/gorm"
 
 	ar "github.com/labovector/vecsys-api/internal/rest/repository/admin"
+	cr "github.com/labovector/vecsys-api/internal/rest/repository/category"
 	er "github.com/labovector/vecsys-api/internal/rest/repository/event"
+	ir "github.com/labovector/vecsys-api/internal/rest/repository/institution"
+	pr "github.com/labovector/vecsys-api/internal/rest/repository/payment"
+	rr "github.com/labovector/vecsys-api/internal/rest/repository/region"
 	ur "github.com/labovector/vecsys-api/internal/rest/repository/user"
+	vr "github.com/labovector/vecsys-api/internal/rest/repository/voucher"
 )
 
 func New(session *session.Store, db *gorm.DB, logFile *os.File) *fiber.App {
@@ -76,9 +81,14 @@ func New(session *session.Store, db *gorm.DB, logFile *os.File) *fiber.App {
 	}))
 
 	route.SetupRoute(app, &route.AllRepository{
-		AdminRepository: ar.NewAdminRepositoryImpl(db),
-		UserRepository:  ur.NewUserRepositoryImpl(db),
-		EventRepository: er.NewEventRepositositoryImpl(db),
+		AdminRepository:       ar.NewAdminRepositoryImpl(db),
+		UserRepository:        ur.NewUserRepositoryImpl(db),
+		EventRepository:       er.NewEventRepositositoryImpl(db),
+		PaymentRepository:     pr.NewPaymentRepositoryImpl(db),
+		RegionRepository:      rr.NewRegionRepositoryImpl(db),
+		VoucherRepository:     vr.NewVoucherRepositoryImpl(db),
+		CategoryRepository:    cr.NewCategoryRepositoryImpl(db),
+		InstitutionRepository: ir.NewInstitutionRepositoryImpl(db),
 	})
 
 	return app
