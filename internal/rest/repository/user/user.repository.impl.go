@@ -9,6 +9,12 @@ type userRepositoryImpl struct {
 	db *gorm.DB
 }
 
+// UpdateBiodata implements UserRepository.
+func (u *userRepositoryImpl) UpdateBiodata(id string, biodata *entity.Biodata) error {
+	err := u.db.Model(&entity.Biodata{}).Where("id = ?", id).Updates(biodata).Error
+	return err
+}
+
 // FindBiodataById implements UserRepository.
 func (u *userRepositoryImpl) FindBiodataById(id string) (*entity.Biodata, error) {
 	biodata := &entity.Biodata{}

@@ -6,13 +6,19 @@ import (
 	"github.com/labovector/vecsys-api/internal/rest/middleware"
 	ar "github.com/labovector/vecsys-api/internal/rest/repository/admin"
 	er "github.com/labovector/vecsys-api/internal/rest/repository/event"
+	pr "github.com/labovector/vecsys-api/internal/rest/repository/payment"
+	rr "github.com/labovector/vecsys-api/internal/rest/repository/region"
 	ur "github.com/labovector/vecsys-api/internal/rest/repository/user"
+	vr "github.com/labovector/vecsys-api/internal/rest/repository/voucher"
 )
 
 type AllRepository struct {
-	AdminRepository ar.AdminRepository
-	UserRepository  ur.UserRepository
-	EventRepository er.EventRepository
+	AdminRepository   ar.AdminRepository
+	UserRepository    ur.UserRepository
+	EventRepository   er.EventRepository
+	PaymentRepository pr.PaymentRepository
+	RegionRepository  rr.RegionRepository
+	VoucherRepository vr.VoucherRepository
 }
 
 type AllController struct {
