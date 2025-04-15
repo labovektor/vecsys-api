@@ -5,7 +5,9 @@ import (
 	"github.com/labovector/vecsys-api/internal/rest/controller"
 	"github.com/labovector/vecsys-api/internal/rest/middleware"
 	ar "github.com/labovector/vecsys-api/internal/rest/repository/admin"
+	cr "github.com/labovector/vecsys-api/internal/rest/repository/category"
 	er "github.com/labovector/vecsys-api/internal/rest/repository/event"
+	ir "github.com/labovector/vecsys-api/internal/rest/repository/institution"
 	pr "github.com/labovector/vecsys-api/internal/rest/repository/payment"
 	rr "github.com/labovector/vecsys-api/internal/rest/repository/region"
 	ur "github.com/labovector/vecsys-api/internal/rest/repository/user"
@@ -13,12 +15,14 @@ import (
 )
 
 type AllRepository struct {
-	AdminRepository   ar.AdminRepository
-	UserRepository    ur.UserRepository
-	EventRepository   er.EventRepository
-	PaymentRepository pr.PaymentRepository
-	RegionRepository  rr.RegionRepository
-	VoucherRepository vr.VoucherRepository
+	AdminRepository       ar.AdminRepository
+	UserRepository        ur.UserRepository
+	EventRepository       er.EventRepository
+	PaymentRepository     pr.PaymentRepository
+	RegionRepository      rr.RegionRepository
+	VoucherRepository     vr.VoucherRepository
+	CategoryRepository    cr.CategoryRepository
+	InstitutionRepository ir.InstitutionRepository
 }
 
 type AllController struct {
