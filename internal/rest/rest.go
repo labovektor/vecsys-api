@@ -3,6 +3,7 @@ package rest
 import (
 	"context"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -56,7 +57,9 @@ func New(session *session.Store, db *gorm.DB, logFile *os.File) *fiber.App {
 
 	app.Use(cors.New(
 		cors.Config{
-			AllowOrigins:     "http://localhost:3000, https://vecsys.vercel.app",
+			AllowOriginsFunc: func(origin string) bool {
+				return origin == "http://localhost:3000" || strings.HasSuffix(origin, ".vercel.app")
+			},
 			AllowCredentials: true,
 		},
 	))
