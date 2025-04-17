@@ -48,7 +48,7 @@ func (cc *CategoryController) GetCategoryById(c *fiber.Ctx) error {
 
 func (cc *CategoryController) AddCategoryToEvent(c *fiber.Ctx) error {
 	eventId := c.Params("id")
-	req := new(dto.NewCategoryReq)
+	req := new(dto.CategoryAddReq)
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
@@ -84,7 +84,7 @@ func (cc *CategoryController) AddCategoryToEvent(c *fiber.Ctx) error {
 
 func (cc *CategoryController) UpdateCategory(c *fiber.Ctx) error {
 	categoryId := c.Params("id")
-	req := new(dto.UpdateCategoryReq)
+	req := new(dto.CategoryUpdateReq)
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
@@ -94,8 +94,8 @@ func (cc *CategoryController) UpdateCategory(c *fiber.Ctx) error {
 
 	category := entity.Category{
 		Name:    req.Name,
-		IsGroup: &req.IsGroup,
-		Visible: &req.Visible,
+		IsGroup: req.IsGroup,
+		Visible: req.Visible,
 	}
 
 	category, err := cc.categoryRepo.UpdateCategory(categoryId, &category)

@@ -85,7 +85,7 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 
 	// Evert Category Route
 	adminRoutes.Get("/event/:id/category", allController.CategoryController.GetAllCategoryByEventId)
-	adminRoutes.Get("/category/:categoryId", allController.CategoryController.GetCategoryById)
+	adminRoutes.Get("/category/:id", allController.CategoryController.GetCategoryById)
 	adminRoutes.Post("/event/:id/category", allController.CategoryController.AddCategoryToEvent)
 	adminRoutes.Patch("/category/:id", allController.CategoryController.UpdateCategory)
 	adminRoutes.Delete("/category/:id", allController.CategoryController.DeleteCategory)
