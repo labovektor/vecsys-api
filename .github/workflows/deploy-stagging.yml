@@ -29,7 +29,7 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
           source: "vecsys"
-          target: "/root/vecsys-testing/vecsys"
+          target: "/root/vecsys-testing"
 
       - name: Restart systemd service
         uses: appleboy/ssh-action@v0.1.10
