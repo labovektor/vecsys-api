@@ -26,10 +26,11 @@ type AllRepository struct {
 }
 
 type AllController struct {
-	AdminController *controller.AdminController
-	UserController  *controller.UserController
-	EventController *controller.EventController
-	AuthController  *controller.AuthController
+	AdminController    *controller.AdminController
+	UserController     *controller.UserController
+	EventController    *controller.EventController
+	AuthController     *controller.AuthController
+	CategoryController controller.CategoryController
 }
 
 func SetupRoute(app *fiber.App, allRepository *AllRepository) {
@@ -47,6 +48,9 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 		UserController:  controller.NewUserController(allRepository.UserRepository),
 		EventController: controller.NewEventController(allRepository.EventRepository),
 		AuthController:  controller.NewAuthController(allRepository.AdminRepository, allRepository.UserRepository),
+		CategoryController: controller.NewCategoryController(
+			allRepository.CategoryRepository,
+		),
 	}
 
 	// Admin Auth Route
@@ -78,4 +82,11 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 	event.Get("/:id/toggle", allController.EventController.ToggleEventActive)
 	event.Delete("/:id", allController.EventController.DeleteEvent)
 	globalRoutes.Get("/event/:id", allController.EventController.GetEventById)
+
+	// Evert Category Route
+	adminRoutes.Get("/event/:id/category", allController.CategoryController.GetAllCategoryByEventId)
+	adminRoutes.Get("/category/:categoryId", allController.CategoryController.GetCategoryById)
+	adminRoutes.Post("/event/:id/category", allController.CategoryController.AddCategoryToEvent)
+	adminRoutes.Patch("/category/:id", allController.CategoryController.UpdateCategory)
+	adminRoutes.Delete("/category/:id", allController.CategoryController.DeleteCategory)
 }
