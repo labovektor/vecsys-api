@@ -21,6 +21,7 @@ type Participant struct {
 	Password      string       `json:"-"`
 	Biodata       *Biodata     `json:"biodata" gorm:"foreignKey:ParticipantId;references:Id"`
 	Payment       *Payment     `json:"payment" gorm:"foreignKey:ParticipantId;references:Id"`
+	ProgressStep  string       `json:"progress_step" gorm:"type:participant_progress;default:'registered'"`
 	VerifiedAt    *time.Time   `json:"verified_at,omitempty"`
 	LockedAt      *time.Time   `json:"locked_at,omitempty"`
 	CreatedAt     time.Time    `gorm:"default:now();" json:"created_at"`
