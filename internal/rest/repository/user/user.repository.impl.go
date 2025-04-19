@@ -9,6 +9,32 @@ type userRepositoryImpl struct {
 	db *gorm.DB
 }
 
+// BulkUpdateBiodata implements UserRepository.
+func (u *userRepositoryImpl) BulkUpdateBiodata(biodatas []entity.Biodata) error {
+	tx := u.db.Begin()
+	for _, biodata := range biodatas {
+		db := tx.Model(&entity.Biodata{}).Where("id = ?", biodata.Id.String()).Updates(biodata)
+		if db.Error != nil {
+			tx.Rollback()
+			return db.Error
+		}
+	}
+	return tx.Commit().Error
+}
+
+// BulkAddBiodata implements UserRepository.
+func (u *userRepositoryImpl) BulkAddBiodata(biodatas []entity.Biodata) error {
+	tx := u.db.Begin()
+	for _, biodata := range biodatas {
+		db := tx.Create(&biodata)
+		if db.Error != nil {
+			tx.Rollback()
+			return db.Error
+		}
+	}
+	return tx.Commit().Error
+}
+
 // UpdateBiodata implements UserRepository.
 func (u *userRepositoryImpl) UpdateBiodata(id string, biodata *entity.Biodata) error {
 	err := u.db.Model(&entity.Biodata{}).Where("id = ?", id).Updates(biodata).Error

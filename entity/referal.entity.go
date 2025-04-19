@@ -6,11 +6,11 @@ import (
 	"github.com/google/uuid"
 )
 
-type Voucher struct {
+type Referal struct {
 	Id            uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	EventId       string     `json:"event_id"`
 	Event         *Event     `json:"event" gorm:"foreignKey:EventId;references:Id"`
-	Voucher       string     `json:"voucher"`
+	Code          string     `json:"code"`
 	Desc          string     `json:"desc"`
 	SeatAvailable int        `gorm:"default:1" json:"seat_available"`
 	CreatedAt     time.Time  `gorm:"default:now();" json:"created_at"`

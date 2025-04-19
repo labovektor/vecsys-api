@@ -11,8 +11,8 @@ type Payment struct {
 	ParticipantId   string         `json:"participant_id"`
 	BankName        string         `json:"bank_name"`
 	BankAccount     string         `json:"bank_account"`
-	VoucherId       string         `json:"voucher_id"`
-	Voucher         *Voucher       `json:"voucher" gorm:"foreignKey:VoucherId;references:Id"`
+	ReferalId       string         `json:"referal_id"`
+	Referal         *Referal       `json:"referal" gorm:"foreignKey:ReferalId;references:Id"`
 	Date            *time.Time     `json:"date"`
 	Invoice         string         `json:"invoice"`
 	PaymentOptionId string         `json:"payment_option_id"`
