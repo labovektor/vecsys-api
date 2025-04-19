@@ -27,7 +27,7 @@ func InitDB(config *config.PostgresConfig) *gorm.DB {
 	database.AutoMigrate(
 		&entity.Admin{},
 		&entity.Event{},
-		&entity.Voucher{},
+		&entity.Referal{},
 		&entity.PaymentOption{},
 		&entity.Region{},
 		&entity.Category{},

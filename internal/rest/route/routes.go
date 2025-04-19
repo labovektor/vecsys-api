@@ -9,9 +9,9 @@ import (
 	er "github.com/labovector/vecsys-api/internal/rest/repository/event"
 	ir "github.com/labovector/vecsys-api/internal/rest/repository/institution"
 	pr "github.com/labovector/vecsys-api/internal/rest/repository/payment"
+	vr "github.com/labovector/vecsys-api/internal/rest/repository/referal"
 	rr "github.com/labovector/vecsys-api/internal/rest/repository/region"
 	ur "github.com/labovector/vecsys-api/internal/rest/repository/user"
-	vr "github.com/labovector/vecsys-api/internal/rest/repository/voucher"
 )
 
 type AllRepository struct {
@@ -20,7 +20,7 @@ type AllRepository struct {
 	EventRepository       er.EventRepository
 	PaymentRepository     pr.PaymentRepository
 	RegionRepository      rr.RegionRepository
-	VoucherRepository     vr.VoucherRepository
+	ReferalRepository     vr.ReferalRepository
 	CategoryRepository    cr.CategoryRepository
 	InstitutionRepository ir.InstitutionRepository
 }

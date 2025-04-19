@@ -19,9 +19,9 @@ import (
 	er "github.com/labovector/vecsys-api/internal/rest/repository/event"
 	ir "github.com/labovector/vecsys-api/internal/rest/repository/institution"
 	pr "github.com/labovector/vecsys-api/internal/rest/repository/payment"
+	vr "github.com/labovector/vecsys-api/internal/rest/repository/referal"
 	rr "github.com/labovector/vecsys-api/internal/rest/repository/region"
 	ur "github.com/labovector/vecsys-api/internal/rest/repository/user"
-	vr "github.com/labovector/vecsys-api/internal/rest/repository/voucher"
 )
 
 func New(session *session.Store, db *gorm.DB, logFile *os.File) *fiber.App {
@@ -89,7 +89,7 @@ func New(session *session.Store, db *gorm.DB, logFile *os.File) *fiber.App {
 		EventRepository:       er.NewEventRepositositoryImpl(db),
 		PaymentRepository:     pr.NewPaymentRepositoryImpl(db),
 		RegionRepository:      rr.NewRegionRepositoryImpl(db),
-		VoucherRepository:     vr.NewVoucherRepositoryImpl(db),
+		ReferalRepository:     vr.NewReferalRepositoryImpl(db),
 		CategoryRepository:    cr.NewCategoryRepositoryImpl(db),
 		InstitutionRepository: ir.NewInstitutionRepositoryImpl(db),
 	})
