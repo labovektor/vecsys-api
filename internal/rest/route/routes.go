@@ -31,6 +31,7 @@ type AllController struct {
 	EventController    *controller.EventController
 	AuthController     *controller.AuthController
 	CategoryController controller.CategoryController
+	RegionController   controller.RegionController
 }
 
 func SetupRoute(app *fiber.App, allRepository *AllRepository) {
@@ -89,4 +90,11 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 	adminRoutes.Post("/event/:id/category", allController.CategoryController.AddCategoryToEvent)
 	adminRoutes.Patch("/category/:id", allController.CategoryController.UpdateCategory)
 	adminRoutes.Delete("/category/:id", allController.CategoryController.DeleteCategory)
+
+	// Event Region Route
+	event.Get("/:id/region", allController.RegionController.GetAllRegionsByEventId)
+	adminRoutes.Get("/region/:id", allController.RegionController.GetRegionById)
+	event.Post("/:id/region", allController.RegionController.AddRegionToEvent)
+	adminRoutes.Patch("/region/:id", allController.RegionController.UpdateRegion)
+	adminRoutes.Delete("/region/:id", allController.RegionController.DeleteRegion)
 }
