@@ -67,7 +67,7 @@ func (rc *RegionController) AddRegionToEvent(c *fiber.Ctx) error {
 		Name:          req.Name,
 		ContactNumber: req.ContactNumber,
 		ContactName:   req.ContactName,
-		Visible:       &req.Visible,
+		Visible:       req.Visible,
 	}
 
 	region, err := rc.regionRepo.CreateRegion(region)

@@ -52,6 +52,7 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 		CategoryController: controller.NewCategoryController(
 			allRepository.CategoryRepository,
 		),
+		RegionController: controller.NewRegionController(allRepository.RegionRepository),
 	}
 
 	// Admin Auth Route
