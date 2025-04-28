@@ -66,6 +66,8 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 	userAuth.Post("/register", allController.AuthController.RegisterUser)
 	userAuth.Post("/login", allController.AuthController.LoginUser)
 	userAuth.Get("/logout", middleware.UserMiddleware(), allController.AuthController.LogoutUser)
+	// TODO: Forgot Password
+	// TODO: Reset Password
 
 	// Admin Route
 	adminRoutes.Get("/", middleware.AdminMiddleware(), allController.AdminController.GetAdmin)
@@ -98,4 +100,12 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 	event.Post("/:id/region", allController.RegionController.AddRegionToEvent)
 	adminRoutes.Patch("/region/:id", allController.RegionController.UpdateRegion)
 	adminRoutes.Delete("/region/:id", allController.RegionController.DeleteRegion)
+
+	// Participant Route
+	// TODO: Fill Category
+	// TODO: Payment
+	// TODO: Add School
+	// TODO: Pick School
+	// TODO: Add Members (Receive an Array of Biodata)
+	// TODO: Lock Data
 }
