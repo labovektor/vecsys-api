@@ -102,10 +102,10 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 	adminRoutes.Delete("/region/:id", allController.RegionController.DeleteRegion)
 
 	// Participant Route
-	// TODO: Fill Category
+	// TODO: Pick Category
 	// TODO: Payment
-	// TODO: Add School
-	// TODO: Pick School
+	// TODO: Add Institution
+	// TODO: Pick Institution
 	// TODO: Add Members (Receive an Array of Biodata)
 	// TODO: Lock Data
 }
