@@ -63,7 +63,7 @@ func (rc *RegionController) AddRegionToEvent(c *fiber.Ctx) error {
 	}
 
 	region := entity.Region{
-		EventId:       eventId,
+		EventId:       &eventId,
 		Name:          req.Name,
 		ContactNumber: req.ContactNumber,
 		ContactName:   req.ContactName,

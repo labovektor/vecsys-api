@@ -109,8 +109,8 @@ func (p *ParticipantAdministrationController) PickCategoryAndRegion(c *fiber.Ctx
 	}
 
 	participant := entity.Participant{
-		CategoryId:   req.CategoryId,
-		RegionId:     req.RegionId,
+		CategoryId:   &req.CategoryId,
+		RegionId:     &req.RegionId,
 		ProgressStep: entity.StepCategorizedParticipant,
 	}
 
@@ -191,7 +191,7 @@ func (p *ParticipantAdministrationController) ValidateReferal(c *fiber.Ctx) erro
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			payment := entity.Payment{
-				ParticipantId: participantId,
+				ParticipantId: &participantId,
 				ReferalId:     referal.Id.String(),
 			}
 
@@ -267,8 +267,8 @@ func (p *ParticipantAdministrationController) Payment(c *fiber.Ctx) error {
 		})
 	}
 	payment := entity.Payment{
-		ParticipantId:   participantId,
-		PaymentOptionId: req.PaymentOptionId,
+		ParticipantId:   &participantId,
+		PaymentOptionId: &req.PaymentOptionId,
 		BankName:        req.AccountName,
 		BankAccount:     req.AccountNumber,
 		Date:            &transferDate,

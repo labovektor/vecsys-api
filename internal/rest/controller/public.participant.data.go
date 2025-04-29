@@ -70,7 +70,7 @@ func (p *ParticipantDataController) AddInstitution(c *fiber.Ctx) error {
 	}
 
 	institution := &entity.Institution{
-		EventId:         req.EventId,
+		EventId:         &req.EventId,
 		Name:            req.Name,
 		Email:           req.Email,
 		PendampingName:  req.PendampingName,
@@ -122,7 +122,7 @@ func (p *ParticipantDataController) PickInstitution(c *fiber.Ctx) error {
 	}
 
 	participant := entity.Participant{
-		InstitutionId: req.InstitutionId,
+		InstitutionId: &req.InstitutionId,
 		ProgressStep:  entity.StepSelectInstitutionParticipant,
 	}
 
@@ -193,7 +193,7 @@ func (p *ParticipantDataController) AddMembers(c *fiber.Ctx) error {
 		biodataCreate.IdCardPicture = idCardUrl
 	}
 
-	biodata, err := p.ParticipantRepository.AddBiodata(participantId, biodataCreate)
+	biodata, err := p.ParticipantRepository.AddBiodata(&participantId, biodataCreate)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when adding member"),

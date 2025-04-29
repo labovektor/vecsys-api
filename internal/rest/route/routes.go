@@ -90,9 +90,9 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 
 	// User Route
 	userRoutes.Get("/", middleware.UserMiddleware(), allController.UserController.GetUser)
-	userRoutes.Get("/data", allController.UserController.GetAllParticipantData)
+	userRoutes.Get("/data", middleware.UserMiddleware(), allController.UserController.GetAllParticipantData)
 	// Get Participant State
-	userRoutes.Get("/state", allController.UserController.GetParticipantState)
+	userRoutes.Get("/state", middleware.UserMiddleware(), allController.UserController.GetParticipantState)
 
 	// Event Route
 	event := adminRoutes.Group("/event", middleware.AdminMiddleware())

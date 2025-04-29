@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/entity"
 	"github.com/labovector/vecsys-api/internal/email"
@@ -219,7 +221,7 @@ func (ac *AuthController) RegisterUser(c *fiber.Ctx) error {
 	}
 
 	participant := entity.Participant{
-		EventId:  req.EventId,
+		EventId:  &req.EventId,
 		Email:    req.Email,
 		Name:     req.Name,
 		Password: passwordHash,
@@ -279,11 +281,12 @@ func (ac *AuthController) ForgotPasswordUser(c *fiber.Ctx) error {
 		})
 	}
 
-	url := "http://localhost:3000/user/reset-password/" + token
+	url := "http://localhost:3000/user/reset-password?token=" + token
 
 	if err := util.SendResetPasswordEmail(user.Name, user.Email, url, &ac.emailDialer); err != nil {
+
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengirim email"),
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
 		})
 	}
 
@@ -294,7 +297,6 @@ func (ac *AuthController) ForgotPasswordUser(c *fiber.Ctx) error {
 
 func (ac *AuthController) ResetPasswordUser(c *fiber.Ctx) error {
 	req := new(dto.ResetPasswordReq)
-	userId := c.Locals(util.CurrentUserIdKey).(string)
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
@@ -308,7 +310,13 @@ func (ac *AuthController) ResetPasswordUser(c *fiber.Ctx) error {
 		})
 	}
 
-	ok := ac.jwtMaker.VerifyResetPasswordToken(req.Token)
+	claims, err := ac.jwtMaker.GetClaimResetPasswordToken(req.Token)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Token tidak valid"),
+		})
+	}
+	ok := claims.ExpiresAt.Time.After(time.Now())
 	if !ok {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Token tidak valid"),
@@ -326,6 +334,7 @@ func (ac *AuthController) ResetPasswordUser(c *fiber.Ctx) error {
 		Password: passwordHash,
 	}
 
+	userId := claims.UserId
 	if err = ac.userRepo.UpdateParticipant(userId, &participant); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Kesalahan saat memperbarui password"),

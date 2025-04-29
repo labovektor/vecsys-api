@@ -60,7 +60,7 @@ func (u *userRepositoryImpl) FindBiodataByParticipantId(participantId string) ([
 }
 
 // AddBiodata implements UserRepository.
-func (u *userRepositoryImpl) AddBiodata(participantId string, biodata *entity.Biodata) (entity.Biodata, error) {
+func (u *userRepositoryImpl) AddBiodata(participantId *string, biodata *entity.Biodata) (entity.Biodata, error) {
 	biodata.ParticipantId = participantId
 
 	db := u.db.Create(biodata)
@@ -98,7 +98,7 @@ func (u *userRepositoryImpl) FindAllParticipant() ([]entity.Participant, error) 
 func (u *userRepositoryImpl) FindParticipantById(id string, preload bool) (*entity.Participant, error) {
 	participant := &entity.Participant{}
 	if preload {
-		if err := u.db.Preload("Biodatas").Preload("Institution").Preload("Region").Preload("Category").Preload("Payment").First(participant, "id = ?", id).Error; err != nil {
+		if err := u.db.Preload("Biodata").Preload("Institution").Preload("Region").Preload("Category").Preload("Payment").First(participant, "id = ?", id).Error; err != nil {
 			return nil, err
 		}
 		return participant, nil

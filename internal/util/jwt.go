@@ -55,17 +55,14 @@ func (maker *Maker) GenerateResetPasswordToken(userId string) (string, error) {
 // It checks the token's signature and ensures it has not expired.
 // Returns true if the token is valid, otherwise returns false.
 
-func (maker *Maker) VerifyResetPasswordToken(token string) bool {
+func (maker *Maker) GetClaimResetPasswordToken(token string) (*Claims, error) {
 	claims := &Claims{}
 	_, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (any, error) {
 		return []byte(maker.SecretKey), nil
 	})
 	if err != nil {
-		return false
+		return nil, err
 	}
 
-	if claims.ExpiresAt.Unix() < time.Now().Unix() {
-		return false
-	}
-	return true
+	return claims, nil
 }

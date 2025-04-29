@@ -8,14 +8,14 @@ import (
 
 type Participant struct {
 	Id            uuid.UUID    `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
-	EventId       string       `json:"event_id"`
+	EventId       *string      `json:"event_id"`
 	Event         *Event       `json:"event" gorm:"foreignKey:EventId;references:Id"`
-	RegionId      string       `json:"region_id"`
+	RegionId      *string      `json:"region_id"`
 	Region        *Region      `json:"region" gorm:"foreignKey:RegionId;references:Id"`
-	CategoryId    string       `json:"category_id"`
+	CategoryId    *string      `json:"category_id"`
 	Category      *Category    `json:"category" gorm:"foreignKey:CategoryId;references:Id"`
 	Name          string       `json:"name"`
-	InstitutionId string       `json:"institution_id"`
+	InstitutionId *string      `json:"institution_id"`
 	Institution   *Institution `json:"institution" gorm:"foreignKey:InstitutionId;references:Id"`
 	Email         string       `gorm:"unique" json:"email"`
 	Password      string       `json:"-"`

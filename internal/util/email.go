@@ -10,6 +10,7 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
+//go:embed template/*.html
 var content embed.FS
 
 // SendOTPEmail sends an OTP to the given email address.
