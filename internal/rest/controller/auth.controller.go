@@ -33,7 +33,7 @@ func (ac *AuthController) LoginAdmin(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal memproses data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 
@@ -75,7 +75,7 @@ func (ac *AuthController) RegisterAdmin(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 
@@ -154,7 +154,7 @@ func (ac *AuthController) LoginUser(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal memproses data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 
@@ -196,7 +196,7 @@ func (ac *AuthController) RegisterUser(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 
@@ -257,7 +257,7 @@ func (ac *AuthController) ForgotPasswordUser(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 
@@ -300,7 +300,7 @@ func (ac *AuthController) ResetPasswordUser(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 

@@ -43,7 +43,7 @@ func GenerateSessionUser(c *fiber.Ctx, participant *entity.Participant) error {
 	sess.Set("email", participant.Email)
 	sess.Set("id", participant.Id.String())
 	sess.Set("role", ROLE_USER)
-	sess.Set("event_id", participant.EventId)
+	sess.Set("event_id", *participant.EventId)
 
 	// Save session
 	if err := sess.Save(); err != nil {
@@ -58,7 +58,6 @@ func ValidateSessionAdmin(c *fiber.Ctx) error {
 
 	username := sess.Get("username")
 	id := sess.Get("id")
-	eventId := sess.Get("event_id")
 	role := sess.Get("role")
 	if username == nil || id == nil || role == nil {
 		return fmt.Errorf("failed to get session")
@@ -76,7 +75,6 @@ func ValidateSessionAdmin(c *fiber.Ctx) error {
 
 	c.Locals(CurrentUserIdKey, id)
 	c.Locals(CurrentUserNameKey, username)
-	c.Locals(CurentUserEventIdKey, eventId)
 
 	return nil
 }
@@ -86,6 +84,7 @@ func ValidateSessionUser(c *fiber.Ctx) error {
 
 	username := sess.Get("email")
 	id := sess.Get("id")
+	eventId := sess.Get("event_id")
 	role := sess.Get("role")
 	if username == nil || id == nil || role == nil {
 		return fmt.Errorf("failed to get session")
@@ -98,6 +97,7 @@ func ValidateSessionUser(c *fiber.Ctx) error {
 
 	c.Locals(CurrentUserIdKey, id)
 	c.Locals(CurrentUserNameKey, username)
+	c.Locals(CurentUserEventIdKey, eventId)
 
 	return nil
 }

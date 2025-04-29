@@ -73,7 +73,7 @@ func (p *ParticipantAdministrationController) PickCategoryAndRegion(c *fiber.Ctx
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 
@@ -83,27 +83,13 @@ func (p *ParticipantAdministrationController) PickCategoryAndRegion(c *fiber.Ctx
 		})
 	}
 
-	currentParticipant, err := p.ParticipantRepository.FindParticipantById(participantId, false)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Something wrong when getting participant"),
-		})
-	}
-
-	valid := currentParticipant.ValidateUserStep(entity.StepCategorizedParticipant)
-	if !valid {
-		return c.Status(fiber.StatusForbidden).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Anda tidak dapat lagi update data ini"),
-		})
-	}
-
 	participant := entity.Participant{
 		CategoryId:   &req.CategoryId,
 		RegionId:     &req.RegionId,
 		ProgressStep: entity.StepCategorizedParticipant,
 	}
 
-	if err = p.ParticipantRepository.UpdateParticipant(participantId, &participant); err != nil {
+	if err := p.ParticipantRepository.UpdateParticipant(participantId, &participant); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when updating participant"),
 		})
@@ -133,11 +119,12 @@ func (p *ParticipantAdministrationController) GetAllPaymentOption(c *fiber.Ctx) 
 // TODO: Validate Referal
 func (p *ParticipantAdministrationController) ValidateReferal(c *fiber.Ctx) error {
 	participantId := c.Locals(util.CurrentUserIdKey).(string)
+	eventId := c.Locals(util.CurentUserEventIdKey).(string)
 	req := new(dto.ClaimReferalReq)
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 
@@ -147,7 +134,7 @@ func (p *ParticipantAdministrationController) ValidateReferal(c *fiber.Ctx) erro
 		})
 	}
 
-	referal, err := p.ReferalRepository.GetVoucherByCode(req.Code)
+	referal, err := p.ReferalRepository.GetVoucherByCode(req.Code, eventId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Referal tidak valid"),
@@ -167,9 +154,10 @@ func (p *ParticipantAdministrationController) ValidateReferal(c *fiber.Ctx) erro
 	currentParticipantPayment, err := p.PaymentRepository.GetPaymentByParticipantId(participantId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			referalId := referal.Id.String()
 			payment := entity.Payment{
 				ParticipantId: &participantId,
-				ReferalId:     referal.Id.String(),
+				ReferalId:     &referalId,
 			}
 
 			_, err = p.PaymentRepository.CreatePayment(&payment)
@@ -199,9 +187,21 @@ func (p *ParticipantAdministrationController) ValidateReferal(c *fiber.Ctx) erro
 		}
 	}
 
-	if currentParticipantPayment.ReferalId != "" {
+	if currentParticipantPayment.ReferalId != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Anda sudah memiliki referal"),
+			Status: dto.SuccessStatus.WithMessage("Anda sudah memiliki referal"),
+			Data:   referal,
+		})
+	}
+
+	referalId := referal.Id.String()
+	payment := entity.Payment{
+		ReferalId: &referalId,
+	}
+
+	if err := p.PaymentRepository.UpdatePayment(currentParticipantPayment.Id.String(), &payment); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when updating payment"),
 		})
 	}
 
@@ -227,7 +227,7 @@ func (p *ParticipantAdministrationController) Payment(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 
@@ -291,6 +291,16 @@ func (p *ParticipantAdministrationController) Payment(c *fiber.Ctx) error {
 	if err = p.PaymentRepository.UpdatePayment(currentParticipantPayment.Id.String(), &payment); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when updating payment"),
+		})
+	}
+
+	participant := entity.Participant{
+		ProgressStep: entity.StepPaidParticipant,
+	}
+
+	if err := p.ParticipantRepository.UpdateParticipant(participantId, &participant); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when updating participant"),
 		})
 	}
 

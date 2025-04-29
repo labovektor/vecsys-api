@@ -2,6 +2,7 @@ package route
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/labovector/vecsys-api/entity"
 	"github.com/labovector/vecsys-api/infrastructure/email"
 	"github.com/labovector/vecsys-api/internal/rest/controller"
 	"github.com/labovector/vecsys-api/internal/rest/middleware"
@@ -124,13 +125,13 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	// Get All Event Category & Region
 	userAdministration.Get("/category", allController.ParticipantAdministrationController.GetAllEventCategoryAndRegion)
 	// Pick Category and Region
-	userAdministration.Patch("/category", allController.ParticipantAdministrationController.PickCategoryAndRegion)
+	userAdministration.Patch("/category", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepCategorizedParticipant), allController.ParticipantAdministrationController.PickCategoryAndRegion)
 	// Get All Payment Option
 	userAdministration.Get("/payment", allController.ParticipantAdministrationController.GetAllPaymentOption)
 	// Validate Referal
-	userAdministration.Post("/validate-referal", allController.ParticipantAdministrationController.ValidateReferal)
+	userAdministration.Post("/validate-referal", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepPaidParticipant), allController.ParticipantAdministrationController.ValidateReferal)
 	// Payment
-	userAdministration.Post("/payment", allController.ParticipantAdministrationController.Payment)
+	userAdministration.Patch("/payment", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepPaidParticipant), allController.ParticipantAdministrationController.Payment)
 
 	userData := userRoutes.Group("/data", middleware.UserMiddleware())
 	// Get All Institution
@@ -138,11 +139,11 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	// Add Institution
 	userData.Post("/institution", allController.ParticipantDataController.AddInstitution)
 	// Pick Institution
-	userData.Patch("/institution", allController.ParticipantDataController.PickInstitution)
+	userData.Patch("/institution", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepSelectInstitutionParticipant), allController.ParticipantDataController.PickInstitution)
 	// Add Members
-	userData.Post("/members", allController.ParticipantDataController.AddMembers)
+	userData.Post("/members", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepFillBiodatasParticipant), allController.ParticipantDataController.AddMembers)
 	// Remove Members
-	userData.Delete("/members", allController.ParticipantDataController.RemoveMembers)
+	userData.Delete("/members", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepFillBiodatasParticipant), allController.ParticipantDataController.RemoveMembers)
 	// Lock Data
-	userData.Patch("/lock", allController.ParticipantDataController.LockData)
+	userData.Patch("/lock", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepLockedParticipant), allController.ParticipantDataController.LockData)
 }

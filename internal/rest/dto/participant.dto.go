@@ -36,13 +36,13 @@ type PaymentReq struct {
 	PaymentOptionId string `json:"payment_option_id" form:"payment_option_id" validate:"required"`
 	AccountNumber   string `json:"account_number" form:"account_number" validate:"required"`
 	AccountName     string `json:"account_name" form:"account_name" validate:"required"`
-	TransferDate    string `json:"transfer_date" form:"transfer_date" validate:"required, datetime=2006-01-02T15:04:05Z07:00"`
+	TransferDate    string `json:"transfer_date" form:"transfer_date" validate:"required,datetime=2006-01-02T15:04:05Z07:00"`
 }
 
 type AddInstitutionReq struct {
 	Name            string `json:"name" form:"name" validate:"required"`
 	Email           string `json:"email" form:"email" validate:"required,email"`
-	PendampingName  string `json:"phone" form:"phone" validate:"required"`
+	PendampingName  string `json:"pendamping_name" form:"phone" validate:"required"`
 	PendampingPhone string `json:"pendamping_phone" form:"pendamping_phone" validate:"required,phone"`
 }
 

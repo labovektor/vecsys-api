@@ -58,8 +58,12 @@ func (v *ReferalRepositoryImpl) GetAllVoucher(eventId ...string) ([]entity.Refer
 }
 
 // GetVoucherByCode implements VoucherRepository.
-func (v *ReferalRepositoryImpl) GetVoucherByCode(code string) (*entity.Referal, error) {
+func (v *ReferalRepositoryImpl) GetVoucherByCode(code string, eventId ...string) (*entity.Referal, error) {
 	voucher := &entity.Referal{}
+	if len(eventId) > 0 {
+		err := v.db.First(voucher, "code = ? AND event_id = ?", code, eventId[0]).Error
+		return voucher, err
+	}
 	err := v.db.First(voucher, "voucher = ?", code).Error
 	return voucher, err
 }

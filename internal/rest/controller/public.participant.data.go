@@ -48,7 +48,7 @@ func (p *ParticipantDataController) AddInstitution(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 
@@ -86,27 +86,13 @@ func (p *ParticipantDataController) PickInstitution(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 
 	if err := util.ValidateStruct(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage(err.Error()),
-		})
-	}
-
-	currentParticipant, err := p.ParticipantRepository.FindParticipantById(participantId, false)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Something wrong when getting participant"),
-		})
-	}
-
-	valid := currentParticipant.ValidateUserStep(entity.StepSelectInstitutionParticipant)
-	if !valid {
-		return c.Status(fiber.StatusForbidden).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Anda tidak dapat lagi update data ini"),
 		})
 	}
 
@@ -132,27 +118,13 @@ func (p *ParticipantDataController) AddMembers(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 
 	if err := util.ValidateStruct(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage(err.Error()),
-		})
-	}
-
-	currentParticipant, err := p.ParticipantRepository.FindParticipantById(participantId, false)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Something wrong when getting participant"),
-		})
-	}
-
-	valid := currentParticipant.ValidateUserStep(entity.StepFillBiodatasParticipant)
-	if !valid {
-		return c.Status(fiber.StatusForbidden).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Anda tidak dapat lagi update data ini"),
 		})
 	}
 
@@ -197,22 +169,7 @@ func (p *ParticipantDataController) AddMembers(c *fiber.Ctx) error {
 
 // TODO: Remove Members
 func (p *ParticipantDataController) RemoveMembers(c *fiber.Ctx) error {
-	participantId := c.Locals(util.CurrentUserIdKey).(string)
 	biodataId := c.Params("id")
-
-	currentParticipant, err := p.ParticipantRepository.FindParticipantById(participantId, false)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Something wrong when getting participant"),
-		})
-	}
-
-	valid := currentParticipant.ValidateUserStep(entity.StepFillBiodatasParticipant)
-	if !valid {
-		return c.Status(fiber.StatusForbidden).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Anda tidak dapat lagi update data ini"),
-		})
-	}
 
 	if err := p.ParticipantRepository.RemoveBiodata(biodataId); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
@@ -227,20 +184,6 @@ func (p *ParticipantDataController) RemoveMembers(c *fiber.Ctx) error {
 
 func (p *ParticipantDataController) LockData(c *fiber.Ctx) error {
 	participantId := c.Locals(util.CurrentUserIdKey).(string)
-
-	currentParticipant, err := p.ParticipantRepository.FindParticipantById(participantId, false)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Something wrong when getting participant"),
-		})
-	}
-
-	valid := currentParticipant.ValidateUserStep(entity.StepLockedParticipant)
-	if !valid {
-		return c.Status(fiber.StatusForbidden).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Anda tidak dapat lagi update data ini"),
-		})
-	}
 
 	cTime := time.Now()
 	participant := entity.Participant{

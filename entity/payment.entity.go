@@ -11,7 +11,7 @@ type Payment struct {
 	ParticipantId   *string        `json:"participant_id"`
 	BankName        string         `json:"bank_name"`
 	BankAccount     string         `json:"bank_account"`
-	ReferalId       string         `json:"referal_id"`
+	ReferalId       *string        `json:"referal_id"`
 	Referal         *Referal       `json:"referal" gorm:"foreignKey:ReferalId;references:Id"`
 	Date            *time.Time     `json:"date"`
 	Invoice         string         `json:"invoice"`
