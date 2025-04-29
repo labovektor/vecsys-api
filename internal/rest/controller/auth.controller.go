@@ -250,8 +250,8 @@ func (ac *AuthController) LogoutUser(c *fiber.Ctx) error {
 	})
 }
 
-func (ac *AuthController) RequestResetPassword(c *fiber.Ctx) error {
-	req := new(dto.RequestResetPasswordReq)
+func (ac *AuthController) ForgotPasswordUser(c *fiber.Ctx) error {
+	req := new(dto.ForgotPasswordReq)
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
@@ -292,7 +292,7 @@ func (ac *AuthController) RequestResetPassword(c *fiber.Ctx) error {
 	})
 }
 
-func (ac *AuthController) ResetPassword(c *fiber.Ctx) error {
+func (ac *AuthController) ResetPasswordUser(c *fiber.Ctx) error {
 	req := new(dto.ResetPasswordReq)
 	userId := c.Locals(util.CurrentUserIdKey).(string)
 

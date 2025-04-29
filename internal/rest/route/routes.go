@@ -81,8 +81,8 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	userAuth.Post("/register", allController.AuthController.RegisterUser)
 	userAuth.Post("/login", allController.AuthController.LoginUser)
 	userAuth.Get("/logout", middleware.UserMiddleware(), allController.AuthController.LogoutUser)
-	userAuth.Post("/request-reset-password", allController.AuthController.RequestResetPassword)
-	userAuth.Post("/reset-password", allController.AuthController.ResetPassword)
+	userAuth.Post("/forgot-password", allController.AuthController.ForgotPasswordUser)
+	userAuth.Post("/reset-password", allController.AuthController.ResetPasswordUser)
 
 	// Admin Route
 	adminRoutes.Get("/", middleware.AdminMiddleware(), allController.AdminController.GetAdmin)

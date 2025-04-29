@@ -14,7 +14,7 @@ type ParticipantSignUpReq struct {
 	Password string `json:"password" form:"password" validate:"required"`
 }
 
-type RequestResetPasswordReq struct {
+type ForgotPasswordReq struct {
 	Email string `json:"email" form:"email" validate:"required,email"`
 }
 
