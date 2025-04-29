@@ -41,27 +41,16 @@ func NewParticipantController(
 }
 
 func (p *ParticipantAdministrationController) GetAllEventCategoryAndRegion(c *fiber.Ctx) error {
-	req := new(dto.GetAllEventCategoryAndRegionReq)
+	eventId := c.Locals(util.CurentUserEventIdKey).(string)
 
-	if err := c.BodyParser(req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
-		})
-	}
-
-	if err := util.ValidateStruct(req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage(err.Error()),
-		})
-	}
-	categories, err := p.CategoryRepository.GetAllCategories(req.EventId)
+	categories, err := p.CategoryRepository.GetAllCategories(eventId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when getting categories"),
 		})
 	}
 
-	regions, err := p.RegionRepository.GetAllRegion(req.EventId)
+	regions, err := p.RegionRepository.GetAllRegion(eventId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when getting regions"),
@@ -126,21 +115,9 @@ func (p *ParticipantAdministrationController) PickCategoryAndRegion(c *fiber.Ctx
 }
 
 func (p *ParticipantAdministrationController) GetAllPaymentOption(c *fiber.Ctx) error {
-	req := new(dto.GetPaymentOptionsReq)
+	eventId := c.Locals(util.CurentUserEventIdKey).(string)
 
-	if err := c.BodyParser(req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
-		})
-	}
-
-	if err := util.ValidateStruct(req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage(err.Error()),
-		})
-	}
-
-	paymentOptions, err := p.PaymentRepository.GetPaymentOptions(req.EventId)
+	paymentOptions, err := p.PaymentRepository.GetPaymentOptions(eventId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when getting payment options"),

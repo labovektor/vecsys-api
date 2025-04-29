@@ -23,17 +23,9 @@ type ResetPasswordReq struct {
 	Password string `json:"password" form:"password" validate:"required"`
 }
 
-type GetAllEventCategoryAndRegionReq struct {
-	EventId string `json:"event_id" form:"event_id" validate:"required"`
-}
-
 type PickCategoryAndRegionReq struct {
 	CategoryId string `json:"category_id" form:"category_id" validate:"required"`
 	RegionId   string `json:"region_id" form:"region_id" validate:"required"`
-}
-
-type GetPaymentOptionsReq struct {
-	EventId string `json:"event_id" form:"event_id" validate:"required"`
 }
 
 type ClaimReferalReq struct {
@@ -47,12 +39,7 @@ type PaymentReq struct {
 	TransferDate    string `json:"transfer_date" form:"transfer_date" validate:"required, datetime=2006-01-02T15:04:05Z07:00"`
 }
 
-type GetInstitutionsReq struct {
-	EventId string `json:"event_id" form:"event_id" validate:"required"`
-}
-
 type AddInstitutionReq struct {
-	EventId         string `json:"event_id" form:"event_id" validate:"required"`
 	Name            string `json:"name" form:"name" validate:"required"`
 	Email           string `json:"email" form:"email" validate:"required,email"`
 	PendampingName  string `json:"phone" form:"phone" validate:"required"`

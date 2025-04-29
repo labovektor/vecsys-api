@@ -27,21 +27,9 @@ func NewParticipantDataController(
 }
 
 func (p *ParticipantDataController) GetAllInstitution(c *fiber.Ctx) error {
-	req := new(dto.GetInstitutionsReq)
+	eventId := c.Locals(util.CurentUserEventIdKey).(string)
 
-	if err := c.BodyParser(req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
-		})
-	}
-
-	if err := util.ValidateStruct(req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage(err.Error()),
-		})
-	}
-
-	institutions, err := p.InstitutionRepository.GetAllInstitutions(req.EventId)
+	institutions, err := p.InstitutionRepository.GetAllInstitutions(eventId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when getting institutions"),
@@ -56,6 +44,7 @@ func (p *ParticipantDataController) GetAllInstitution(c *fiber.Ctx) error {
 
 func (p *ParticipantDataController) AddInstitution(c *fiber.Ctx) error {
 	req := new(dto.AddInstitutionReq)
+	eventId := c.Locals(util.CurentUserEventIdKey).(string)
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
@@ -70,7 +59,7 @@ func (p *ParticipantDataController) AddInstitution(c *fiber.Ctx) error {
 	}
 
 	institution := &entity.Institution{
-		EventId:         &req.EventId,
+		EventId:         &eventId,
 		Name:            req.Name,
 		Email:           req.Email,
 		PendampingName:  req.PendampingName,
