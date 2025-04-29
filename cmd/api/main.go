@@ -7,6 +7,7 @@ import (
 	"github.com/labovector/vecsys-api/infrastructure/config"
 	"github.com/labovector/vecsys-api/infrastructure/database"
 	"github.com/labovector/vecsys-api/infrastructure/session"
+	"github.com/labovector/vecsys-api/internal/email"
 	"github.com/labovector/vecsys-api/internal/rest"
 	"github.com/labovector/vecsys-api/internal/util"
 )
@@ -25,6 +26,12 @@ func main() {
 
 	// Initialize validator
 	util.InitValidator()
+
+	// Initialize email dialer
+	_ = email.NewEmailDialer(&conf.Email)
+
+	// Initialize JWT Maker
+	_ = util.NewJWTMaker(&conf.JWT)
 
 	// Custom File Writer for logger
 	file, err := os.OpenFile("./vecsys-logger.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
