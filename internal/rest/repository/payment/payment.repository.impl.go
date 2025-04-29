@@ -72,7 +72,7 @@ func (p *paymentRepositoryImpl) GetPaymentById(id string) (entity.Payment, error
 // GetPaymentByParticipantId implements PaymentRepository.
 func (p *paymentRepositoryImpl) GetPaymentByParticipantId(participantId string) (entity.Payment, error) {
 	var payment entity.Payment
-	err := p.db.First(&payment, "participant_id = ?", participantId).Error
+	err := p.db.Preload("Referal").First(&payment, "participant_id = ?", participantId).Error
 	return payment, err
 }
 

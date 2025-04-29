@@ -28,12 +28,14 @@ type AllRepository struct {
 }
 
 type AllController struct {
-	AdminController    *controller.AdminController
-	UserController     *controller.UserController
-	EventController    *controller.EventController
-	AuthController     *controller.AuthController
-	CategoryController controller.CategoryController
-	RegionController   controller.RegionController
+	AdminController                     *controller.AdminController
+	UserController                      *controller.UserController
+	EventController                     *controller.EventController
+	AuthController                      *controller.AuthController
+	CategoryController                  controller.CategoryController
+	RegionController                    controller.RegionController
+	ParticipantAdministrationController *controller.ParticipantAdministrationController
+	ParticipantDataController           *controller.ParticipantDataController
 }
 
 func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Maker, emailDialer email.EmailDialer) {
@@ -55,6 +57,17 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 			allRepository.CategoryRepository,
 		),
 		RegionController: controller.NewRegionController(allRepository.RegionRepository),
+		ParticipantAdministrationController: controller.NewParticipantController(
+			allRepository.UserRepository,
+			allRepository.CategoryRepository,
+			allRepository.RegionRepository,
+			allRepository.PaymentRepository,
+			allRepository.ReferalRepository,
+		),
+		ParticipantDataController: controller.NewParticipantDataController(
+			allRepository.UserRepository,
+			allRepository.InstitutionRepository,
+		),
 	}
 
 	// Admin Auth Route
@@ -103,18 +116,35 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	adminRoutes.Patch("/region/:id", allController.RegionController.UpdateRegion)
 	adminRoutes.Delete("/region/:id", allController.RegionController.DeleteRegion)
 
+	// TODO: Test All API Route Bellow
 	// Participant Route
-	// TODO: Get All Participant Data
-	// TODO: Get Participant State
-	// TODO: Get All Event Category
-	// TODO: Get All Event Region
-	// TODO: Pick Category and Region
-	// TODO: Get All Payment Option
-	// TODO: Validate Referal
-	// TODO: Payment
-	// TODO: Get All Institution
-	// TODO: Add Institution
-	// TODO: Pick Institution
-	// TODO: Add Members (Receive an Array of Biodata)
-	// TODO: Lock Data
+	userAdministration := userRoutes.Group("/administration", middleware.UserMiddleware())
+	// Get All Participant Data
+	userAdministration.Get("/", allController.ParticipantAdministrationController.GetAllParticipantData)
+	// Get Participant State
+	userAdministration.Get("/state", allController.ParticipantAdministrationController.GetParticipantState)
+	// Get All Event Category & Region
+	userAdministration.Get("/category", allController.ParticipantAdministrationController.GetAllEventCategoryAndRegion)
+	// Pick Category and Region
+	userAdministration.Patch("/category", allController.ParticipantAdministrationController.PickCategoryAndRegion)
+	// Get All Payment Option
+	userAdministration.Get("/payment", allController.ParticipantAdministrationController.GetAllPaymentOption)
+	// Validate Referal
+	userAdministration.Post("/validate-referal", allController.ParticipantAdministrationController.ValidateReferal)
+	// Payment
+	userAdministration.Post("/payment", allController.ParticipantAdministrationController.Payment)
+
+	userData := userRoutes.Group("/data", middleware.UserMiddleware())
+	// Get All Institution
+	userData.Get("/institution", allController.ParticipantDataController.GetAllInstitution)
+	// Add Institution
+	userData.Post("/institution", allController.ParticipantDataController.AddInstitution)
+	// Pick Institution
+	userData.Patch("/institution", allController.ParticipantDataController.PickInstitution)
+	// Add Members
+	userData.Post("/members", allController.ParticipantDataController.AddMembers)
+	// Remove Members
+	userData.Delete("/members", allController.ParticipantDataController.RemoveMembers)
+	// Lock Data
+	userData.Patch("/lock", allController.ParticipantDataController.LockData)
 }

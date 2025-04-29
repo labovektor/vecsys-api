@@ -29,11 +29,11 @@ type Participant struct {
 }
 
 func (p *Participant) IsVerified() bool {
-	return p.VerifiedAt != nil
+	return p.VerifiedAt != nil && p.ProgressStep == StepValidatedParticipant
 }
 
 func (p *Participant) IsLocked() bool {
-	return p.LockedAt != nil
+	return p.LockedAt != nil && p.ProgressStep == StepLockedParticipant
 }
 
 // Enum of participant progress steps 'registered', 'categorized', 'paid', 'validated', 'select_institution', 'fill_biodatas', 'locked'
@@ -46,3 +46,45 @@ const (
 	StepFillBiodatasParticipant      = "fill_biodatas"
 	StepLockedParticipant            = "locked"
 )
+
+func getStepValue(step string) int {
+	switch step {
+	case StepRegisteredParticipant:
+		return 0
+	case StepCategorizedParticipant:
+		return 1
+	case StepPaidParticipant:
+		return 2
+	case StepValidatedParticipant:
+		return 3
+	case StepSelectInstitutionParticipant:
+		return 4
+	case StepFillBiodatasParticipant:
+		return 5
+	case StepLockedParticipant:
+		return 6
+	default:
+		return 0
+	}
+}
+
+func (p *Participant) ValidateUserStep(updateStepTarget string) bool {
+	updateStepValue := getStepValue(updateStepTarget)
+
+	// Check if user is locked, if locked user data can't be updated
+	if p.IsLocked() {
+		return false
+	}
+
+	// Check if user is verified, if verified user data bellow step 3 can't be updated
+	if updateStepValue <= 3 && p.IsVerified() {
+		return false
+	}
+
+	// Check if user is not verified, if not verified user data above step 3 can't be updated
+	if updateStepValue > 3 && !p.IsVerified() {
+		return false
+	}
+
+	return true
+}

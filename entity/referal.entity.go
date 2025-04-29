@@ -18,3 +18,7 @@ type Referal struct {
 	CreatedAt     time.Time  `gorm:"default:now();" json:"created_at"`
 	UpdatedAt     *time.Time `json:"updated_at"`
 }
+
+func (r *Referal) IsAvailableToClaim() bool {
+	return r.SeatAvailable > 0
+}
