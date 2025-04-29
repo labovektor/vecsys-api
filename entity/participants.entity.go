@@ -35,3 +35,14 @@ func (p *Participant) IsVerified() bool {
 func (p *Participant) IsLocked() bool {
 	return p.LockedAt != nil
 }
+
+// Enum of participant progress steps 'registered', 'categorized', 'paid', 'validated', 'select_institution', 'fill_biodatas', 'locked'
+const (
+	StepRegisteredParticipant        = "registered"
+	StepCategorizedParticipant       = "categorized"
+	StepPaidParticipant              = "paid"
+	StepValidatedParticipant         = "validated"
+	StepSelectInstitutionParticipant = "select_institution"
+	StepFillBiodatasParticipant      = "fill_biodatas"
+	StepLockedParticipant            = "locked"
+)
