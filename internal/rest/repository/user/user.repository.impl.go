@@ -95,8 +95,14 @@ func (u *userRepositoryImpl) FindAllParticipant() ([]entity.Participant, error) 
 }
 
 // FindParticipantById implements UserRepository.
-func (u *userRepositoryImpl) FindParticipantById(id string) (*entity.Participant, error) {
+func (u *userRepositoryImpl) FindParticipantById(id string, preload bool) (*entity.Participant, error) {
 	participant := &entity.Participant{}
+	if preload {
+		if err := u.db.Preload("Biodatas").Preload("Institution").Preload("Region").Preload("Category").Preload("Payment").First(participant, "id = ?", id).Error; err != nil {
+			return nil, err
+		}
+		return participant, nil
+	}
 	if err := u.db.First(participant, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
