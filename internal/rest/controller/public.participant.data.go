@@ -161,6 +161,16 @@ func (p *ParticipantDataController) AddMembers(c *fiber.Ctx) error {
 		})
 	}
 
+	participant := entity.Participant{
+		ProgressStep: entity.StepFillBiodatasParticipant,
+	}
+
+	if err := p.ParticipantRepository.UpdateParticipant(participantId, &participant); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when updating participant"),
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
 		Status: dto.SuccessStatus,
 		Data:   biodata,

@@ -141,9 +141,9 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	// Pick Institution
 	userData.Patch("/institution", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepSelectInstitutionParticipant), allController.ParticipantDataController.PickInstitution)
 	// Add Members
-	userData.Post("/members", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepFillBiodatasParticipant), allController.ParticipantDataController.AddMembers)
+	userData.Post("/member", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepFillBiodatasParticipant), allController.ParticipantDataController.AddMembers)
 	// Remove Members
-	userData.Delete("/members", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepFillBiodatasParticipant), allController.ParticipantDataController.RemoveMembers)
+	userData.Delete("/member/:id", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepFillBiodatasParticipant), allController.ParticipantDataController.RemoveMembers)
 	// Lock Data
 	userData.Patch("/lock", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepLockedParticipant), allController.ParticipantDataController.LockData)
 }

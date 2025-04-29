@@ -19,7 +19,7 @@ type Participant struct {
 	Institution   *Institution        `json:"institution" gorm:"foreignKey:InstitutionId;references:Id"`
 	Email         string              `gorm:"unique" json:"email"`
 	Password      string              `json:"-"`
-	Biodata       *Biodata            `json:"biodata" gorm:"foreignKey:ParticipantId;references:Id"`
+	Biodata       *[]Biodata          `json:"biodata" gorm:"foreignKey:ParticipantId;references:Id"`
 	Payment       *Payment            `json:"payment" gorm:"foreignKey:ParticipantId;references:Id"`
 	ProgressStep  ParticipantProgress `json:"progress_step" gorm:"default:'registered'"`
 	VerifiedAt    *time.Time          `json:"verified_at,omitempty"`
