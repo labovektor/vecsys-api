@@ -9,6 +9,30 @@ type ReferalRepositoryImpl struct {
 	db *gorm.DB
 }
 
+// GetAllDiscountVoucher implements ReferalRepository.
+func (v *ReferalRepositoryImpl) GetAllDiscountVoucher(eventId ...string) ([]entity.Referal, error) {
+	var vouchers []entity.Referal
+
+	if len(eventId) > 0 {
+		err := v.db.Find(&vouchers, "event_id = ? AND is_discount = ?", eventId[0], true).Error
+		return vouchers, err
+	}
+	err := v.db.Find(&vouchers, "is_discount = ?", true).Error
+	return vouchers, err
+}
+
+// GetAllNonDiscountVoucher implements ReferalRepository.
+func (v *ReferalRepositoryImpl) GetAllNonDiscountVoucher(eventId ...string) ([]entity.Referal, error) {
+	var vouchers []entity.Referal
+
+	if len(eventId) > 0 {
+		err := v.db.Find(&vouchers, "event_id = ? AND is_discount = ?", eventId[0], false).Error
+		return vouchers, err
+	}
+	err := v.db.Find(&vouchers, "is_discount = ?", false).Error
+	return vouchers, err
+}
+
 // CreateVoucher implements VoucherRepository.
 func (v *ReferalRepositoryImpl) CreateVoucher(voucher *entity.Referal) (entity.Referal, error) {
 	db := v.db.Create(voucher)

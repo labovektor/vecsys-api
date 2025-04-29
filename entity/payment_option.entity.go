@@ -14,6 +14,7 @@ type PaymentOption struct {
 	Account   string     `json:"account"`
 	Name      string     `json:"name"`
 	AsQR      *bool      `gorm:"default:false" json:"as_qr"`
+	Amount    int        `json:"amount"`
 	CreatedAt time.Time  `gorm:"default:now();" json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`
 }
