@@ -2,6 +2,7 @@ package route
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/labovector/vecsys-api/internal/email"
 	"github.com/labovector/vecsys-api/internal/rest/controller"
 	"github.com/labovector/vecsys-api/internal/rest/middleware"
 	ar "github.com/labovector/vecsys-api/internal/rest/repository/admin"
@@ -12,6 +13,7 @@ import (
 	vr "github.com/labovector/vecsys-api/internal/rest/repository/referal"
 	rr "github.com/labovector/vecsys-api/internal/rest/repository/region"
 	ur "github.com/labovector/vecsys-api/internal/rest/repository/user"
+	"github.com/labovector/vecsys-api/internal/util"
 )
 
 type AllRepository struct {
@@ -34,7 +36,7 @@ type AllController struct {
 	RegionController   controller.RegionController
 }
 
-func SetupRoute(app *fiber.App, allRepository *AllRepository) {
+func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Maker, emailDialer email.EmailDialer) {
 
 	// Base route for API versioning (v1)
 	api := app.Group("/api/v1")
@@ -48,7 +50,7 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 		AdminController: controller.NewAdminController(allRepository.AdminRepository),
 		UserController:  controller.NewUserController(allRepository.UserRepository),
 		EventController: controller.NewEventController(allRepository.EventRepository),
-		AuthController:  controller.NewAuthController(allRepository.AdminRepository, allRepository.UserRepository),
+		AuthController:  controller.NewAuthController(allRepository.AdminRepository, allRepository.UserRepository, jwtMaker, emailDialer),
 		CategoryController: controller.NewCategoryController(
 			allRepository.CategoryRepository,
 		),
@@ -66,8 +68,8 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 	userAuth.Post("/register", allController.AuthController.RegisterUser)
 	userAuth.Post("/login", allController.AuthController.LoginUser)
 	userAuth.Get("/logout", middleware.UserMiddleware(), allController.AuthController.LogoutUser)
-	// TODO: Forgot Password
-	// TODO: Reset Password
+	userAuth.Post("/request-reset-password", allController.AuthController.RequestResetPassword)
+	userAuth.Post("/reset-password", allController.AuthController.ResetPassword)
 
 	// Admin Route
 	adminRoutes.Get("/", middleware.AdminMiddleware(), allController.AdminController.GetAdmin)

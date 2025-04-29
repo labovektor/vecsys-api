@@ -28,10 +28,10 @@ func main() {
 	util.InitValidator()
 
 	// Initialize email dialer
-	_ = email.NewEmailDialer(&conf.Email)
+	mailer := email.NewEmailDialer(&conf.Email)
 
 	// Initialize JWT Maker
-	_ = util.NewJWTMaker(&conf.JWT)
+	jwt := util.NewJWTMaker(&conf.JWT)
 
 	// Custom File Writer for logger
 	file, err := os.OpenFile("./vecsys-logger.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
@@ -40,7 +40,7 @@ func main() {
 	}
 	defer file.Close()
 
-	app := rest.New(session, db, file)
+	app := rest.New(session, db, file, *mailer, *jwt)
 
 	// Run the app
 	if err := app.Listen(":8787"); err != nil {

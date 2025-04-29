@@ -11,7 +11,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/labovector/vecsys-api/internal/email"
 	"github.com/labovector/vecsys-api/internal/rest/route"
+	"github.com/labovector/vecsys-api/internal/util"
 	"gorm.io/gorm"
 
 	ar "github.com/labovector/vecsys-api/internal/rest/repository/admin"
@@ -24,7 +26,7 @@ import (
 	ur "github.com/labovector/vecsys-api/internal/rest/repository/user"
 )
 
-func New(session *session.Store, db *gorm.DB, logFile *os.File) *fiber.App {
+func New(session *session.Store, db *gorm.DB, logFile *os.File, emailDialer email.EmailDialer, jwtMaker util.Maker) *fiber.App {
 	_ = context.Background()
 	app := fiber.New(fiber.Config{
 		AppName: "vecsys",
@@ -92,7 +94,7 @@ func New(session *session.Store, db *gorm.DB, logFile *os.File) *fiber.App {
 		ReferalRepository:     vr.NewReferalRepositoryImpl(db),
 		CategoryRepository:    cr.NewCategoryRepositoryImpl(db),
 		InstitutionRepository: ir.NewInstitutionRepositoryImpl(db),
-	})
+	}, jwtMaker, emailDialer)
 
 	return app
 }
