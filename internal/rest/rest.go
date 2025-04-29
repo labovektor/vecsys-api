@@ -11,7 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/session"
-	"github.com/labovector/vecsys-api/internal/email"
+	"github.com/labovector/vecsys-api/infrastructure/email"
 	"github.com/labovector/vecsys-api/internal/rest/route"
 	"github.com/labovector/vecsys-api/internal/util"
 	"gorm.io/gorm"

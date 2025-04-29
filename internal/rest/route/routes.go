@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/labovector/vecsys-api/internal/email"
+	"github.com/labovector/vecsys-api/infrastructure/email"
 	"github.com/labovector/vecsys-api/internal/rest/controller"
 	"github.com/labovector/vecsys-api/internal/rest/middleware"
 	ar "github.com/labovector/vecsys-api/internal/rest/repository/admin"

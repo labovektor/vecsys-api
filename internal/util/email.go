@@ -6,7 +6,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/labovector/vecsys-api/internal/email"
+	"github.com/labovector/vecsys-api/infrastructure/email"
 	"gopkg.in/gomail.v2"
 )
 

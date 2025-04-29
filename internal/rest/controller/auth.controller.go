@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/entity"
-	"github.com/labovector/vecsys-api/internal/email"
+	"github.com/labovector/vecsys-api/infrastructure/email"
 	"github.com/labovector/vecsys-api/internal/rest/dto"
 	adminRepo "github.com/labovector/vecsys-api/internal/rest/repository/admin"
 	userRepo "github.com/labovector/vecsys-api/internal/rest/repository/user"

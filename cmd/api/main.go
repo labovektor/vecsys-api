@@ -6,8 +6,8 @@ import (
 
 	"github.com/labovector/vecsys-api/infrastructure/config"
 	"github.com/labovector/vecsys-api/infrastructure/database"
+	"github.com/labovector/vecsys-api/infrastructure/email"
 	"github.com/labovector/vecsys-api/infrastructure/session"
-	"github.com/labovector/vecsys-api/internal/email"
 	"github.com/labovector/vecsys-api/internal/rest"
 	"github.com/labovector/vecsys-api/internal/util"
 )
