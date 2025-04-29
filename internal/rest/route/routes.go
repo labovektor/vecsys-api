@@ -90,7 +90,9 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 
 	// User Route
 	userRoutes.Get("/", middleware.UserMiddleware(), allController.UserController.GetUser)
-	// userRoutes.Patch("/", middleware.UserMiddleware(), allController.UserController.)
+	userRoutes.Get("/data", allController.UserController.GetAllParticipantData)
+	// Get Participant State
+	userRoutes.Get("/state", allController.UserController.GetParticipantState)
 
 	// Event Route
 	event := adminRoutes.Group("/event", middleware.AdminMiddleware())
@@ -119,10 +121,6 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	// TODO: Test All API Route Bellow
 	// Participant Route
 	userAdministration := userRoutes.Group("/administration", middleware.UserMiddleware())
-	// Get All Participant Data
-	userAdministration.Get("/", allController.ParticipantAdministrationController.GetAllParticipantData)
-	// Get Participant State
-	userAdministration.Get("/state", allController.ParticipantAdministrationController.GetParticipantState)
 	// Get All Event Category & Region
 	userAdministration.Get("/category", allController.ParticipantAdministrationController.GetAllEventCategoryAndRegion)
 	// Pick Category and Region

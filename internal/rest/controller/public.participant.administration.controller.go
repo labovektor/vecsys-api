@@ -40,50 +40,6 @@ func NewParticipantController(
 	}
 }
 
-func (p *ParticipantAdministrationController) GetAllParticipantData(c *fiber.Ctx) error {
-	participantId := c.Locals(util.CurrentUserIdKey).(string)
-
-	participant, err := p.ParticipantRepository.FindParticipantById(participantId, true)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
-		})
-	}
-
-	res := fiber.Map{
-		"participant": participant,
-		"is_verified": participant.IsVerified(),
-		"is_locked":   participant.IsLocked(),
-	}
-
-	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
-		Status: dto.SuccessStatus,
-		Data:   res,
-	})
-}
-
-func (p *ParticipantAdministrationController) GetParticipantState(c *fiber.Ctx) error {
-	participantId := c.Locals(util.CurrentUserIdKey).(string)
-
-	participant, err := p.ParticipantRepository.FindParticipantById(participantId, false)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
-		})
-	}
-
-	res := fiber.Map{
-		"step":        participant.ProgressStep,
-		"is_verified": participant.IsVerified(),
-		"is_locked":   participant.IsLocked(),
-	}
-
-	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
-		Status: dto.SuccessStatus,
-		Data:   res,
-	})
-}
-
 func (p *ParticipantAdministrationController) GetAllEventCategoryAndRegion(c *fiber.Ctx) error {
 	req := new(dto.GetAllEventCategoryAndRegionReq)
 
