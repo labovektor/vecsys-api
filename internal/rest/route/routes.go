@@ -119,7 +119,8 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	adminRoutes.Patch("/region/:id", allController.RegionController.UpdateRegion)
 	adminRoutes.Delete("/region/:id", allController.RegionController.DeleteRegion)
 
-	// TODO: Test All API Route Bellow
+	// Write your route up here
+
 	// Participant Route
 	userAdministration := userRoutes.Group("/administration", middleware.UserMiddleware())
 	// Get All Event Category & Region
