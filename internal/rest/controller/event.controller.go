@@ -35,7 +35,7 @@ func (ec *EventController) CreateEvent(c *fiber.Ctx) error {
 	id := c.Locals(util.CurrentUserIdKey).(string)
 
 	event := entity.Event{
-		AdminId: id,
+		AdminId: &id,
 		Name:    req.Name,
 	}
 

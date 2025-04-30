@@ -63,7 +63,7 @@ func (cc *CategoryController) AddCategoryToEvent(c *fiber.Ctx) error {
 	}
 
 	category := entity.Category{
-		EventId: eventId,
+		EventId: &eventId,
 		Name:    req.Name,
 		IsGroup: &req.IsGroup,
 		Visible: &req.Visible,

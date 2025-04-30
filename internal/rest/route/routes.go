@@ -2,6 +2,8 @@ package route
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/labovector/vecsys-api/entity"
+	"github.com/labovector/vecsys-api/infrastructure/email"
 	"github.com/labovector/vecsys-api/internal/rest/controller"
 	"github.com/labovector/vecsys-api/internal/rest/middleware"
 	ar "github.com/labovector/vecsys-api/internal/rest/repository/admin"
@@ -12,6 +14,7 @@ import (
 	vr "github.com/labovector/vecsys-api/internal/rest/repository/referal"
 	rr "github.com/labovector/vecsys-api/internal/rest/repository/region"
 	ur "github.com/labovector/vecsys-api/internal/rest/repository/user"
+	"github.com/labovector/vecsys-api/internal/util"
 )
 
 type AllRepository struct {
@@ -26,15 +29,17 @@ type AllRepository struct {
 }
 
 type AllController struct {
-	AdminController    *controller.AdminController
-	UserController     *controller.UserController
-	EventController    *controller.EventController
-	AuthController     *controller.AuthController
-	CategoryController controller.CategoryController
-	RegionController   controller.RegionController
+	AdminController                     *controller.AdminController
+	UserController                      *controller.UserController
+	EventController                     *controller.EventController
+	AuthController                      *controller.AuthController
+	CategoryController                  controller.CategoryController
+	RegionController                    controller.RegionController
+	ParticipantAdministrationController *controller.ParticipantAdministrationController
+	ParticipantDataController           *controller.ParticipantDataController
 }
 
-func SetupRoute(app *fiber.App, allRepository *AllRepository) {
+func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Maker, emailDialer email.EmailDialer) {
 
 	// Base route for API versioning (v1)
 	api := app.Group("/api/v1")
@@ -48,11 +53,22 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 		AdminController: controller.NewAdminController(allRepository.AdminRepository),
 		UserController:  controller.NewUserController(allRepository.UserRepository),
 		EventController: controller.NewEventController(allRepository.EventRepository),
-		AuthController:  controller.NewAuthController(allRepository.AdminRepository, allRepository.UserRepository),
+		AuthController:  controller.NewAuthController(allRepository.AdminRepository, allRepository.UserRepository, jwtMaker, emailDialer),
 		CategoryController: controller.NewCategoryController(
 			allRepository.CategoryRepository,
 		),
 		RegionController: controller.NewRegionController(allRepository.RegionRepository),
+		ParticipantAdministrationController: controller.NewParticipantController(
+			allRepository.UserRepository,
+			allRepository.CategoryRepository,
+			allRepository.RegionRepository,
+			allRepository.PaymentRepository,
+			allRepository.ReferalRepository,
+		),
+		ParticipantDataController: controller.NewParticipantDataController(
+			allRepository.UserRepository,
+			allRepository.InstitutionRepository,
+		),
 	}
 
 	// Admin Auth Route
@@ -66,6 +82,8 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 	userAuth.Post("/register", allController.AuthController.RegisterUser)
 	userAuth.Post("/login", allController.AuthController.LoginUser)
 	userAuth.Get("/logout", middleware.UserMiddleware(), allController.AuthController.LogoutUser)
+	userAuth.Post("/forgot-password", allController.AuthController.ForgotPasswordUser)
+	userAuth.Post("/reset-password", allController.AuthController.ResetPasswordUser)
 
 	// Admin Route
 	adminRoutes.Get("/", middleware.AdminMiddleware(), allController.AdminController.GetAdmin)
@@ -73,7 +91,9 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 
 	// User Route
 	userRoutes.Get("/", middleware.UserMiddleware(), allController.UserController.GetUser)
-	// userRoutes.Patch("/", middleware.UserMiddleware(), allController.UserController.)
+	userRoutes.Get("/data", middleware.UserMiddleware(), allController.UserController.GetAllParticipantData)
+	// Get Participant State
+	userRoutes.Get("/state", middleware.UserMiddleware(), allController.UserController.GetParticipantState)
 
 	// Event Route
 	event := adminRoutes.Group("/event", middleware.AdminMiddleware())
@@ -98,4 +118,33 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository) {
 	event.Post("/:id/region", allController.RegionController.AddRegionToEvent)
 	adminRoutes.Patch("/region/:id", allController.RegionController.UpdateRegion)
 	adminRoutes.Delete("/region/:id", allController.RegionController.DeleteRegion)
+
+	// Write your route up here
+
+	// Participant Route
+	userAdministration := userRoutes.Group("/administration", middleware.UserMiddleware())
+	// Get All Event Category & Region
+	userAdministration.Get("/category", allController.ParticipantAdministrationController.GetAllEventCategoryAndRegion)
+	// Pick Category and Region
+	userAdministration.Patch("/category", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepCategorizedParticipant), allController.ParticipantAdministrationController.PickCategoryAndRegion)
+	// Get All Payment Option
+	userAdministration.Get("/payment", allController.ParticipantAdministrationController.GetAllPaymentOption)
+	// Validate Referal
+	userAdministration.Post("/validate-referal", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepPaidParticipant), allController.ParticipantAdministrationController.ValidateReferal)
+	// Payment
+	userAdministration.Patch("/payment", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepPaidParticipant), allController.ParticipantAdministrationController.Payment)
+
+	userData := userRoutes.Group("/data", middleware.UserMiddleware())
+	// Get All Institution
+	userData.Get("/institution", allController.ParticipantDataController.GetAllInstitution)
+	// Add Institution
+	userData.Post("/institution", allController.ParticipantDataController.AddInstitution)
+	// Pick Institution
+	userData.Patch("/institution", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepSelectInstitutionParticipant), allController.ParticipantDataController.PickInstitution)
+	// Add Members
+	userData.Post("/member", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepFillBiodatasParticipant), allController.ParticipantDataController.AddMembers)
+	// Remove Members
+	userData.Delete("/member/:id", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepFillBiodatasParticipant), allController.ParticipantDataController.RemoveMembers)
+	// Lock Data
+	userData.Patch("/lock", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepLockedParticipant), allController.ParticipantDataController.LockData)
 }

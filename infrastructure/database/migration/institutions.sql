@@ -5,6 +5,7 @@ CREATE TABLE institutions (
     email VARCHAR(255) NOT NULL,
     pendamping_name VARCHAR(255),
     pendamping_phone VARCHAR(50),
+    issuer VARCHAR(255),
     created_at TIMESTAMP DEFAULT now() NOT NULL,
     updated_at TIMESTAMP
 );

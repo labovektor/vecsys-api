@@ -19,9 +19,9 @@ func NewUserController(userRepo repository.UserRepository) *UserController {
 
 func (ac *UserController) GetUser(c *fiber.Ctx) error {
 	// Because in user, email is set as username
-	emailSession := c.Locals(util.CurrentUserNameKey).(string)
+	participantId := c.Locals(util.CurrentUserIdKey).(string)
 
-	participant, err := ac.userRepo.FindParticipantByEmail(emailSession)
+	participant, err := ac.userRepo.FindParticipantById(participantId, false)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
@@ -31,5 +31,49 @@ func (ac *UserController) GetUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
 		Status: dto.SuccessStatus,
 		Data:   participant,
+	})
+}
+
+func (ac *UserController) GetAllParticipantData(c *fiber.Ctx) error {
+	participantId := c.Locals(util.CurrentUserIdKey).(string)
+
+	participant, err := ac.userRepo.FindParticipantById(participantId, true)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
+		})
+	}
+
+	res := fiber.Map{
+		"participant": participant,
+		"is_verified": participant.IsVerified(),
+		"is_locked":   participant.IsLocked(),
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
+		Data:   res,
+	})
+}
+
+func (ac *UserController) GetParticipantState(c *fiber.Ctx) error {
+	participantId := c.Locals(util.CurrentUserIdKey).(string)
+
+	participant, err := ac.userRepo.FindParticipantById(participantId, false)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
+		})
+	}
+
+	res := fiber.Map{
+		"step":        participant.ProgressStep,
+		"is_verified": participant.IsVerified(),
+		"is_locked":   participant.IsLocked(),
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
+		Data:   res,
 	})
 }

@@ -18,6 +18,7 @@ var validate *validator.Validate
 var validationMessages = map[string]string{
 	"required":             "harus diisi",
 	"email":                "Format email tidak valid",
+	"datetime":             "Format tanggal tidak valid",
 	"min":                  "minimal %s karakter",
 	"max":                  "maksimal %s karakter",
 	"phone":                "harus dimulai dengan 628 dan terdiri dari 10-13 angka",

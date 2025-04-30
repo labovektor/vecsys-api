@@ -8,7 +8,7 @@ import (
 
 type Region struct {
 	Id            uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
-	EventId       string     `json:"event_id"`
+	EventId       *string    `json:"event_id"`
 	Event         *Event     `json:"event" gorm:"foreignKey:EventId;references:Id"`
 	Name          string     `json:"name"`
 	Visible       *bool      `gorm:"default:true" json:"visible"`

@@ -10,7 +10,7 @@ CREATE TABLE participants (
     payment_data_id UUID UNIQUE NOT NULL REFERENCES payments(id) ON DELETE CASCADE ON UPDATE CASCADE,
     verified_at TIMESTAMP,
     locked_at TIMESTAMP,
-    progress_step participant_progress DEFAULT 'registered' NOT NULL,
+    progress_step VARCHAR(255) DEFAULT 'registered' NOT NULL,
     created_at TIMESTAMP DEFAULT now() NOT NULL,
     updated_at TIMESTAMP
 );

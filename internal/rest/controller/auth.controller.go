@@ -1,8 +1,11 @@
 package controller
 
 import (
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/entity"
+	"github.com/labovector/vecsys-api/infrastructure/email"
 	"github.com/labovector/vecsys-api/internal/rest/dto"
 	adminRepo "github.com/labovector/vecsys-api/internal/rest/repository/admin"
 	userRepo "github.com/labovector/vecsys-api/internal/rest/repository/user"
@@ -10,14 +13,18 @@ import (
 )
 
 type AuthController struct {
-	adminRepo adminRepo.AdminRepository
-	userRepo  userRepo.UserRepository
+	adminRepo   adminRepo.AdminRepository
+	userRepo    userRepo.UserRepository
+	jwtMaker    util.Maker
+	emailDialer email.EmailDialer
 }
 
-func NewAuthController(adminRepo adminRepo.AdminRepository, userRepo userRepo.UserRepository) *AuthController {
+func NewAuthController(adminRepo adminRepo.AdminRepository, userRepo userRepo.UserRepository, jwtMaker util.Maker, emailDialer email.EmailDialer) *AuthController {
 	return &AuthController{
-		adminRepo: adminRepo,
-		userRepo:  userRepo,
+		adminRepo:   adminRepo,
+		userRepo:    userRepo,
+		jwtMaker:    jwtMaker,
+		emailDialer: emailDialer,
 	}
 }
 
@@ -26,7 +33,7 @@ func (ac *AuthController) LoginAdmin(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal memproses data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 
@@ -68,7 +75,7 @@ func (ac *AuthController) RegisterAdmin(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 
@@ -147,7 +154,7 @@ func (ac *AuthController) LoginUser(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal memproses data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 
@@ -189,7 +196,7 @@ func (ac *AuthController) RegisterUser(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Gagal Memproses Data!"),
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
 		})
 	}
 
@@ -214,7 +221,7 @@ func (ac *AuthController) RegisterUser(c *fiber.Ctx) error {
 	}
 
 	participant := entity.Participant{
-		EventId:  req.EventId,
+		EventId:  &req.EventId,
 		Email:    req.Email,
 		Name:     req.Name,
 		Password: passwordHash,
@@ -237,6 +244,100 @@ func (ac *AuthController) LogoutUser(c *fiber.Ctx) error {
 	if err := util.InvalidateSession(c); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Kesalahan saat menghapus sesi"),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
+	})
+}
+
+func (ac *AuthController) ForgotPasswordUser(c *fiber.Ctx) error {
+	req := new(dto.ForgotPasswordReq)
+
+	if err := c.BodyParser(req); err != nil {
+		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
+		})
+	}
+
+	if err := util.ValidateStruct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
+		})
+	}
+
+	user, err := ac.userRepo.FindParticipantByEmail(req.Email)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Email tidak ditemukan"),
+		})
+	}
+
+	token, err := ac.jwtMaker.GenerateResetPasswordToken(user.Id.String())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Kesalahan saat membuat token"),
+		})
+	}
+
+	url := "http://localhost:3000/user/reset-password?token=" + token
+
+	if err := util.SendResetPasswordEmail(user.Name, user.Email, url, &ac.emailDialer); err != nil {
+
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
+	})
+}
+
+func (ac *AuthController) ResetPasswordUser(c *fiber.Ctx) error {
+	req := new(dto.ResetPasswordReq)
+
+	if err := c.BodyParser(req); err != nil {
+		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar!"),
+		})
+	}
+
+	if err := util.ValidateStruct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
+		})
+	}
+
+	claims, err := ac.jwtMaker.GetClaimResetPasswordToken(req.Token)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Token tidak valid"),
+		})
+	}
+	ok := claims.ExpiresAt.Time.After(time.Now())
+	if !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Token tidak valid"),
+		})
+	}
+
+	passwordHash, err := util.HashPassword(req.Password)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
+		})
+	}
+
+	participant := entity.Participant{
+		Password: passwordHash,
+	}
+
+	userId := claims.UserId
+	if err = ac.userRepo.UpdateParticipant(userId, &participant); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Kesalahan saat memperbarui password"),
 		})
 	}
 

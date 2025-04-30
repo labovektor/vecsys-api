@@ -4,6 +4,8 @@ CREATE TABLE referals (
     code VARCHAR(255) NOT NULL,
     desc TEXT NOT NULL,
     seat_available INT DEFAULT 1 NOT NULL,
+    is_discount BOOLEAN DEFAULT FALSE NOT NULL,
+    discount INT DEFAULT 0 NOT NULL,
     created_at TIMESTAMP DEFAULT now() NOT NULL,
     updated_at TIMESTAMP
 );
