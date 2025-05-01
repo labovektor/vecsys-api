@@ -32,7 +32,7 @@ func New(session *session.Store, db *gorm.DB, logFile *os.File, emailDialer emai
 		AppName: "vecsys",
 	})
 
-	app.Static("/public", "../../__public", fiber.Static{
+	app.Static("/api/v1/public", "./__public", fiber.Static{
 		Compress:      true,
 		ByteRange:     true,
 		Browse:        true,
