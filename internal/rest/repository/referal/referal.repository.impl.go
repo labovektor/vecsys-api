@@ -64,7 +64,7 @@ func (v *ReferalRepositoryImpl) GetVoucherByCode(code string, eventId ...string)
 		err := v.db.First(voucher, "code = ? AND event_id = ?", code, eventId[0]).Error
 		return voucher, err
 	}
-	err := v.db.First(voucher, "voucher = ?", code).Error
+	err := v.db.First(voucher, "code = ?", code).Error
 	return voucher, err
 }
 

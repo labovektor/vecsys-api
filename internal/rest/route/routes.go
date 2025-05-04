@@ -35,6 +35,7 @@ type AllController struct {
 	AuthController                      *controller.AuthController
 	CategoryController                  controller.CategoryController
 	RegionController                    controller.RegionController
+	ReferalController                   *controller.ReferalController
 	ParticipantAdministrationController *controller.ParticipantAdministrationController
 	ParticipantDataController           *controller.ParticipantDataController
 }
@@ -57,7 +58,8 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 		CategoryController: controller.NewCategoryController(
 			allRepository.CategoryRepository,
 		),
-		RegionController: controller.NewRegionController(allRepository.RegionRepository),
+		RegionController:  controller.NewRegionController(allRepository.RegionRepository),
+		ReferalController: controller.NewReferalController(allRepository.ReferalRepository),
 		ParticipantAdministrationController: controller.NewParticipantController(
 			allRepository.UserRepository,
 			allRepository.CategoryRepository,
@@ -118,6 +120,12 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	event.Post("/:id/region", allController.RegionController.AddRegionToEvent)
 	adminRoutes.Patch("/region/:id", allController.RegionController.UpdateRegion)
 	adminRoutes.Delete("/region/:id", allController.RegionController.DeleteRegion)
+
+	// Event Referal Route
+	event.Get("/:id/referal", allController.ReferalController.GetReferalsByEventId)
+	adminRoutes.Get("/referal/:code", allController.ReferalController.GetReferalByCode)
+	event.Post("/:id/referal", allController.ReferalController.AddReferalToEvent)
+	adminRoutes.Delete("/referal/:id", allController.ReferalController.DeleteReferal)
 
 	// Write your route up here
 
