@@ -103,7 +103,7 @@ func (u *userRepositoryImpl) FindParticipantById(id string, preload bool) (*enti
 		}
 		return participant, nil
 	}
-	if err := u.db.First(participant, "id = ?", id).Error; err != nil {
+	if err := u.db.Preload("Event").First(participant, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
 	return participant, nil
