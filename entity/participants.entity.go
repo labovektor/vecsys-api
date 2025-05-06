@@ -9,18 +9,18 @@ import (
 type Participant struct {
 	Id            uuid.UUID           `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	EventId       *string             `json:"event_id"`
-	Event         *Event              `json:"event" gorm:"foreignKey:EventId;references:Id"`
+	Event         *Event              `json:"event,omitempty" gorm:"foreignKey:EventId;references:Id"`
 	RegionId      *string             `json:"region_id"`
-	Region        *Region             `json:"region" gorm:"foreignKey:RegionId;references:Id"`
+	Region        *Region             `json:"region,omitempty" gorm:"foreignKey:RegionId;references:Id"`
 	CategoryId    *string             `json:"category_id"`
-	Category      *Category           `json:"category" gorm:"foreignKey:CategoryId;references:Id"`
+	Category      *Category           `json:"category,omitempty" gorm:"foreignKey:CategoryId;references:Id"`
 	Name          string              `json:"name"`
 	InstitutionId *string             `json:"institution_id"`
-	Institution   *Institution        `json:"institution" gorm:"foreignKey:InstitutionId;references:Id"`
+	Institution   *Institution        `json:"institution,omitempty" gorm:"foreignKey:InstitutionId;references:Id"`
 	Email         string              `gorm:"unique" json:"email"`
 	Password      string              `json:"-"`
-	Biodata       *[]Biodata          `json:"biodata" gorm:"foreignKey:ParticipantId;references:Id"`
-	Payment       *Payment            `json:"payment" gorm:"foreignKey:ParticipantId;references:Id"`
+	Biodata       *[]Biodata          `json:"biodata,omitempty" gorm:"foreignKey:ParticipantId;references:Id"`
+	Payment       *Payment            `json:"payment,omitempty" gorm:"foreignKey:ParticipantId;references:Id"`
 	ProgressStep  ParticipantProgress `json:"progress_step" gorm:"default:'registered'"`
 	VerifiedAt    *time.Time          `json:"verified_at,omitempty"`
 	LockedAt      *time.Time          `json:"locked_at,omitempty"`
