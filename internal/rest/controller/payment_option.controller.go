@@ -8,15 +8,15 @@ import (
 	"github.com/labovector/vecsys-api/internal/util"
 )
 
-type PaymentController struct {
+type PaymentOptionController struct {
 	paymentRepo repository.PaymentRepository
 }
 
-func NewPaymentController(paymentRepo repository.PaymentRepository) PaymentController {
-	return PaymentController{paymentRepo: paymentRepo}
+func NewPaymentOptionController(paymentRepo repository.PaymentRepository) PaymentOptionController {
+	return PaymentOptionController{paymentRepo: paymentRepo}
 }
 
-func (cc *PaymentController) GetAllPaymentOptionByEventId(c *fiber.Ctx) error {
+func (cc *PaymentOptionController) GetAllPaymentOptionByEventId(c *fiber.Ctx) error {
 	eventId := c.Params("id")
 	paymentOptions, err := cc.paymentRepo.GetPaymentOptions(eventId)
 	if err != nil {
@@ -30,7 +30,7 @@ func (cc *PaymentController) GetAllPaymentOptionByEventId(c *fiber.Ctx) error {
 	})
 }
 
-func (cc *PaymentController) GetPaymentOptionById(c *fiber.Ctx) error {
+func (cc *PaymentOptionController) GetPaymentOptionById(c *fiber.Ctx) error {
 	paymentOptionId := c.Params("id")
 	paymentOption, err := cc.paymentRepo.GetPaymentOptionById(paymentOptionId)
 	if err != nil {
@@ -44,7 +44,7 @@ func (cc *PaymentController) GetPaymentOptionById(c *fiber.Ctx) error {
 	})
 }
 
-func (cc *PaymentController) AddPaymentOptionToEvent(c *fiber.Ctx) error {
+func (cc *PaymentOptionController) AddPaymentOptionToEvent(c *fiber.Ctx) error {
 	eventId := c.Params("id")
 
 	req := new(dto.PaymentOptionAddReq)
@@ -79,7 +79,7 @@ func (cc *PaymentController) AddPaymentOptionToEvent(c *fiber.Ctx) error {
 	})
 }
 
-func (cc *PaymentController) UpdatePaymentOption(c *fiber.Ctx) error {
+func (cc *PaymentOptionController) UpdatePaymentOption(c *fiber.Ctx) error {
 	paymentOptionId := c.Params("id")
 	req := new(dto.PaymentOptionUpdateReq)
 	if err := c.BodyParser(req); err != nil {
@@ -108,7 +108,7 @@ func (cc *PaymentController) UpdatePaymentOption(c *fiber.Ctx) error {
 
 }
 
-func (cc *PaymentController) DeletePaymentOption(c *fiber.Ctx) error {
+func (cc *PaymentOptionController) DeletePaymentOption(c *fiber.Ctx) error {
 	payemntOptionId := c.Params("id")
 	err := cc.paymentRepo.DeletePaymentOption(payemntOptionId)
 	if err != nil {

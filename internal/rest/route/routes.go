@@ -38,7 +38,7 @@ type AllController struct {
 	ReferalController                   *controller.ReferalController
 	ParticipantAdministrationController *controller.ParticipantAdministrationController
 	ParticipantDataController           *controller.ParticipantDataController
-	PaymentOptionController             controller.PaymentController
+	PaymentOptionController             controller.PaymentOptionController
 }
 
 func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Maker, emailDialer email.EmailDialer) {
@@ -72,7 +72,7 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 			allRepository.UserRepository,
 			allRepository.InstitutionRepository,
 		),
-		PaymentOptionController: controller.NewPaymentController(
+		PaymentOptionController: controller.NewPaymentOptionController(
 			allRepository.PaymentRepository,
 		),
 	}

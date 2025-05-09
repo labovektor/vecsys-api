@@ -43,14 +43,14 @@ func NewParticipantController(
 func (p *ParticipantAdministrationController) GetAllEventCategoryAndRegion(c *fiber.Ctx) error {
 	eventId := c.Locals(util.CurentUserEventIdKey).(string)
 
-	categories, err := p.CategoryRepository.GetAllCategories(eventId)
+	categories, err := p.CategoryRepository.GetAllActiveCategories(eventId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when getting categories"),
 		})
 	}
 
-	regions, err := p.RegionRepository.GetAllRegion(eventId)
+	regions, err := p.RegionRepository.GetAllActiveRegion(eventId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when getting regions"),

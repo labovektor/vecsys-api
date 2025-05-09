@@ -58,7 +58,7 @@ func (rc *RegionController) AddRegionToEvent(c *fiber.Ctx) error {
 
 	if err := util.ValidateStruct(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar"),
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
 		})
 	}
 
@@ -95,7 +95,7 @@ func (rc *RegionController) UpdateRegion(c *fiber.Ctx) error {
 
 	if err := util.ValidateStruct(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar"),
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
 		})
 	}
 
