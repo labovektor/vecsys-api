@@ -64,7 +64,7 @@ func (cc *PaymentController) AddPaymentOptionToEvent(c *fiber.Ctx) error {
 		Provider: req.Provider,
 		Account:  req.Account,
 		Name:     req.Name,
-		AsQR:     &req.AsQR,
+		AsQR:     req.AsQR,
 	}
 
 	payment, err := cc.paymentRepo.CreatePaymentOption(&payment)
@@ -92,7 +92,7 @@ func (cc *PaymentController) UpdatePaymentOption(c *fiber.Ctx) error {
 		Provider: req.Provider,
 		Account:  req.Account,
 		Name:     req.Name,
-		AsQR:     &req.AsQR,
+		AsQR:     req.AsQR,
 	}
 
 	err := cc.paymentRepo.UpdatePaymentOption(paymentOptionId, &payment)

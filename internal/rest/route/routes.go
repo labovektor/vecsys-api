@@ -37,6 +37,7 @@ type AllController struct {
 	RegionController                    controller.RegionController
 	ParticipantAdministrationController *controller.ParticipantAdministrationController
 	ParticipantDataController           *controller.ParticipantDataController
+	PaymentOptionController             controller.PaymentController
 }
 
 func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Maker, emailDialer email.EmailDialer) {
@@ -68,6 +69,9 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 		ParticipantDataController: controller.NewParticipantDataController(
 			allRepository.UserRepository,
 			allRepository.InstitutionRepository,
+		),
+		PaymentOptionController: controller.NewPaymentController(
+			allRepository.PaymentRepository,
 		),
 	}
 
@@ -118,6 +122,13 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	event.Post("/:id/region", allController.RegionController.AddRegionToEvent)
 	adminRoutes.Patch("/region/:id", allController.RegionController.UpdateRegion)
 	adminRoutes.Delete("/region/:id", allController.RegionController.DeleteRegion)
+
+	// Event Payment Option Route
+	event.Get("/:id/payment-option", allController.PaymentOptionController.GetAllPaymentOptionByEventId)
+	adminRoutes.Get("/payment-option/:id", allController.PaymentOptionController.GetPaymentOptionById)
+	event.Post("/:id/payment-option", allController.PaymentOptionController.AddPaymentOptionToEvent)
+	adminRoutes.Patch("/payment-option/:id", allController.PaymentOptionController.UpdatePaymentOption)
+	adminRoutes.Delete("/payment-option/:id", allController.PaymentOptionController.DeletePaymentOption)
 
 	// Write your route up here
 
