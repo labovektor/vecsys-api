@@ -32,6 +32,17 @@ func (r *RegionRepositoryImpl) GetAllRegion(eventId ...string) ([]entity.Region,
 	return regions, err
 }
 
+// GetAllRegion implements RegionRepository.
+func (r *RegionRepositoryImpl) GetAllActiveRegion(eventId ...string) ([]entity.Region, error) {
+	var regions []entity.Region
+	if len(eventId) > 0 {
+		err := r.db.Find(&regions, "event_id = ? AND visible = ?", eventId[0], true).Error
+		return regions, err
+	}
+	err := r.db.Find(&regions, "visible = ?", true).Error
+	return regions, err
+}
+
 // GetRegion implements RegionRepository.
 func (r *RegionRepositoryImpl) GetRegion(id string) (entity.Region, error) {
 	var region entity.Region
