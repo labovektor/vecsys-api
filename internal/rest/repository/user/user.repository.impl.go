@@ -86,12 +86,14 @@ func (u *userRepositoryImpl) DeleteParticipant(id string) error {
 }
 
 // FindAllParticipant implements UserRepository.
-func (u *userRepositoryImpl) FindAllParticipant() ([]entity.Participant, error) {
+func (u *userRepositoryImpl) FindAllParticipant(eventId ...string) ([]entity.Participant, error) {
 	var participants []entity.Participant
-	if err := u.db.Find(&participants).Error; err != nil {
-		return nil, err
+	if len(eventId) > 0 {
+		err := u.db.Find(&participants, "event_id = ?", eventId[0]).Error
+		return participants, err
 	}
-	return participants, nil
+	err := u.db.Find(&participants).Error
+	return participants, err
 }
 
 // FindParticipantById implements UserRepository.
