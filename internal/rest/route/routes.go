@@ -137,6 +137,10 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	event.Post("/:id/referal", allController.ReferalController.AddReferalToEvent)
 	adminRoutes.Delete("/referal/:id", allController.ReferalController.DeleteReferal)
 
+	// Event Participant Route
+	event.Get("/:id/participant", allController.UserController.GetAllParticipant)
+	adminRoutes.Patch("/participant/:id/verify", allController.UserController.VerifyParticipant)
+
 	// Write your route up here
 
 	// Participant Route
