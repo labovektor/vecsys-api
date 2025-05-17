@@ -96,6 +96,21 @@ func (ac *UserController) GetAllParticipant(c *fiber.Ctx) error {
 	})
 }
 
+func (ac *UserController) GetParticipant(c *fiber.Ctx) error {
+	ID := c.Params("id")
+	participant, err := ac.userRepo.FindParticipantById(ID, true)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
+		Data:   participant,
+	})
+}
+
 func (ac *UserController) VerifyParticipant(c *fiber.Ctx) error {
 	ID := c.Params("id")
 	participant, err := ac.userRepo.FindParticipantById(ID, true)
@@ -120,4 +135,8 @@ func (ac *UserController) VerifyParticipant(c *fiber.Ctx) error {
 		Status: dto.SuccessStatus,
 		Data:   participant,
 	})
+}
+
+func (ac *UserController) BulkAddParticipantFromCSV(c *fiber.Ctx) error {
+	// TODO: Implement bulk add participant from CSV
 }
