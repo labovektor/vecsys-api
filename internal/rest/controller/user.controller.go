@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/labovector/vecsys-api/entity"
 	"github.com/labovector/vecsys-api/internal/rest/dto"
 	repository "github.com/labovector/vecsys-api/internal/rest/repository/user"
 	"github.com/labovector/vecsys-api/internal/util"
@@ -106,6 +107,8 @@ func (ac *UserController) VerifyParticipant(c *fiber.Ctx) error {
 
 	now := time.Now()
 	participant.VerifiedAt = &now
+
+	participant.ProgressStep = entity.StepVerifiedParticipant
 
 	err = ac.userRepo.UpdateParticipant(ID, participant)
 	if err != nil {
