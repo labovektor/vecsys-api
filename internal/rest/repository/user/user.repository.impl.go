@@ -9,6 +9,19 @@ type userRepositoryImpl struct {
 	db *gorm.DB
 }
 
+// BulkAddParticipant implements UserRepository.
+func (u *userRepositoryImpl) BulkAddParticipant(participants []entity.Participant) error {
+	tx := u.db.Begin()
+	for _, participant := range participants {
+		db := tx.Create(&participant)
+		if db.Error != nil {
+			tx.Rollback()
+			return db.Error
+		}
+	}
+	return tx.Commit().Error
+}
+
 // BulkUpdateBiodata implements UserRepository.
 func (u *userRepositoryImpl) BulkUpdateBiodata(biodatas []entity.Biodata) error {
 	tx := u.db.Begin()

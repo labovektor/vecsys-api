@@ -4,6 +4,7 @@ import "github.com/labovector/vecsys-api/entity"
 
 type UserRepository interface {
 	CreateParticipant(participant *entity.Participant) (entity.Participant, error)
+	BulkAddParticipant(participants []entity.Participant) error
 	FindAllParticipant(eventId ...string) ([]entity.Participant, error)
 	FindParticipantById(id string, preload bool) (*entity.Participant, error)
 	FindParticipantByEmail(email string) (*entity.Participant, error)
