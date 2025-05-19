@@ -188,11 +188,18 @@ func (ac *UserController) BulkAddParticipantFromCSV(c *fiber.Ctx) error {
 			})
 		}
 
+		passwordHash, err := util.HashPassword(participantReq.Password)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+				Status: dto.ErrorStatus.WithMessage(err.Error()),
+			})
+		}
+
 		participant := entity.Participant{
 			EventId:  &participantReq.EventId,
 			Name:     participantReq.Name,
 			Email:    participantReq.Email,
-			Password: participantReq.Password,
+			Password: passwordHash,
 		}
 
 		participants = append(participants, participant)
