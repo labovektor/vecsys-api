@@ -39,6 +39,7 @@ type AllController struct {
 	ParticipantAdministrationController *controller.ParticipantAdministrationController
 	ParticipantDataController           *controller.ParticipantDataController
 	PaymentOptionController             controller.PaymentOptionController
+	InstituionController                controller.InstitutionController
 }
 
 func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Maker, emailDialer email.EmailDialer) {
@@ -74,6 +75,9 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 		),
 		PaymentOptionController: controller.NewPaymentOptionController(
 			allRepository.PaymentRepository,
+		),
+		InstituionController: *controller.NewInstitutionController(
+			allRepository.InstitutionRepository,
 		),
 	}
 
