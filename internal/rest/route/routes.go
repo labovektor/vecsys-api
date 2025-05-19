@@ -39,6 +39,7 @@ type AllController struct {
 	ParticipantAdministrationController *controller.ParticipantAdministrationController
 	ParticipantDataController           *controller.ParticipantDataController
 	PaymentOptionController             controller.PaymentOptionController
+	InstituionController                controller.InstitutionController
 }
 
 func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Maker, emailDialer email.EmailDialer) {
@@ -74,6 +75,9 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 		),
 		PaymentOptionController: controller.NewPaymentOptionController(
 			allRepository.PaymentRepository,
+		),
+		InstituionController: *controller.NewInstitutionController(
+			allRepository.InstitutionRepository,
 		),
 	}
 
@@ -136,6 +140,12 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	adminRoutes.Get("/referal/:code", allController.ReferalController.GetReferalByCode)
 	event.Post("/:id/referal", allController.ReferalController.AddReferalToEvent)
 	adminRoutes.Delete("/referal/:id", allController.ReferalController.DeleteReferal)
+
+	event.Get("/:id/institution", allController.InstituionController.GetAllInstitutions)
+	adminRoutes.Get("/institution/:id", allController.InstituionController.GetInstitutions)
+	event.Post("/:id/institution", allController.InstituionController.AddInstitutions)
+	adminRoutes.Patch("/institution/:id", allController.InstituionController.UpdateInstitutions)
+	adminRoutes.Delete("/institution/:id", allController.InstituionController.DeleteInstitutions)
 
 	// Write your route up here
 
