@@ -146,6 +146,11 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	event.Post("/:id/participant/Bulk", allController.UserController.BulkAddParticipantFromCSV)
 	adminRoutes.Get("/participant/:id", allController.UserController.GetParticipantByID)
 	adminRoutes.Patch("/participant/:id/verify", allController.UserController.VerifyParticipant)
+	event.Get("/:id/institution", allController.InstituionController.GetAllInstitutions)
+	adminRoutes.Get("/institution/:id", allController.InstituionController.GetInstitutions)
+	event.Post("/:id/institution", allController.InstituionController.AddInstitutions)
+	adminRoutes.Patch("/institution/:id", allController.InstituionController.UpdateInstitutions)
+	adminRoutes.Delete("/institution/:id", allController.InstituionController.DeleteInstitutions)
 
 	// Write your route up here
 
