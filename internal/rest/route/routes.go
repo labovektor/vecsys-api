@@ -140,6 +140,7 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	// Event Participant Route
 	event.Get("/:id/participant", allController.UserController.GetAllParticipant)
 	adminRoutes.Patch("/participant/:id/verify", allController.UserController.VerifyParticipant)
+	adminRoutes.Get("/participant/:id", allController.UserController.GeneratePdfParticipant)
 
 	// Write your route up here
 
