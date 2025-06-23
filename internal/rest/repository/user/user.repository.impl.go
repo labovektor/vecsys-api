@@ -113,7 +113,7 @@ func (u *userRepositoryImpl) FindAllParticipant(eventId ...string) ([]entity.Par
 func (u *userRepositoryImpl) FindParticipantById(id string, preload bool) (*entity.Participant, error) {
 	participant := &entity.Participant{}
 	if preload {
-		if err := u.db.Preload("Event").Preload("Biodata").Preload("Institution").Preload("Region").Preload("Category").Preload("Payment").First(participant, "id = ?", id).Error; err != nil {
+		if err := u.db.Preload("Biodata").Preload("Institution").Preload("Region").Preload("Category").Preload("Payment").First(participant, "id = ?", id).Error; err != nil {
 			return nil, err
 		}
 		return participant, nil
