@@ -1,13 +1,11 @@
 package controller
 
 import (
+	"encoding/csv"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/jung-kurt/gofpdf"
-	"github.com/jung-kurt/gofpdf/contrib/httpimg"
 	"github.com/labovector/vecsys-api/entity"
 	"github.com/labovector/vecsys-api/internal/rest/dto"
 	repository "github.com/labovector/vecsys-api/internal/rest/repository/user"
@@ -139,88 +137,6 @@ func (ac *UserController) VerifyParticipant(c *fiber.Ctx) error {
 		Status: dto.SuccessStatus,
 		Data:   participant,
 	})
-}
-
-func (ac *UserController) GeneratePdfParticipant(c *fiber.Ctx) error {
-	id := c.Params("id")
-	participant, err := ac.userRepo.FindParticipantById(id, true)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
-		})
-	}
-
-	pdf := gofpdf.New("P", "mm", "A4", "")
-	pdf.AddPage()
-	iconPath := participant.Event.Icon
-	iconPath = strings.ReplaceAll(iconPath, "\\", "/")
-	iconURL := fmt.Sprintf("http://127.0.0.1:8787/api/v1%s", iconPath)
-	cleanURL := strings.Split(iconURL, "?")[0]
-
-	httpimg.Register(pdf, cleanURL, "")
-	imgFormat := ""
-	if strings.HasSuffix(strings.ToLower(cleanURL), ".jpg") {
-		imgFormat = "JPG"
-	} else if strings.HasSuffix(strings.ToLower(cleanURL), ".jpg") || strings.HasSuffix(strings.ToLower(cleanURL), ".jpeg") {
-		imgFormat = "JPG"
-	} else if strings.HasSuffix(strings.ToLower(cleanURL), ".gif") {
-		imgFormat = "GIF"
-	} else {
-		imgFormat = "PNG"
-	}
-	pdf.Image(cleanURL, 90, 12, 30, 30, false, imgFormat, 0, "")
-	pdf.Ln(50)
-	pdf.SetFont("Arial", "B", 20)
-	pdf.CellFormat(0, 10, "Kartu Peserta", "", 1, "C", false, 0, "")
-	pdf.CellFormat(0, 10, participant.Event.Name, "", 1, "C", false, 0, "")
-	pdf.Ln(10)
-
-	pdf.SetFont("Arial", "", 14)
-	pdf.CellFormat(50, 10, "Asal Sekolah", "", 0, "", false, 0, "")
-	pdf.CellFormat(0, 10, ": "+participant.Institution.Name, "", 1, "", false, 0, "")
-
-	pdf.CellFormat(50, 10, "Jenjang/Kategori", "", 0, "", false, 0, "")
-	pdf.CellFormat(0, 10, ": "+participant.Category.Name, "", 1, "", false, 0, "")
-
-	pdf.CellFormat(50, 10, "Region", "", 0, "", false, 0, "")
-	pdf.CellFormat(0, 10, ": "+participant.Region.Name, "", 1, "", false, 0, "")
-
-	pdf.CellFormat(50, 10, "Nomor Peserta", "", 0, "", false, 0, "")
-	pdf.SetFont("Arial", "B", 14)
-	pdf.CellFormat(0, 10, ": "+participant.Id.String(), "", 1, "", false, 0, "")
-
-	pdf.SetFont("Arial", "", 14)
-	pdf.CellFormat(50, 10, "Nama", "", 0, "", false, 0, "")
-	pdf.CellFormat(0, 10, ": "+participant.Name, "", 1, "", false, 0, "")
-
-	pdf.CellFormat(50, 10, "Email Peserta", "", 0, "", false, 0, "")
-	pdf.CellFormat(0, 10, ": "+participant.Email, "", 1, "", false, 0, "")
-
-	pdf.Ln(5)
-	pdf.SetFont("Arial", "B", 14)
-	pdf.Cell(0, 10, "Anggota:")
-	pdf.Ln(10)
-	for i, m := range *participant.Biodata {
-		pdf.SetFont("Arial", "", 14)
-		pdf.CellFormat(0, 8, fmt.Sprintf("%d. %s (%s)", i+1, m.Name, m.IdNumber), "", 1, "", false, 0, "")
-		pdf.Ln(5)
-	}
-
-	pdf.Ln(70)
-	pdf.SetFont("Arial", "B", 14)
-	pdf.Cell(0, 10, "Contact Person:")
-	pdf.Ln(10)
-	pdf.SetFont("Arial", "", 14)
-	pdf.CellFormat(0, 8, "089756620221"+" (Nami)", "", 1, "", false, 0, "")
-
-	err = pdf.OutputFileAndClose(fmt.Sprintf("kartu peserta_%s.pdf", participant.Name))
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage(err.Error()),
-		})
-	}
-
-	return c.Download(fmt.Sprintf("kartu peserta_%s.pdf", participant.Name), fmt.Sprintf("kartu peserta_%s.pdf", participant.Name))
 }
 
 func (ac *UserController) BulkAddParticipantFromCSV(c *fiber.Ctx) error {
