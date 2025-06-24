@@ -11,6 +11,10 @@ type UserRepository interface {
 	UpdateParticipant(id string, participant *entity.Participant) error
 	DeleteParticipant(id string) error
 
+	// Additional Query
+	FindAllPaidParticipant(eventId string) ([]entity.Participant, error)
+	FindAllUnpaidParticipant(eventId string) ([]entity.Participant, error)
+
 	// Biodata
 	FindBiodataByParticipantId(participantId string) ([]entity.Biodata, error)
 	FindBiodataById(id string) (*entity.Biodata, error)
