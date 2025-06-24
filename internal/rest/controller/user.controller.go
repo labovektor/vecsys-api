@@ -87,8 +87,25 @@ func (ac *UserController) GetParticipantState(c *fiber.Ctx) error {
 }
 
 func (ac *UserController) GetAllParticipant(c *fiber.Ctx) error {
-	eventId := c.Params("id")
-	participant, err := ac.userRepo.FindAllParticipant(eventId)
+	eventID := c.Params("id")
+	step := c.Query("step", "all")
+
+	var participants []entity.Participant
+	var err error
+
+	switch step {
+	case "all":
+		participants, err = ac.userRepo.FindAllParticipant(eventID)
+	case "paid":
+		participants, err = ac.userRepo.FindAllPaidParticipant(eventID)
+	case "unpaid":
+		participants, err = ac.userRepo.FindAllUnpaidParticipant(eventID)
+	default:
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Parameter step tidak valid"),
+		})
+	}
+
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
@@ -97,7 +114,7 @@ func (ac *UserController) GetAllParticipant(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
 		Status: dto.SuccessStatus,
-		Data:   participant,
+		Data:   participants,
 	})
 }
 

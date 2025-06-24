@@ -109,6 +109,35 @@ func (u *userRepositoryImpl) FindAllParticipant(eventId ...string) ([]entity.Par
 	return participants, err
 }
 
+// FindAllPaidParticipant implements UserRepository.
+func (u *userRepositoryImpl) FindAllPaidParticipant(eventId string) ([]entity.Participant, error) {
+	var participants []entity.Participant
+
+	err := u.db.Preload("Payment").Preload("Region").Preload("Category").
+		Where("event_id = ?", eventId).
+		Where("progress_step IN ?", []entity.ParticipantProgress{
+			entity.StepPaidParticipant,
+			entity.StepVerifiedParticipant,
+			entity.StepSelectInstitutionParticipant,
+			entity.StepFillBiodatasParticipant,
+			entity.StepLockedParticipant,
+		}).Find(&participants).Error
+	return participants, err
+}
+
+// FindAllUnpaidParticipant implements UserRepository.
+func (u *userRepositoryImpl) FindAllUnpaidParticipant(eventId string) ([]entity.Participant, error) {
+	var participants []entity.Participant
+
+	err := u.db.Preload("Payment").Preload("Region").Preload("Category").
+		Where("event_id = ?", eventId).
+		Where("progress_step IN ?", []entity.ParticipantProgress{
+			entity.StepRegisteredParticipant,
+			entity.StepCategorizedParticipant,
+		}).Find(&participants).Error
+	return participants, err
+}
+
 // FindParticipantById implements UserRepository.
 func (u *userRepositoryImpl) FindParticipantById(id string, preload bool) (*entity.Participant, error) {
 	participant := &entity.Participant{}
