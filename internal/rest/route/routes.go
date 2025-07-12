@@ -116,45 +116,48 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	globalRoutes.Get("/event/:id", allController.EventController.GetEventById)
 
 	// Evert Category Route
-	adminRoutes.Get("/event/:id/category", allController.CategoryController.GetAllCategoryByEventId)
-	adminRoutes.Get("/category/:id", allController.CategoryController.GetCategoryById)
-	adminRoutes.Post("/event/:id/category", allController.CategoryController.AddCategoryToEvent)
-	adminRoutes.Patch("/category/:id", allController.CategoryController.UpdateCategory)
-	adminRoutes.Delete("/category/:id", allController.CategoryController.DeleteCategory)
+	adminRoutes.Get("/event/:id/category", middleware.AdminMiddleware(), allController.CategoryController.GetAllCategoryByEventId)
+	adminRoutes.Get("/category/:id", middleware.AdminMiddleware(), allController.CategoryController.GetCategoryById)
+	adminRoutes.Post("/event/:id/category", middleware.AdminMiddleware(), allController.CategoryController.AddCategoryToEvent)
+	adminRoutes.Patch("/category/:id", middleware.AdminMiddleware(), allController.CategoryController.UpdateCategory)
+	adminRoutes.Delete("/category/:id", middleware.AdminMiddleware(), allController.CategoryController.DeleteCategory)
 
 	// Event Region Route
 	event.Get("/:id/region", allController.RegionController.GetAllRegionsByEventId)
-	adminRoutes.Get("/region/:id", allController.RegionController.GetRegionById)
+	adminRoutes.Get("/region/:id", middleware.AdminMiddleware(), allController.RegionController.GetRegionById)
 	event.Post("/:id/region", allController.RegionController.AddRegionToEvent)
-	adminRoutes.Patch("/region/:id", allController.RegionController.UpdateRegion)
-	adminRoutes.Delete("/region/:id", allController.RegionController.DeleteRegion)
+	adminRoutes.Patch("/region/:id", middleware.AdminMiddleware(), allController.RegionController.UpdateRegion)
+	adminRoutes.Delete("/region/:id", middleware.AdminMiddleware(), allController.RegionController.DeleteRegion)
 
 	// Event Payment Option Route
 	event.Get("/:id/payment-option", allController.PaymentOptionController.GetAllPaymentOptionByEventId)
-	adminRoutes.Get("/payment-option/:id", allController.PaymentOptionController.GetPaymentOptionById)
+	adminRoutes.Get("/payment-option/:id", middleware.AdminMiddleware(), allController.PaymentOptionController.GetPaymentOptionById)
 	event.Post("/:id/payment-option", allController.PaymentOptionController.AddPaymentOptionToEvent)
-	adminRoutes.Patch("/payment-option/:id", allController.PaymentOptionController.UpdatePaymentOption)
-	adminRoutes.Delete("/payment-option/:id", allController.PaymentOptionController.DeletePaymentOption)
+	adminRoutes.Patch("/payment-option/:id", middleware.AdminMiddleware(), allController.PaymentOptionController.UpdatePaymentOption)
+	adminRoutes.Delete("/payment-option/:id", middleware.AdminMiddleware(), allController.PaymentOptionController.DeletePaymentOption)
+
 	// Event Referal Route
 	event.Get("/:id/referal", allController.ReferalController.GetReferalsByEventId)
-	adminRoutes.Get("/referal/:code", allController.ReferalController.GetReferalByCode)
+	adminRoutes.Get("/referal/:code", middleware.AdminMiddleware(), allController.ReferalController.GetReferalByCode)
 	event.Post("/:id/referal", allController.ReferalController.AddReferalToEvent)
-	adminRoutes.Delete("/referal/:id", allController.ReferalController.DeleteReferal)
+	adminRoutes.Delete("/referal/:id", middleware.AdminMiddleware(), allController.ReferalController.DeleteReferal)
 
 	// Event Participant Route
 	event.Get("/:id/participant", allController.UserController.GetAllParticipant)
-	adminRoutes.Patch("/participant/:id/verify", allController.UserController.VerifyParticipant)
-	adminRoutes.Get("/participant/:id/card", allController.UserController.GeneratePdfParticipant)
-	event.Post("/:id/participant/Bulk", allController.UserController.BulkAddParticipantFromCSV)
-	adminRoutes.Get("/participant/:id", allController.UserController.GetParticipantByID)
-	adminRoutes.Patch("/participant/:id/verify", allController.UserController.VerifyParticipant)
+	adminRoutes.Patch("/participant/:id/verify", middleware.AdminMiddleware(), allController.UserController.VerifyParticipant)
+	adminRoutes.Get("/participant/:id/card", middleware.AdminMiddleware(), allController.UserController.GeneratePdfParticipant)
+	event.Post("/:id/participant/bulk", allController.UserController.BulkAddParticipantFromCSV)
+	adminRoutes.Get("/participant/:id", middleware.AdminMiddleware(), allController.UserController.GetParticipantByID)
+	adminRoutes.Patch("/participant/:id", middleware.AdminMiddleware(), allController.UserController.UpdateParticipantData)
+	adminRoutes.Patch("/participant/:id/biodatas", middleware.AdminMiddleware(), allController.UserController.UpdateParticipantBiodata)
+	adminRoutes.Delete("/participant/:id", middleware.AdminMiddleware(), allController.UserController.DeleteParticipant)
 
 	// Event Institution Route
 	event.Get("/:id/institution", allController.InstituionController.GetAllInstitutions)
-	adminRoutes.Get("/institution/:id", allController.InstituionController.GetInstitutions)
+	adminRoutes.Get("/institution/:id", middleware.AdminMiddleware(), allController.InstituionController.GetInstitutions)
 	event.Post("/:id/institution", allController.InstituionController.AddInstitutions)
-	adminRoutes.Patch("/institution/:id", allController.InstituionController.UpdateInstitutions)
-	adminRoutes.Delete("/institution/:id", allController.InstituionController.DeleteInstitutions)
+	adminRoutes.Patch("/institution/:id", middleware.AdminMiddleware(), allController.InstituionController.UpdateInstitutions)
+	adminRoutes.Delete("/institution/:id", middleware.AdminMiddleware(), allController.InstituionController.DeleteInstitutions)
 
 	// Write your route up here
 
