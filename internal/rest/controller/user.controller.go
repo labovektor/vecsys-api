@@ -391,7 +391,7 @@ func (ac *UserController) UpdateParticipantBiodata(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
-		Status: dto.SuccessStatus.WithMessage("Data user berhasil diperbarui"),
+		Status: dto.SuccessStatus.WithMessage(fmt.Sprintf("%d data berhasil diperbarui", len(*req))),
 	})
 
 }
