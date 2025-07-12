@@ -21,6 +21,6 @@ type UserRepository interface {
 	AddBiodata(participantId *string, biodata *entity.Biodata) (entity.Biodata, error)
 	BulkAddBiodata(biodatas []entity.Biodata) error
 	UpdateBiodata(id string, biodata *entity.Biodata) error
-	BulkUpdateBiodata(biodatas []entity.Biodata) error
+	BulkUpdateBiodata(participantId string, biodatas []entity.Biodata) error
 	RemoveBiodata(id string) error
 }

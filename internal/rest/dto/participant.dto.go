@@ -14,6 +14,21 @@ type ParticipantSignUpReq struct {
 	Password string `json:"password" form:"password" validate:"required"`
 }
 
+type ParticipantUpdateReq struct {
+	Name       *string `json:"name" form:"name" `
+	CategoryId *string `json:"category_id" form:"category_id" `
+	RegionId   *string `json:"region_id" form:"region_id" `
+}
+
+type BiodataUpdateReq struct {
+	Id       string         `json:"id" form:"id" validate:"required"`
+	Name     *string        `json:"name" form:"name"`
+	Gender   *entity.Gender `json:"gender" form:"gender"`
+	Email    *string        `json:"email" form:"email"`
+	Phone    *string        `json:"phone" form:"phone"`
+	IDNumber *string        `json:"id_number" form:"id_number"`
+}
+
 type ForgotPasswordReq struct {
 	Email string `json:"email" form:"email" validate:"required,email"`
 }

@@ -319,3 +319,93 @@ func (ac *UserController) BulkAddParticipantFromCSV(c *fiber.Ctx) error {
 		Data:   fmt.Sprintf("%d data berhasil ditambahkan", len(participants)),
 	})
 }
+
+func (ac *UserController) UpdateParticipantData(c *fiber.Ctx) error {
+	participantId := c.Params("id")
+	req := new(dto.ParticipantUpdateReq)
+	if err := c.BodyParser(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar"),
+		})
+	}
+
+	if err := util.ValidateStruct(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage(err.Error()),
+		})
+	}
+
+	participant := entity.Participant{
+		Name:       *req.Name,
+		CategoryId: req.CategoryId,
+		RegionId:   req.RegionId,
+	}
+
+	err := ac.userRepo.UpdateParticipant(participantId, &participant)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Kesalahan saat memperbarui data user"),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus.WithMessage("Data user berhasil diperbarui"),
+		Data:   participant,
+	})
+}
+
+func (ac *UserController) UpdateParticipantBiodata(c *fiber.Ctx) error {
+	participantId := c.Params("id")
+
+	req := new([]dto.BiodataUpdateReq)
+	if err := c.BodyParser(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Masukkan data dengan benar"),
+		})
+	}
+
+	for _, biodata := range *req {
+		if err := util.ValidateStruct(biodata); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+				Status: dto.ErrorStatus.WithMessage(err.Error()),
+			})
+		}
+	}
+
+	biodatas := make([]entity.Biodata, 0, len(*req))
+	for _, biodata := range *req {
+		biodatas = append(biodatas, entity.Biodata{
+			Name:     *biodata.Name,
+			Gender:   *biodata.Gender,
+			Email:    *biodata.Email,
+			Phone:    *biodata.Phone,
+			IdNumber: *biodata.IDNumber,
+		})
+	}
+
+	err := ac.userRepo.BulkUpdateBiodata(participantId, biodatas)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Kesalahan saat memperbarui data user"),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus.WithMessage(fmt.Sprintf("%d data berhasil diperbarui", len(*req))),
+	})
+
+}
+
+func (ac *UserController) DeleteParticipant(c *fiber.Ctx) error {
+	participantId := c.Params("id")
+	err := ac.userRepo.DeleteParticipant(participantId)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Kesalahan saat menghapus data user"),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus.WithMessage("Data user berhasil dihapus"),
+	})
+}

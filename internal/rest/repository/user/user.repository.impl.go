@@ -23,10 +23,10 @@ func (u *userRepositoryImpl) BulkAddParticipant(participants []entity.Participan
 }
 
 // BulkUpdateBiodata implements UserRepository.
-func (u *userRepositoryImpl) BulkUpdateBiodata(biodatas []entity.Biodata) error {
+func (u *userRepositoryImpl) BulkUpdateBiodata(participantId string, biodatas []entity.Biodata) error {
 	tx := u.db.Begin()
 	for _, biodata := range biodatas {
-		db := tx.Model(&entity.Biodata{}).Where("id = ?", biodata.Id.String()).Updates(biodata)
+		db := tx.Model(&entity.Biodata{}).Where("id = ?", biodata.Id.String()).Where("participant_id = ?", participantId).Updates(biodata)
 		if db.Error != nil {
 			tx.Rollback()
 			return db.Error
