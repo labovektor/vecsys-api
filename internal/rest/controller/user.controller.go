@@ -245,7 +245,7 @@ func (ac *UserController) GeneratePdfParticipant(c *fiber.Ctx) error {
 	pdf.Cell(0, 10, "Contact Person:")
 	pdf.Ln(10)
 	pdf.SetFont("Arial", "", 14)
-	pdf.CellFormat(0, 8, "089756620221"+" (Nami)", "", 1, "", false, 0, "")
+	pdf.CellFormat(0, 8, participant.Region.ContactNumber+fmt.Sprintf(" (%s)", participant.Region.ContactName), "", 1, "", false, 0, "")
 
 	var buf bytes.Buffer
 	err = pdf.Output(&buf)
