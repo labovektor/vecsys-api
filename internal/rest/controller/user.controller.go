@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bytes"
 	"encoding/csv"
 	"fmt"
 	"strings"
@@ -246,14 +247,18 @@ func (ac *UserController) GeneratePdfParticipant(c *fiber.Ctx) error {
 	pdf.SetFont("Arial", "", 14)
 	pdf.CellFormat(0, 8, "089756620221"+" (Nami)", "", 1, "", false, 0, "")
 
-	err = pdf.OutputFileAndClose(fmt.Sprintf("kartu peserta_%s.pdf", participant.Name))
+	var buf bytes.Buffer
+	err = pdf.Output(&buf)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage(err.Error()),
 		})
 	}
 
-	return c.Download(fmt.Sprintf("kartu peserta_%s.pdf", participant.Name), fmt.Sprintf("kartu peserta_%s.pdf", participant.Name))
+	filename := fmt.Sprintf("kartu peserta_%s.pdf", participant.Name)
+	c.Set("Content-Type", "application/pdf")
+	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+	return c.SendStream(&buf)
 }
 
 func (ac *UserController) BulkAddParticipantFromCSV(c *fiber.Ctx) error {
