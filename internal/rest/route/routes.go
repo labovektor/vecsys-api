@@ -188,5 +188,5 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	// Lock Data
 	userData.Patch("/lock", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepLockedParticipant), allController.ParticipantDataController.LockData)
 	// Download Card
-	userData.Get("/card/:id", allController.UserController.GeneratePdfParticipant)
+	globalRoutes.Get("/card/:id", allController.UserController.GeneratePdfParticipant)
 }
