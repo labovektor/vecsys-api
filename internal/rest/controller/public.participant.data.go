@@ -44,6 +44,8 @@ func (p *ParticipantDataController) GetAllInstitution(c *fiber.Ctx) error {
 
 func (p *ParticipantDataController) AddInstitution(c *fiber.Ctx) error {
 	req := new(dto.AddInstitutionReq)
+
+	participantId := c.Locals(util.CurrentUserIdKey).(string)
 	eventId := c.Locals(util.CurentUserEventIdKey).(string)
 
 	if err := c.BodyParser(req); err != nil {
@@ -71,6 +73,19 @@ func (p *ParticipantDataController) AddInstitution(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when adding institution"),
+		})
+	}
+
+	institutionId := institution.Id.String()
+
+	participant := entity.Participant{
+		InstitutionId: &institutionId,
+		ProgressStep:  entity.StepSelectInstitutionParticipant,
+	}
+
+	if err := p.ParticipantRepository.UpdateParticipant(participantId, &participant); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when updating participant"),
 		})
 	}
 
