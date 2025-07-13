@@ -255,10 +255,13 @@ func (ac *UserController) GeneratePdfParticipant(c *fiber.Ctx) error {
 		})
 	}
 
-	filename := fmt.Sprintf("kartu peserta_%s.pdf", participant.Name)
+	pdfBytes := buf.Bytes()
+
 	c.Set("Content-Type", "application/pdf")
-	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
-	return c.SendStream(&buf)
+	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"kartu_peserta_%s.pdf\"", participant.Name))
+	c.Set("Content-Length", fmt.Sprintf("%d", len(pdfBytes)))
+
+	return c.Send(pdfBytes)
 }
 
 func (ac *UserController) BulkAddParticipantFromCSV(c *fiber.Ctx) error {
