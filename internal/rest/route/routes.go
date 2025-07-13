@@ -187,4 +187,6 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	userData.Delete("/member/:id", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepFillBiodatasParticipant), allController.ParticipantDataController.RemoveMembers)
 	// Lock Data
 	userData.Patch("/lock", middleware.UserStepMiddleware(allRepository.UserRepository, entity.StepLockedParticipant), allController.ParticipantDataController.LockData)
+	// Download Card
+	userData.Get("/card/:id", allController.UserController.GeneratePdfParticipant)
 }
