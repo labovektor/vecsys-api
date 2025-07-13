@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/jung-kurt/gofpdf"
 	"github.com/jung-kurt/gofpdf/contrib/httpimg"
 	"github.com/labovector/vecsys-api/entity"
@@ -142,17 +143,31 @@ func (ac *UserController) VerifyParticipant(c *fiber.Ctx) error {
 		})
 	}
 
-	now := time.Now()
-	participant.VerifiedAt = &now
+	if participant.IsVerified() {
+		participant.VerifiedAt = nil
 
-	participant.ProgressStep = entity.StepVerifiedParticipant
+		participant.ProgressStep = entity.StepPaidParticipant
 
-	err = ac.userRepo.UpdateParticipant(ID, participant)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Kesalahan saat memperbarui data user"),
-		})
+		err = ac.userRepo.UpdateParticipant(ID, participant)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+				Status: dto.ErrorStatus.WithMessage("Kesalahan saat memperbarui data user"),
+			})
+		}
+	} else {
+		now := time.Now()
+		participant.VerifiedAt = &now
+
+		participant.ProgressStep = entity.StepVerifiedParticipant
+
+		err = ac.userRepo.UpdateParticipant(ID, participant)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+				Status: dto.ErrorStatus.WithMessage("Kesalahan saat memperbarui data user"),
+			})
+		}
 	}
+
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
 		Status: dto.SuccessStatus,
 		Data:   participant,
@@ -375,6 +390,7 @@ func (ac *UserController) UpdateParticipantBiodata(c *fiber.Ctx) error {
 	biodatas := make([]entity.Biodata, 0, len(*req))
 	for _, biodata := range *req {
 		biodatas = append(biodatas, entity.Biodata{
+			Id:       uuid.MustParse(biodata.Id),
 			Name:     *biodata.Name,
 			Gender:   *biodata.Gender,
 			Email:    *biodata.Email,
