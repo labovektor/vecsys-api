@@ -116,9 +116,9 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	globalRoutes.Get("/event/:id", allController.EventController.GetEventById)
 
 	// Evert Category Route
-	adminRoutes.Get("/event/:id/category", middleware.AdminMiddleware(), allController.CategoryController.GetAllCategoryByEventId)
+	adminRoutes.Get("/event/:id/category", allController.CategoryController.GetAllCategoryByEventId)
 	adminRoutes.Get("/category/:id", middleware.AdminMiddleware(), allController.CategoryController.GetCategoryById)
-	adminRoutes.Post("/event/:id/category", middleware.AdminMiddleware(), allController.CategoryController.AddCategoryToEvent)
+	adminRoutes.Post("/event/:id/category", allController.CategoryController.AddCategoryToEvent)
 	adminRoutes.Patch("/category/:id", middleware.AdminMiddleware(), allController.CategoryController.UpdateCategory)
 	adminRoutes.Delete("/category/:id", middleware.AdminMiddleware(), allController.CategoryController.DeleteCategory)
 
