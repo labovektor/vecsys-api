@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -225,4 +226,34 @@ func (p *ParticipantDataController) LockData(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
 		Status: dto.SuccessStatus,
 	})
+}
+
+func (p *ParticipantDataController) GenerateCard(c *fiber.Ctx) error {
+	participantId := c.Locals(util.CurrentUserIdKey).(string)
+
+	participant, err := p.ParticipantRepository.FindParticipantById(participantId, true)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
+		})
+	}
+
+	if !participant.IsLocked() {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("User belum mengunci semua data!"),
+		})
+	}
+
+	cardBytes, err := util.GenerateCard(participant)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Kesalahan saat membuat kartu peserta"),
+		})
+	}
+
+	c.Set("Content-Type", "application/pdf")
+	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"kartu_peserta_%s.pdf\"", participant.Name))
+	c.Set("Content-Length", fmt.Sprintf("%d", len(cardBytes)))
+
+	return c.Send(cardBytes)
 }
