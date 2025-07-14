@@ -247,7 +247,8 @@ func (ac *UserController) GeneratePdfParticipant(c *fiber.Ctx) error {
 		pdf.Ln(5)
 	}
 
-	pdf.Ln(70)
+	pdf.Line(10, pdf.GetY(), 200, pdf.GetY())
+	pdf.Ln(5)
 	pdf.SetFont("Arial", "B", 14)
 	pdf.Cell(0, 10, "Contact Person:")
 	pdf.Ln(10)
