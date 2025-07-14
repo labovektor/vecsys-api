@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"encoding/csv"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/jung-kurt/gofpdf"
+	"github.com/jung-kurt/gofpdf/contrib/httpimg"
 	"github.com/labovector/vecsys-api/entity"
 	"github.com/labovector/vecsys-api/internal/rest/dto"
 	repository "github.com/labovector/vecsys-api/internal/rest/repository/user"
@@ -182,25 +184,32 @@ func (ac *UserController) GeneratePdfParticipant(c *fiber.Ctx) error {
 		})
 	}
 
+	if !participant.IsLocked() {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("User belum mengunci semua data!"),
+		})
+	}
+
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.AddPage()
-	// iconPath := participant.Event.Icon
-	// iconPath = strings.ReplaceAll(iconPath, "\\", "/")
-	// iconURL := fmt.Sprintf("http://127.0.0.1:8787/api/v1%s", iconPath)
-	// cleanURL := strings.Split(iconURL, "?")[0]
+	iconPath := participant.Event.Icon
+	iconPath = strings.ReplaceAll(iconPath, "\\", "/")
+	iconURL := fmt.Sprintf("http://127.0.0.1:8787/api/v1%s", iconPath)
+	cleanURL := strings.Split(iconURL, "?")[0]
 
-	// httpimg.Register(pdf, cleanURL, "")
-	// imgFormat := ""
-	// if strings.HasSuffix(strings.ToLower(cleanURL), ".jpg") {
-	// 	imgFormat = "JPG"
-	// } else if strings.HasSuffix(strings.ToLower(cleanURL), ".jpg") || strings.HasSuffix(strings.ToLower(cleanURL), ".jpeg") {
-	// 	imgFormat = "JPG"
-	// } else if strings.HasSuffix(strings.ToLower(cleanURL), ".gif") {
-	// 	imgFormat = "GIF"
-	// } else {
-	// 	imgFormat = "PNG"
-	// }
-	// pdf.Image(cleanURL, 90, 12, 30, 30, false, imgFormat, 0, "")
+	httpimg.Register(pdf, cleanURL, "")
+	imgFormat := ""
+	if strings.HasSuffix(strings.ToLower(cleanURL), ".jpg") {
+		imgFormat = "JPG"
+	} else if strings.HasSuffix(strings.ToLower(cleanURL), ".jpg") || strings.HasSuffix(strings.ToLower(cleanURL), ".jpeg") {
+		imgFormat = "JPG"
+	} else if strings.HasSuffix(strings.ToLower(cleanURL), ".gif") {
+		imgFormat = "GIF"
+	} else {
+		imgFormat = "PNG"
+	}
+
+	pdf.Image(cleanURL, 90, 12, 30, 30, false, imgFormat, 0, "")
 	pdf.Ln(50)
 	pdf.SetFont("Arial", "B", 20)
 	pdf.CellFormat(0, 10, "Kartu Peserta", "", 1, "C", false, 0, "")
