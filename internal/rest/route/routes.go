@@ -15,6 +15,7 @@ import (
 	rr "github.com/labovector/vecsys-api/internal/rest/repository/region"
 	ur "github.com/labovector/vecsys-api/internal/rest/repository/user"
 	"github.com/labovector/vecsys-api/internal/util"
+	"gorm.io/gorm"
 )
 
 type AllRepository struct {
@@ -42,7 +43,7 @@ type AllController struct {
 	InstituionController                controller.InstitutionController
 }
 
-func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Maker, emailDialer email.EmailDialer) {
+func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Maker, emailDialer email.EmailDialer, db *gorm.DB) {
 
 	// Base route for API versioning (v1)
 	api := app.Group("/api/v1")
@@ -68,10 +69,12 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 			allRepository.RegionRepository,
 			allRepository.PaymentRepository,
 			allRepository.ReferalRepository,
+			db,
 		),
 		ParticipantDataController: controller.NewParticipantDataController(
 			allRepository.UserRepository,
 			allRepository.InstitutionRepository,
+			db,
 		),
 		PaymentOptionController: controller.NewPaymentOptionController(
 			allRepository.PaymentRepository,

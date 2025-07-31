@@ -9,6 +9,13 @@ type ReferalRepositoryImpl struct {
 	db *gorm.DB
 }
 
+// WithDB implements ReferalRepository.
+func (v *ReferalRepositoryImpl) WithDB(db *gorm.DB) ReferalRepository {
+	return &ReferalRepositoryImpl{
+		db: db,
+	}
+}
+
 // GetAllDiscountVoucher implements ReferalRepository.
 func (v *ReferalRepositoryImpl) GetAllDiscountVoucher(eventId ...string) ([]entity.Referal, error) {
 	var vouchers []entity.Referal

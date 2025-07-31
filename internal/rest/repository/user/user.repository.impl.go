@@ -9,6 +9,13 @@ type userRepositoryImpl struct {
 	db *gorm.DB
 }
 
+// WithDB implements UserRepository.
+func (u *userRepositoryImpl) WithDB(db *gorm.DB) UserRepository {
+	return &userRepositoryImpl{
+		db: db,
+	}
+}
+
 // BulkAddParticipant implements UserRepository.
 func (u *userRepositoryImpl) BulkAddParticipant(participants []entity.Participant) error {
 	tx := u.db.Begin()

@@ -1,6 +1,9 @@
 package repository
 
-import "github.com/labovector/vecsys-api/entity"
+import (
+	"github.com/labovector/vecsys-api/entity"
+	"gorm.io/gorm"
+)
 
 type ReferalRepository interface {
 	GetAllVoucher(eventId ...string) ([]entity.Referal, error)
@@ -10,4 +13,7 @@ type ReferalRepository interface {
 	CreateVoucher(voucher *entity.Referal) (entity.Referal, error)
 	UpdateVoucher(id string, voucher *entity.Referal) error
 	DeleteVoucher(id string) error
+
+	// Custom tx wrapper returning custom paymentrepository
+	WithDB(db *gorm.DB) ReferalRepository
 }

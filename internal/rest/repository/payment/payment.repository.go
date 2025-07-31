@@ -1,6 +1,9 @@
 package repository
 
-import "github.com/labovector/vecsys-api/entity"
+import (
+	"github.com/labovector/vecsys-api/entity"
+	"gorm.io/gorm"
+)
 
 type PaymentRepository interface {
 	// Payment Options
@@ -17,4 +20,7 @@ type PaymentRepository interface {
 	GetPaymentById(id string) (entity.Payment, error)
 	GetPaymentByParticipantId(participantId string) (entity.Payment, error)
 	GetPayments(eventId ...string) ([]entity.Payment, error)
+
+	// Custom tx wrapper returning custom paymentrepository
+	WithDB(db *gorm.DB) PaymentRepository
 }

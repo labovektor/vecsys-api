@@ -22,6 +22,9 @@ type ParticipantAdministrationController struct {
 	RegionRepository      rr.RegionRepository
 	PaymentRepository     pr.PaymentRepository
 	ReferalRepository     vr.ReferalRepository
+
+	// In case we need custom tx
+	db *gorm.DB
 }
 
 func NewParticipantController(
@@ -30,6 +33,7 @@ func NewParticipantController(
 	regionRepository rr.RegionRepository,
 	paymentRepository pr.PaymentRepository,
 	referalRepository vr.ReferalRepository,
+	db *gorm.DB,
 ) *ParticipantAdministrationController {
 	return &ParticipantAdministrationController{
 		ParticipantRepository: participantRepository,
@@ -37,6 +41,7 @@ func NewParticipantController(
 		RegionRepository:      regionRepository,
 		PaymentRepository:     paymentRepository,
 		ReferalRepository:     referalRepository,
+		db:                    db,
 	}
 }
 
@@ -141,17 +146,23 @@ func (p *ParticipantAdministrationController) ValidateReferal(c *fiber.Ctx) erro
 		})
 	}
 
-	available := referal.IsAvailableToClaim()
-	if !available {
+	if !referal.IsAvailableToClaim() {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Referal sudah tidak tersedia"),
 		})
 	}
 
+	tx := p.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
 	// Cek apakah partisipan sudah puya paymen
 	// Jika belum punya maka buatkan payment baru
 	// Jika sudah punya maka cek apakah paymentnya punya referal
-	currentParticipantPayment, err := p.PaymentRepository.GetPaymentByParticipantId(participantId)
+	currentParticipantPayment, err := p.PaymentRepository.WithDB(tx).GetPaymentByParticipantId(participantId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			referalId := referal.Id.String()
@@ -160,8 +171,9 @@ func (p *ParticipantAdministrationController) ValidateReferal(c *fiber.Ctx) erro
 				ReferalId:     &referalId,
 			}
 
-			_, err = p.PaymentRepository.CreatePayment(&payment)
+			_, err = p.PaymentRepository.WithDB(tx).CreatePayment(&payment)
 			if err != nil {
+				tx.Rollback()
 				return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 					Status: dto.ErrorStatus.WithMessage("Something wrong when creating payment"),
 				})
@@ -170,12 +182,14 @@ func (p *ParticipantAdministrationController) ValidateReferal(c *fiber.Ctx) erro
 			updatedRef := entity.Referal{
 				SeatAvailable: referal.SeatAvailable - 1,
 			}
-			if err = p.ReferalRepository.UpdateVoucher(referal.Id.String(), &updatedRef); err != nil {
+			if err = p.ReferalRepository.WithDB(tx).UpdateVoucher(referal.Id.String(), &updatedRef); err != nil {
+				tx.Rollback()
 				return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 					Status: dto.ErrorStatus.WithMessage("Something wrong when updating referal"),
 				})
 			}
 
+			tx.Commit()
 			return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
 				Status: dto.SuccessStatus,
 				Data:   referal,
@@ -199,7 +213,8 @@ func (p *ParticipantAdministrationController) ValidateReferal(c *fiber.Ctx) erro
 		ReferalId: &referalId,
 	}
 
-	if err := p.PaymentRepository.UpdatePayment(currentParticipantPayment.Id.String(), &payment); err != nil {
+	if err := p.PaymentRepository.WithDB(tx).UpdatePayment(currentParticipantPayment.Id.String(), &payment); err != nil {
+		tx.Rollback()
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when updating payment"),
 		})
@@ -208,12 +223,14 @@ func (p *ParticipantAdministrationController) ValidateReferal(c *fiber.Ctx) erro
 	updatedRef := entity.Referal{
 		SeatAvailable: referal.SeatAvailable - 1,
 	}
-	if err = p.ReferalRepository.UpdateVoucher(referal.Id.String(), &updatedRef); err != nil {
+	if err = p.ReferalRepository.WithDB(tx).UpdateVoucher(referal.Id.String(), &updatedRef); err != nil {
+		tx.Rollback()
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when updating referal"),
 		})
 	}
 
+	tx.Commit()
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
 		Status: dto.SuccessStatus,
 		Data:   referal,
@@ -269,26 +286,36 @@ func (p *ParticipantAdministrationController) Payment(c *fiber.Ctx) error {
 		payment.Invoice = invoiceUrl
 	}
 
+	tx := p.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
 	// Cek apakah partisipan sudah puya paymen
 	// Jika belum punya maka buatkan payment baru
 	// Jika sudah punya maka update paymentnya
-	currentParticipantPayment, err := p.PaymentRepository.GetPaymentByParticipantId(participantId)
+	currentParticipantPayment, err := p.PaymentRepository.WithDB(tx).GetPaymentByParticipantId(participantId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			_, err = p.PaymentRepository.CreatePayment(&payment)
+			_, err = p.PaymentRepository.WithDB(tx).CreatePayment(&payment)
 			if err != nil {
+				tx.Rollback()
 				return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 					Status: dto.ErrorStatus.WithMessage("Something wrong when creating payment"),
 				})
 			}
 		} else {
+			tx.Rollback()
 			return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 				Status: dto.ErrorStatus.WithMessage("Something wrong when getting payment"),
 			})
 		}
 	}
 
-	if err = p.PaymentRepository.UpdatePayment(currentParticipantPayment.Id.String(), &payment); err != nil {
+	if err = p.PaymentRepository.WithDB(tx).UpdatePayment(currentParticipantPayment.Id.String(), &payment); err != nil {
+		tx.Rollback()
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when updating payment"),
 		})
@@ -298,12 +325,14 @@ func (p *ParticipantAdministrationController) Payment(c *fiber.Ctx) error {
 		ProgressStep: entity.StepPaidParticipant,
 	}
 
-	if err := p.ParticipantRepository.UpdateParticipant(participantId, &participant); err != nil {
+	if err := p.ParticipantRepository.WithDB(tx).UpdateParticipant(participantId, &participant); err != nil {
+		tx.Rollback()
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when updating participant"),
 		})
 	}
 
+	tx.Commit()
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
 		Status: dto.SuccessStatus,
 	})

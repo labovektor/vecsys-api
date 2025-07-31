@@ -1,6 +1,9 @@
 package repository
 
-import "github.com/labovector/vecsys-api/entity"
+import (
+	"github.com/labovector/vecsys-api/entity"
+	"gorm.io/gorm"
+)
 
 type UserRepository interface {
 	CreateParticipant(participant *entity.Participant) (entity.Participant, error)
@@ -23,4 +26,7 @@ type UserRepository interface {
 	UpdateBiodata(id string, biodata *entity.Biodata) error
 	BulkUpdateBiodata(participantId string, biodatas []entity.Biodata) error
 	RemoveBiodata(id string) error
+
+	// Custom tx wrapper returning custom paymentrepository
+	WithDB(db *gorm.DB) UserRepository
 }

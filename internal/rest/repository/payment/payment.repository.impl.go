@@ -9,6 +9,13 @@ type paymentRepositoryImpl struct {
 	db *gorm.DB
 }
 
+// WithDB implements PaymentRepository.
+func (p *paymentRepositoryImpl) WithDB(db *gorm.DB) PaymentRepository {
+	return &paymentRepositoryImpl{
+		db: db,
+	}
+}
+
 // Payment Options
 
 // CreatePaymentOption implements PaymentRepository.
