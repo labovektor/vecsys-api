@@ -9,6 +9,13 @@ type paymentRepositoryImpl struct {
 	db *gorm.DB
 }
 
+// WithDB implements PaymentRepository.
+func (p *paymentRepositoryImpl) WithDB(db *gorm.DB) PaymentRepository {
+	return &paymentRepositoryImpl{
+		db: db,
+	}
+}
+
 // Payment Options
 
 // CreatePaymentOption implements PaymentRepository.
@@ -72,7 +79,7 @@ func (p *paymentRepositoryImpl) GetPaymentById(id string) (entity.Payment, error
 // GetPaymentByParticipantId implements PaymentRepository.
 func (p *paymentRepositoryImpl) GetPaymentByParticipantId(participantId string) (entity.Payment, error) {
 	var payment entity.Payment
-	err := p.db.First(&payment, "participant_id = ?", participantId).Error
+	err := p.db.Preload("Referal").First(&payment, "participant_id = ?", participantId).Error
 	return payment, err
 }
 

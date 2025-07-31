@@ -3,6 +3,7 @@ package rest
 import (
 	"context"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,7 +11,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/labovector/vecsys-api/infrastructure/email"
 	"github.com/labovector/vecsys-api/internal/rest/route"
+	"github.com/labovector/vecsys-api/internal/util"
 	"gorm.io/gorm"
 
 	ar "github.com/labovector/vecsys-api/internal/rest/repository/admin"
@@ -18,18 +21,18 @@ import (
 	er "github.com/labovector/vecsys-api/internal/rest/repository/event"
 	ir "github.com/labovector/vecsys-api/internal/rest/repository/institution"
 	pr "github.com/labovector/vecsys-api/internal/rest/repository/payment"
+	vr "github.com/labovector/vecsys-api/internal/rest/repository/referal"
 	rr "github.com/labovector/vecsys-api/internal/rest/repository/region"
 	ur "github.com/labovector/vecsys-api/internal/rest/repository/user"
-	vr "github.com/labovector/vecsys-api/internal/rest/repository/voucher"
 )
 
-func New(session *session.Store, db *gorm.DB, logFile *os.File) *fiber.App {
+func New(session *session.Store, db *gorm.DB, logFile *os.File, emailDialer email.EmailDialer, jwtMaker util.Maker) *fiber.App {
 	_ = context.Background()
 	app := fiber.New(fiber.Config{
 		AppName: "vecsys",
 	})
 
-	app.Static("/public", "../../__public", fiber.Static{
+	app.Static("/api/v1/public", "./__public", fiber.Static{
 		Compress:      true,
 		ByteRange:     true,
 		Browse:        true,
@@ -56,7 +59,9 @@ func New(session *session.Store, db *gorm.DB, logFile *os.File) *fiber.App {
 
 	app.Use(cors.New(
 		cors.Config{
-			AllowOrigins:     "http://localhost:3000, https://vecsys.vercel.app",
+			AllowOriginsFunc: func(origin string) bool {
+				return origin == "http://localhost:3000" || strings.HasSuffix(origin, ".vercel.app")
+			},
 			AllowCredentials: true,
 		},
 	))
@@ -86,10 +91,10 @@ func New(session *session.Store, db *gorm.DB, logFile *os.File) *fiber.App {
 		EventRepository:       er.NewEventRepositositoryImpl(db),
 		PaymentRepository:     pr.NewPaymentRepositoryImpl(db),
 		RegionRepository:      rr.NewRegionRepositoryImpl(db),
-		VoucherRepository:     vr.NewVoucherRepositoryImpl(db),
+		ReferalRepository:     vr.NewReferalRepositoryImpl(db),
 		CategoryRepository:    cr.NewCategoryRepositoryImpl(db),
 		InstitutionRepository: ir.NewInstitutionRepositoryImpl(db),
-	})
+	}, jwtMaker, emailDialer, db)
 
 	return app
 }

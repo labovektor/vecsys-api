@@ -5,6 +5,7 @@ CREATE TABLE payment_options (
     account VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
     as_qr BOOLEAN DEFAULT FALSE,
+    amount INT NOT NULL,
     created_at TIMESTAMP DEFAULT now() NOT NULL,
     updated_at TIMESTAMP
 );

@@ -10,6 +10,20 @@ import (
 type Config struct {
 	Postgres PostgresConfig
 	Redis    RedisConfig
+	Email    EmailConfig
+	JWT      JWTConfig
+}
+
+type EmailConfig struct {
+	Host         string
+	Port         int
+	AuthEmail    string
+	AuthPassword string
+	SenderName   string
+}
+
+type JWTConfig struct {
+	SecretKey string
 }
 
 type PostgresConfig struct {

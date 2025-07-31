@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"regexp"
 
+	"slices"
+
 	"github.com/go-playground/validator/v10"
 )
 
@@ -14,11 +16,13 @@ var validate *validator.Validate
 
 // Mapping pesan error
 var validationMessages = map[string]string{
-	"required": "harus diisi",
-	"email":    "Format email tidak valid",
-	"min":      "minimal %s karakter",
-	"max":      "maksimal %s karakter",
-	"phone":    "harus dimulai dengan 628 dan terdiri dari 10-13 angka",
+	"required":             "harus diisi",
+	"email":                "Format email tidak valid",
+	"datetime":             "Format tanggal tidak valid",
+	"min":                  "minimal %s karakter",
+	"max":                  "maksimal %s karakter",
+	"phone":                "harus dimulai dengan 628 dan terdiri dari 10-13 angka",
+	"participant_progress": "progress tidak valid",
 }
 
 // IndonesianPhoneValidator Custom validator untuk nomor telepon Indonesia (format 628xxx)
@@ -26,6 +30,15 @@ func IndonesianPhoneValidator(fl validator.FieldLevel) bool {
 	phone := fl.Field().String()
 	matched, _ := regexp.MatchString(`^628\d{8,11}$`, phone) // 628 + 8-11 digit angka
 	return matched
+}
+
+func ParticipantProgressValidator(fl validator.FieldLevel) bool {
+	progress := fl.Field().String()
+	validProgress := []string{"registered", "categorized", "paid", "validated", "select_institution", "fill_biodatas", "locked"}
+
+	valid := slices.Contains(validProgress, progress)
+
+	return valid
 }
 
 func ValidateStruct(s any) error {
@@ -114,6 +127,7 @@ func ValidateFile(file *multipart.FileHeader, opts ...*FileValidationOpts) error
 func InitValidator() {
 	validate = validator.New()
 	validate.RegisterValidation("phone", IndonesianPhoneValidator)
+	validate.RegisterValidation("participant_progress", ParticipantProgressValidator)
 }
 
 func toMB(byte int64) float64 {

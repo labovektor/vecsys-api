@@ -6,6 +6,7 @@ import (
 
 	"github.com/labovector/vecsys-api/infrastructure/config"
 	"github.com/labovector/vecsys-api/infrastructure/database"
+	"github.com/labovector/vecsys-api/infrastructure/email"
 	"github.com/labovector/vecsys-api/infrastructure/session"
 	"github.com/labovector/vecsys-api/internal/rest"
 	"github.com/labovector/vecsys-api/internal/util"
@@ -26,6 +27,12 @@ func main() {
 	// Initialize validator
 	util.InitValidator()
 
+	// Initialize email dialer
+	mailer := email.NewEmailDialer(&conf.Email)
+
+	// Initialize JWT Maker
+	jwt := util.NewJWTMaker(&conf.JWT)
+
 	// Custom File Writer for logger
 	file, err := os.OpenFile("./vecsys-logger.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -33,7 +40,7 @@ func main() {
 	}
 	defer file.Close()
 
-	app := rest.New(session, db, file)
+	app := rest.New(session, db, file, *mailer, *jwt)
 
 	// Run the app
 	if err := app.Listen(":8787"); err != nil {

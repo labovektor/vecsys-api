@@ -1,7 +1,7 @@
 .idea
 .env
 **/config.yml
-**/__public/profile/*
+**/__public/**/*
 Makefile
 vecsys
 vecsys-logger.log

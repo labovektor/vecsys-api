@@ -15,16 +15,18 @@ func InitDB(config *config.PostgresConfig) *gorm.DB {
 	conn_url := config.ConnUrl
 
 	database, err := gorm.Open(postgres.Open(conn_url), &gorm.Config{})
-	database.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
 	if err != nil {
 		panic("Cannot connect to database")
 	}
+
+	database.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
+	database.Exec(`SET TIME ZONE 'Asia/Jakarta';`)
 
 	// TODO: Set Migration
 	database.AutoMigrate(
 		&entity.Admin{},
 		&entity.Event{},
-		&entity.Voucher{},
+		&entity.Referal{},
 		&entity.PaymentOption{},
 		&entity.Region{},
 		&entity.Category{},

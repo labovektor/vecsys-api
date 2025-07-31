@@ -32,6 +32,17 @@ func (c *categoryRepositoryImpl) GetAllCategories(eventId ...string) ([]entity.C
 	return categories, err
 }
 
+// GetAllActiveCategories implements CategoryRepository.
+func (c *categoryRepositoryImpl) GetAllActiveCategories(eventId ...string) ([]entity.Category, error) {
+	var categories []entity.Category
+	if len(eventId) > 0 {
+		err := c.db.Find(&categories, "event_id = ? AND visible = ?", eventId[0], true).Error
+		return categories, err
+	}
+	err := c.db.Find(&categories, "visible = ?", true).Error
+	return categories, err
+}
+
 // GetCategory implements CategoryRepository.
 func (c *categoryRepositoryImpl) GetCategory(id string) (entity.Category, error) {
 	var category entity.Category
