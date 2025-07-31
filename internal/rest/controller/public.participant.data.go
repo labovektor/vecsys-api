@@ -10,20 +10,26 @@ import (
 	ir "github.com/labovector/vecsys-api/internal/rest/repository/institution"
 	ur "github.com/labovector/vecsys-api/internal/rest/repository/user"
 	"github.com/labovector/vecsys-api/internal/util"
+	"gorm.io/gorm"
 )
 
 type ParticipantDataController struct {
 	ParticipantRepository ur.UserRepository
 	InstitutionRepository ir.InstitutionRepository
+
+	// In case we need custom tx
+	db *gorm.DB
 }
 
 func NewParticipantDataController(
 	participantRepository ur.UserRepository,
 	institutionRepository ir.InstitutionRepository,
+	db *gorm.DB,
 ) *ParticipantDataController {
 	return &ParticipantDataController{
 		ParticipantRepository: participantRepository,
 		InstitutionRepository: institutionRepository,
+		db:                    db,
 	}
 }
 
@@ -70,8 +76,16 @@ func (p *ParticipantDataController) AddInstitution(c *fiber.Ctx) error {
 		Issuer:          entity.USER,
 	}
 
-	institution, err := p.InstitutionRepository.CreateInstitution(institution)
+	tx := p.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	institution, err := p.InstitutionRepository.WithDB(tx).CreateInstitution(institution)
 	if err != nil {
+		tx.Rollback()
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when adding institution"),
 		})
@@ -84,12 +98,14 @@ func (p *ParticipantDataController) AddInstitution(c *fiber.Ctx) error {
 		ProgressStep:  entity.StepSelectInstitutionParticipant,
 	}
 
-	if err := p.ParticipantRepository.UpdateParticipant(participantId, &participant); err != nil {
+	if err := p.ParticipantRepository.WithDB(tx).UpdateParticipant(participantId, &participant); err != nil {
+		tx.Rollback()
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when updating participant"),
 		})
 	}
 
+	tx.Commit()
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
 		Status: dto.SuccessStatus,
 		Data:   institution,
@@ -170,8 +186,16 @@ func (p *ParticipantDataController) AddMembers(c *fiber.Ctx) error {
 		biodataCreate.IdCardPicture = idCardUrl
 	}
 
-	biodata, err := p.ParticipantRepository.AddBiodata(&participantId, biodataCreate)
+	tx := p.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	biodata, err := p.ParticipantRepository.WithDB(tx).AddBiodata(&participantId, biodataCreate)
 	if err != nil {
+		tx.Rollback()
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when adding member"),
 		})
@@ -181,12 +205,14 @@ func (p *ParticipantDataController) AddMembers(c *fiber.Ctx) error {
 		ProgressStep: entity.StepFillBiodatasParticipant,
 	}
 
-	if err := p.ParticipantRepository.UpdateParticipant(participantId, &participant); err != nil {
+	if err := p.ParticipantRepository.WithDB(tx).UpdateParticipant(participantId, &participant); err != nil {
+		tx.Rollback()
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when updating participant"),
 		})
 	}
 
+	tx.Commit()
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
 		Status: dto.SuccessStatus,
 		Data:   biodata,

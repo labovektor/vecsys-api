@@ -94,7 +94,7 @@ func New(session *session.Store, db *gorm.DB, logFile *os.File, emailDialer emai
 		ReferalRepository:     vr.NewReferalRepositoryImpl(db),
 		CategoryRepository:    cr.NewCategoryRepositoryImpl(db),
 		InstitutionRepository: ir.NewInstitutionRepositoryImpl(db),
-	}, jwtMaker, emailDialer)
+	}, jwtMaker, emailDialer, db)
 
 	return app
 }

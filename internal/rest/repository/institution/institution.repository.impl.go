@@ -9,6 +9,13 @@ type institutionRepositoryImpl struct {
 	db *gorm.DB
 }
 
+// WithDB implements InstitutionRepository.
+func (i *institutionRepositoryImpl) WithDB(db *gorm.DB) InstitutionRepository {
+	return &institutionRepositoryImpl{
+		db: db,
+	}
+}
+
 // CreateInstitution implements InstitutionRepository.
 func (i *institutionRepositoryImpl) CreateInstitution(institution *entity.Institution) (*entity.Institution, error) {
 	db := i.db.Create(institution)
