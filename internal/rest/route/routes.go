@@ -117,7 +117,7 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	event.Get("/:id/toggle", allController.EventController.ToggleEventActive)
 	event.Delete("/:id", allController.EventController.DeleteEvent)
 	globalRoutes.Get("/event/:id", allController.EventController.GetEventById)
-	globalRoutes.Get("/event/:slug", allController.EventController.GetEventBySlug)
+	globalRoutes.Get("/e/:slug", allController.EventController.GetEventBySlug)
 
 	// Evert Category Route
 	adminRoutes.Get("/event/:id/category", allController.CategoryController.GetAllCategoryByEventId)
