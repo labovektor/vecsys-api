@@ -10,6 +10,7 @@ type Event struct {
 	Id                uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	AdminId           *string    `json:"admin_id"`
 	Name              string     `json:"name"`
+	Slug              string     `gorm:"default:uuid_generate_v4();unique" json:"slug"`
 	Desc              string     `json:"desc"`
 	GroupMemberNum    int        `gorm:"default:3" json:"group_member_num"`
 	Icon              string     `json:"icon"`

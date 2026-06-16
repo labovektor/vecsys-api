@@ -9,15 +9,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/labovector/vecsys-api/entity"
 	"github.com/labovector/vecsys-api/internal/rest/dto"
-	repository "github.com/labovector/vecsys-api/internal/rest/repository/user"
+	ur "github.com/labovector/vecsys-api/internal/rest/repository/user"
 	"github.com/labovector/vecsys-api/internal/util"
 )
 
 type UserController struct {
-	userRepo repository.UserRepository
+	userRepo ur.UserRepository
 }
 
-func NewUserController(userRepo repository.UserRepository) *UserController {
+func NewUserController(userRepo ur.UserRepository) *UserController {
 	return &UserController{
 		userRepo: userRepo,
 	}
@@ -236,11 +236,13 @@ func (ac *UserController) BulkAddParticipantFromCSV(c *fiber.Ctx) error {
 			})
 		}
 
-		participantReq := dto.ParticipantSignUpReq{
-			EventId:  eventId,
-			Name:     record[0],
-			Email:    record[1],
-			Password: record[2],
+		participantReq := dto.BulkParticipantSignUpReq{
+			EventId: eventId,
+			ParticipantSignUp: dto.ParticipantSignUp{
+				Name:     record[0],
+				Email:    record[1],
+				Password: record[2],
+			},
 		}
 
 		if err := util.ValidateStruct(participantReq); err != nil {
