@@ -66,6 +66,21 @@ func (e *eventRepositoryImpl) FindEventById(id string, adminId ...string) (*enti
 	return event, nil
 }
 
+// FindEventBySlug implements [EventRepository].
+func (e *eventRepositoryImpl) FindEventBySlug(slug string, adminId ...string) (*entity.Event, error) {
+	event := &entity.Event{}
+	if len(adminId) > 0 {
+		if err := e.db.First(event, "slug = ? AND admin_id = ?", slug, adminId[0]).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		if err := e.db.First(event, "slug = ?", slug).Error; err != nil {
+			return nil, err
+		}
+	}
+	return event, nil
+}
+
 // UpdateEvent implements EventRepository.
 func (e *eventRepositoryImpl) UpdateEvent(id string, event *entity.Event) error {
 	db := e.db.Model(&entity.Event{}).Where("id = ?", id).Updates(event)

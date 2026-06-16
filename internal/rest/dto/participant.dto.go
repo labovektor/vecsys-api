@@ -7,11 +7,20 @@ type ParticipantLoginReq struct {
 	Password string `json:"password" form:"password" validate:"required"`
 }
 
-type ParticipantSignUpReq struct {
-	EventId  string `json:"event_id" form:"event_id" validate:"required"`
+type ParticipantSignUp struct {
 	Name     string `json:"name" form:"name" validate:"required"`
 	Email    string ` json:"email" form:"email" validate:"required,email"`
 	Password string `json:"password" form:"password" validate:"required"`
+}
+
+type SingleParticipantSignUpReq struct {
+	EventSlug string `json:"event_slug" form:"event_slug" validate:"required"`
+	ParticipantSignUp
+}
+
+type BulkParticipantSignUpReq struct {
+	EventId string `json:"event_id" form:"event_id" validate:"required"`
+	ParticipantSignUp
 }
 
 type ParticipantUpdateReq struct {
