@@ -217,7 +217,7 @@ func (ac *AuthController) RegisterUser(c *fiber.Ctx) error {
 	}
 
 	event, err := ac.eventRepo.FindEventBySlug(req.EventSlug)
-	if err == nil {
+	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Event tidak valid!"),
 		})
