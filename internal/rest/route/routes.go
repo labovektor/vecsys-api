@@ -148,6 +148,7 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 
 	// Event Participant Route
 	event.Get("/:id/participant", allController.UserController.GetAllParticipant)
+	event.Get("/:id/biodata", allController.UserController.GetAllLockedBiodata)
 	adminRoutes.Patch("/participant/:id/verify", middleware.AdminMiddleware(), allController.UserController.VerifyParticipant)
 	adminRoutes.Get("/participant/:id/card", middleware.AdminMiddleware(), allController.UserController.GeneratePdfParticipant)
 	event.Post("/:id/participant/bulk", allController.UserController.BulkAddParticipantFromCSV)

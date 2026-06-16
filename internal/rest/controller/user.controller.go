@@ -116,6 +116,22 @@ func (ac *UserController) GetAllParticipant(c *fiber.Ctx) error {
 	})
 }
 
+func (ac *UserController) GetAllLockedBiodata(c *fiber.Ctx) error {
+	eventID := c.Params("id")
+
+	biodatas, err := ac.userRepo.FindBiodataByEventId(eventID, true)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
+		Data:   biodatas,
+	})
+}
+
 func (ac *UserController) GetParticipantByID(c *fiber.Ctx) error {
 	ID := c.Params("id")
 	participant, err := ac.userRepo.FindParticipantById(ID, true)
