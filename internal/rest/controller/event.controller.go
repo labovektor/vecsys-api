@@ -82,6 +82,21 @@ func (ec *EventController) GetEventById(c *fiber.Ctx) error {
 	})
 }
 
+func (ec *EventController) GetEventBySlug(c *fiber.Ctx) error {
+	slug := c.Params("slug")
+	event, err := ec.eventRepo.FindEventBySlug(slug)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Something wrong when getting event"),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
+		Status: dto.SuccessStatus,
+		Data:   event,
+	})
+}
+
 func (ec *EventController) DeleteEvent(c *fiber.Ctx) error {
 	id := c.Params("id")
 	err := ec.eventRepo.DeleteEvent(id)
@@ -117,6 +132,10 @@ func (ec *EventController) UpdateEvent(c *fiber.Ctx) error {
 		GroupMemberNum:    req.GroupMemberNum,
 		ParticipantTarget: req.ParticipantTarget,
 		Period:            req.Period,
+	}
+
+	if req.Slug != nil {
+		event.Slug = *req.Slug
 	}
 
 	file, _ := c.FormFile("icon")

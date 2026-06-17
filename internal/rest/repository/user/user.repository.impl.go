@@ -9,6 +9,27 @@ type userRepositoryImpl struct {
 	db *gorm.DB
 }
 
+// FindBiodataByEventId implements [UserRepository].
+func (u *userRepositoryImpl) FindBiodataByEventId(eventId string, lockedOnly bool) ([]entity.Biodata, error) {
+	var participants []entity.Participant
+	query := u.db.Preload("Biodata").Where("event_id = ?", eventId)
+	if lockedOnly {
+		query = query.Where("progress_step IN ?", []entity.ParticipantProgress{entity.StepLockedParticipant})
+	}
+	if err := query.Find(&participants).Error; err != nil {
+		return []entity.Biodata{}, err
+	}
+
+	var biodatas []entity.Biodata
+	for _, participant := range participants {
+		if participant.Biodata != nil {
+			biodatas = append(biodatas, *participant.Biodata...)
+		}
+	}
+
+	return biodatas, nil
+}
+
 // WithDB implements UserRepository.
 func (u *userRepositoryImpl) WithDB(db *gorm.DB) UserRepository {
 	return &userRepositoryImpl{

@@ -8,6 +8,7 @@ import (
 	"github.com/labovector/vecsys-api/infrastructure/email"
 	"github.com/labovector/vecsys-api/internal/rest/dto"
 	adminRepo "github.com/labovector/vecsys-api/internal/rest/repository/admin"
+	eventRepo "github.com/labovector/vecsys-api/internal/rest/repository/event"
 	userRepo "github.com/labovector/vecsys-api/internal/rest/repository/user"
 	"github.com/labovector/vecsys-api/internal/util"
 )
@@ -15,14 +16,16 @@ import (
 type AuthController struct {
 	adminRepo   adminRepo.AdminRepository
 	userRepo    userRepo.UserRepository
+	eventRepo   eventRepo.EventRepository
 	jwtMaker    util.Maker
 	emailDialer email.EmailDialer
 }
 
-func NewAuthController(adminRepo adminRepo.AdminRepository, userRepo userRepo.UserRepository, jwtMaker util.Maker, emailDialer email.EmailDialer) *AuthController {
+func NewAuthController(adminRepo adminRepo.AdminRepository, userRepo userRepo.UserRepository, eventRepo eventRepo.EventRepository, jwtMaker util.Maker, emailDialer email.EmailDialer) *AuthController {
 	return &AuthController{
 		adminRepo:   adminRepo,
 		userRepo:    userRepo,
+		eventRepo:   eventRepo,
 		jwtMaker:    jwtMaker,
 		emailDialer: emailDialer,
 	}
@@ -192,7 +195,7 @@ func (ac *AuthController) LoginUser(c *fiber.Ctx) error {
 }
 
 func (ac *AuthController) RegisterUser(c *fiber.Ctx) error {
-	req := new(dto.ParticipantSignUpReq)
+	req := new(dto.SingleParticipantSignUpReq)
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.ErrInternalServerError.Code).JSON(dto.APIResponse{
@@ -213,6 +216,13 @@ func (ac *AuthController) RegisterUser(c *fiber.Ctx) error {
 		})
 	}
 
+	event, err := ac.eventRepo.FindEventBySlug(req.EventSlug)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+			Status: dto.ErrorStatus.WithMessage("Event tidak valid!"),
+		})
+	}
+
 	passwordHash, err := util.HashPassword(req.Password)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
@@ -221,7 +231,7 @@ func (ac *AuthController) RegisterUser(c *fiber.Ctx) error {
 	}
 
 	participant := entity.Participant{
-		EventId:  &req.EventId,
+		EventId:  new(event.Id.String()),
 		Email:    req.Email,
 		Name:     req.Name,
 		Password: passwordHash,

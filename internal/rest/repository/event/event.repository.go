@@ -7,6 +7,7 @@ type EventRepository interface {
 	FindAllEvent(adminId ...string) ([]entity.Event, error)
 	FindAllActiveEvent(adminId ...string) ([]entity.Event, error)
 	FindEventById(id string, adminId ...string) (*entity.Event, error)
+	FindEventBySlug(slug string, adminId ...string) (*entity.Event, error)
 	UpdateEvent(id string, event *entity.Event) error
 	DeleteEvent(id string) error
 }

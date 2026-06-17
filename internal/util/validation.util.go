@@ -23,6 +23,14 @@ var validationMessages = map[string]string{
 	"max":                  "maksimal %s karakter",
 	"phone":                "harus dimulai dengan 628 dan terdiri dari 10-13 angka",
 	"participant_progress": "progress tidak valid",
+	"slug":                 "slug tidak valid",
+}
+
+var slugRegex = regexp.MustCompile(`^[a-z0-9-]+$`)
+var reservedSlugs = []string{"vecsys", "admin", "login", "api", "dashboard", "settings"}
+
+func SlugValidator(fl validator.FieldLevel) bool {
+	return slugRegex.MatchString(fl.Field().String()) && !slices.Contains(reservedSlugs, fl.Field().String())
 }
 
 // IndonesianPhoneValidator Custom validator untuk nomor telepon Indonesia (format 628xxx)
@@ -128,6 +136,7 @@ func InitValidator() {
 	validate = validator.New()
 	validate.RegisterValidation("phone", IndonesianPhoneValidator)
 	validate.RegisterValidation("participant_progress", ParticipantProgressValidator)
+	validate.RegisterValidation("slug", SlugValidator)
 }
 
 func toMB(byte int64) float64 {

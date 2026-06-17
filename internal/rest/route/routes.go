@@ -57,7 +57,7 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 		AdminController: controller.NewAdminController(allRepository.AdminRepository),
 		UserController:  controller.NewUserController(allRepository.UserRepository),
 		EventController: controller.NewEventController(allRepository.EventRepository),
-		AuthController:  controller.NewAuthController(allRepository.AdminRepository, allRepository.UserRepository, jwtMaker, emailDialer),
+		AuthController:  controller.NewAuthController(allRepository.AdminRepository, allRepository.UserRepository, allRepository.EventRepository, jwtMaker, emailDialer),
 		CategoryController: controller.NewCategoryController(
 			allRepository.CategoryRepository,
 		),
@@ -117,6 +117,7 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 	event.Get("/:id/toggle", allController.EventController.ToggleEventActive)
 	event.Delete("/:id", allController.EventController.DeleteEvent)
 	globalRoutes.Get("/event/:id", allController.EventController.GetEventById)
+	globalRoutes.Get("/e/:slug", allController.EventController.GetEventBySlug)
 
 	// Evert Category Route
 	adminRoutes.Get("/event/:id/category", allController.CategoryController.GetAllCategoryByEventId)
@@ -147,6 +148,7 @@ func SetupRoute(app *fiber.App, allRepository *AllRepository, jwtMaker util.Make
 
 	// Event Participant Route
 	event.Get("/:id/participant", allController.UserController.GetAllParticipant)
+	event.Get("/:id/biodata", allController.UserController.GetAllLockedBiodata)
 	adminRoutes.Patch("/participant/:id/verify", middleware.AdminMiddleware(), allController.UserController.VerifyParticipant)
 	adminRoutes.Get("/participant/:id/card", middleware.AdminMiddleware(), allController.UserController.GeneratePdfParticipant)
 	event.Post("/:id/participant/bulk", allController.UserController.BulkAddParticipantFromCSV)

@@ -1,0 +1,31 @@
+name: BUILD & PUSH IMAGE VECSYS API (PRODUCTION)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**"
+      - ".github/workflows/production-ci.yml"
+
+jobs:
+  build-push-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v4
+        with:
+          registry: https://ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.IMAGE_PUSH_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/labovektor/vecsys-api:stable
+            ghcr.io/labovektor/vecsys-api:${{ github.sha }}
