@@ -30,7 +30,7 @@ var slugRegex = regexp.MustCompile(`^[a-z0-9-]+$`)
 var reservedSlugs = []string{"vecsys", "admin", "login", "api", "dashboard", "settings"}
 
 func SlugValidator(fl validator.FieldLevel) bool {
-	return slugRegex.MatchString(fl.Field().String()) && slices.Contains(reservedSlugs, fl.Field().String())
+	return slugRegex.MatchString(fl.Field().String()) && !slices.Contains(reservedSlugs, fl.Field().String())
 }
 
 // IndonesianPhoneValidator Custom validator untuk nomor telepon Indonesia (format 628xxx)
