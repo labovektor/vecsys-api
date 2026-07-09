@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type Participant struct {
@@ -17,7 +18,7 @@ type Participant struct {
 	Name          string              `json:"name"`
 	InstitutionId *string             `json:"institution_id"`
 	Institution   *Institution        `json:"institution,omitempty" gorm:"foreignKey:InstitutionId;references:Id"`
-	Email         string              `gorm:"unique" json:"email"`
+	Email         string              `gorm:"uniqueIndex:idx_participant_email,where:deleted_at IS NULL;notnull" json:"email"`
 	Password      string              `json:"-"`
 	Biodata       *[]Biodata          `json:"biodata,omitempty" gorm:"foreignKey:ParticipantId;references:Id"`
 	Payment       *Payment            `json:"payment,omitempty" gorm:"foreignKey:ParticipantId;references:Id"`
@@ -26,6 +27,7 @@ type Participant struct {
 	LockedAt      *time.Time          `json:"locked_at,omitempty"`
 	CreatedAt     time.Time           `gorm:"default:now();" json:"created_at"`
 	UpdatedAt     *time.Time          `json:"updated_at"`
+	DeletedAt     gorm.DeletedAt      `gorm:"index" json:"deleted_at"`
 }
 
 func (p *Participant) IsVerified() bool {
