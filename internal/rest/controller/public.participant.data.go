@@ -282,11 +282,5 @@ func (p *ParticipantDataController) GenerateCard(c *fiber.Ctx) error {
 	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"kartu_peserta_%s.pdf\"", participant.Name))
 	c.Set("Content-Length", fmt.Sprintf("%d", len(cardBytes)))
 
-	// Debug headers
-	c.Set("X-Debug-Pdf-Bytes", fmt.Sprintf("%d", len(cardBytes)))
-	if len(cardBytes) > 4 {
-		c.Set("X-Debug-Pdf-Prefix", fmt.Sprintf("%x", cardBytes[:4]))
-	}
-
 	return c.Send(cardBytes)
 }
