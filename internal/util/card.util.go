@@ -114,22 +114,6 @@ func GenerateCard(participant *entity.Participant) ([]byte, error) {
 
 	checkPdf(pdf, "before Output")
 
-	// Write debug file to /tmp for container-level inspection
-	f, fErr := os.Create("/tmp/vecsys-debug.pdf")
-	if fErr == nil {
-		var tmpBuf bytes.Buffer
-		tmpErr := pdf.Output(&tmpBuf)
-		if tmpErr == nil {
-			f.Write(tmpBuf.Bytes())
-			log.Printf("PDF DIAG: wrote %d bytes to /tmp/vecsys-debug.pdf", len(tmpBuf.Bytes()))
-		} else {
-			log.Printf("PDF DIAG: Output to debug file failed: %v", tmpErr)
-		}
-		f.Close()
-	} else {
-		log.Printf("PDF DIAG: could not create /tmp/vecsys-debug.pdf: %v", fErr)
-	}
-
 	var buf bytes.Buffer
 	err := pdf.Output(&buf)
 	if err != nil {
@@ -138,10 +122,13 @@ func GenerateCard(participant *entity.Participant) ([]byte, error) {
 	}
 
 	pdfBytes := buf.Bytes()
-	log.Printf("PDF DIAG: generated %d bytes, first 8 hex = %x", len(pdfBytes), pdfBytes[:min(8, len(pdfBytes))])
+	log.Printf("PDF DIAG: generated %d bytes, first 8 hex = %x",
+		len(pdfBytes), pdfBytes[:min(8, len(pdfBytes))])
 
-	if !pdf.Ok() {
-		log.Printf("PDF DIAG: final pdf.Ok()=false, err=%v", pdf.Err())
+	if wErr := os.WriteFile("/tmp/vecsys-debug.pdf", pdfBytes, 0644); wErr != nil {
+		log.Printf("PDF DIAG: could not write debug file: %v", wErr)
+	} else {
+		log.Printf("PDF DIAG: wrote %d bytes to /tmp/vecsys-debug.pdf", len(pdfBytes))
 	}
 
 	return pdfBytes, nil
