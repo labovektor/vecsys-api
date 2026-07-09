@@ -14,23 +14,26 @@ func GenerateCard(participant *entity.Participant) ([]byte, error) {
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.AddPage()
 	iconPath := participant.Event.Icon
-	iconPath = strings.ReplaceAll(iconPath, "\\", "/")
-	iconURL := fmt.Sprintf("http://127.0.0.1:8787/api/v1%s", iconPath)
-	cleanURL := strings.Split(iconURL, "?")[0]
+	if iconPath != "" {
+		iconPath = strings.ReplaceAll(iconPath, "\\", "/")
+		iconURL := fmt.Sprintf("http://127.0.0.1:8787/api/v1%s", iconPath)
+		cleanURL, _, _ := strings.Cut(iconURL, "?")
 
-	httpimg.Register(pdf, cleanURL, "")
-	imgFormat := ""
-	if strings.HasSuffix(strings.ToLower(cleanURL), ".jpg") {
-		imgFormat = "JPG"
-	} else if strings.HasSuffix(strings.ToLower(cleanURL), ".jpg") || strings.HasSuffix(strings.ToLower(cleanURL), ".jpeg") {
-		imgFormat = "JPG"
-	} else if strings.HasSuffix(strings.ToLower(cleanURL), ".gif") {
-		imgFormat = "GIF"
-	} else {
-		imgFormat = "PNG"
+		httpimg.Register(pdf, cleanURL, "")
+		imgFormat := ""
+		if strings.HasSuffix(strings.ToLower(cleanURL), ".jpg") {
+			imgFormat = "JPG"
+		} else if strings.HasSuffix(strings.ToLower(cleanURL), ".jpg") || strings.HasSuffix(strings.ToLower(cleanURL), ".jpeg") {
+			imgFormat = "JPG"
+		} else if strings.HasSuffix(strings.ToLower(cleanURL), ".gif") {
+			imgFormat = "GIF"
+		} else {
+			imgFormat = "PNG"
+		}
+
+		pdf.Image(cleanURL, 90, 12, 30, 30, false, imgFormat, 0, "")
 	}
 
-	pdf.Image(cleanURL, 90, 12, 30, 30, false, imgFormat, 0, "")
 	pdf.Ln(50)
 	pdf.SetFont("Arial", "B", 20)
 	pdf.CellFormat(0, 10, "Kartu Peserta", "", 1, "C", false, 0, "")
