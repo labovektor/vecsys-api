@@ -272,6 +272,7 @@ func (p *ParticipantDataController) GenerateCard(c *fiber.Ctx) error {
 
 	cardBytes, err := util.GenerateCard(participant)
 	if err != nil {
+		fmt.Println(err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Kesalahan saat membuat kartu peserta"),
 		})
