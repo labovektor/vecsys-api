@@ -175,15 +175,6 @@ func (p *ParticipantDataController) AddMembers(c *fiber.Ctx) error {
 				Status: dto.ErrorStatus.WithMessage(err.Error()),
 			})
 		}
-
-		idCardUrl, err := util.FileSaver(file, "id_card"+participantId, "id_card/")
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-				Status: dto.ErrorStatus.WithMessage(err.Error()),
-			})
-		}
-
-		biodataCreate.IdCardPicture = idCardUrl
 	}
 
 	tx := p.db.Begin()
@@ -199,6 +190,25 @@ func (p *ParticipantDataController) AddMembers(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Something wrong when adding member"),
 		})
+	}
+
+	if file != nil {
+		biodataId := biodata.Id.String()
+		idCardUrl, err := util.FileSaver(file, "id_card_"+biodataId, "id_card/")
+		if err != nil {
+			tx.Rollback()
+			return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+				Status: dto.ErrorStatus.WithMessage(err.Error()),
+			})
+		}
+
+		biodata.IdCardPicture = idCardUrl
+		if err := tx.Model(&entity.Biodata{}).Where("id = ?", biodataId).Update("id_card_picture", idCardUrl).Error; err != nil {
+			tx.Rollback()
+			return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
+				Status: dto.ErrorStatus.WithMessage("Something wrong when saving id card"),
+			})
+		}
 	}
 
 	participant := entity.Participant{
