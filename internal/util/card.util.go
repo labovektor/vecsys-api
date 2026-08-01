@@ -3,7 +3,6 @@ package util
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/jung-kurt/gofpdf"
@@ -11,20 +10,12 @@ import (
 	"github.com/labovector/vecsys-api/entity"
 )
 
-type PdfDiag struct {
-	Ok        bool
-	Err       string
-	Bytes     int
-	FontCount int
-	StartHex  string
-}
-
 func GenerateCard(participant *entity.Participant) ([]byte, error) {
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.AddPage()
+	tr := pdf.UnicodeTranslatorFromDescriptor("")
 	iconPath := participant.Event.Icon
 	if iconPath != "" {
-		log.Printf("PDF DIAG: iconPath = %q", iconPath)
 		iconPath = strings.ReplaceAll(iconPath, "\\", "/")
 		iconURL := fmt.Sprintf("http://127.0.0.1:8787/api/v1%s", iconPath)
 		cleanURL, _, _ := strings.Cut(iconURL, "?")
@@ -47,61 +38,56 @@ func GenerateCard(participant *entity.Participant) ([]byte, error) {
 	pdf.Ln(50)
 	pdf.SetFont("Helvetica", "B", 20)
 
-	pdf.CellFormat(0, 10, "Kartu Peserta", "", 1, "C", false, 0, "")
+	pdf.CellFormat(0, 10, tr("Kartu Peserta"), "", 1, "C", false, 0, "")
 
-	pdf.CellFormat(0, 10, participant.Event.Name, "", 1, "C", false, 0, "")
+	pdf.CellFormat(0, 10, tr(participant.Event.Name), "", 1, "C", false, 0, "")
 
 	pdf.Ln(10)
 
 	pdf.SetFont("Helvetica", "", 14)
-	pdf.CellFormat(50, 10, "Asal Sekolah", "", 0, "", false, 0, "")
-	pdf.CellFormat(0, 10, ": "+participant.Institution.Name, "", 1, "", false, 0, "")
+	pdf.CellFormat(50, 10, tr("Asal Sekolah"), "", 0, "", false, 0, "")
+	pdf.CellFormat(0, 10, tr(": "+participant.Institution.Name), "", 1, "", false, 0, "")
 
-	pdf.CellFormat(50, 10, "Jenjang/Kategori", "", 0, "", false, 0, "")
-	pdf.CellFormat(0, 10, ": "+participant.Category.Name, "", 1, "", false, 0, "")
+	pdf.CellFormat(50, 10, tr("Jenjang/Kategori"), "", 0, "", false, 0, "")
+	pdf.CellFormat(0, 10, tr(": "+participant.Category.Name), "", 1, "", false, 0, "")
 
-	pdf.CellFormat(50, 10, "Region", "", 0, "", false, 0, "")
-	pdf.CellFormat(0, 10, ": "+participant.Region.Name, "", 1, "", false, 0, "")
+	pdf.CellFormat(50, 10, tr("Region"), "", 0, "", false, 0, "")
+	pdf.CellFormat(0, 10, tr(": "+participant.Region.Name), "", 1, "", false, 0, "")
 
-	pdf.CellFormat(50, 10, "Nomor Peserta", "", 0, "", false, 0, "")
+	pdf.CellFormat(50, 10, tr("Nomor Peserta"), "", 0, "", false, 0, "")
 	pdf.SetFont("Helvetica", "B", 14)
-	pdf.CellFormat(0, 10, ": "+participant.Id.String(), "", 1, "", false, 0, "")
+	pdf.CellFormat(0, 10, tr(": "+participant.Id.String()), "", 1, "", false, 0, "")
 
 	pdf.SetFont("Helvetica", "", 14)
-	pdf.CellFormat(50, 10, "Nama", "", 0, "", false, 0, "")
-	pdf.CellFormat(0, 10, ": "+participant.Name, "", 1, "", false, 0, "")
+	pdf.CellFormat(50, 10, tr("Nama"), "", 0, "", false, 0, "")
+	pdf.CellFormat(0, 10, tr(": "+participant.Name), "", 1, "", false, 0, "")
 
-	pdf.CellFormat(50, 10, "Email Peserta", "", 0, "", false, 0, "")
-	pdf.CellFormat(0, 10, ": "+participant.Email, "", 1, "", false, 0, "")
+	pdf.CellFormat(50, 10, tr("Email Peserta"), "", 0, "", false, 0, "")
+	pdf.CellFormat(0, 10, tr(": "+participant.Email), "", 1, "", false, 0, "")
 
 	pdf.Ln(5)
 	pdf.SetFont("Helvetica", "B", 14)
-	pdf.Cell(0, 10, "Anggota:")
+	pdf.Cell(0, 10, tr("Anggota:"))
 	pdf.Ln(10)
 	for i, m := range *participant.Biodata {
 		pdf.SetFont("Helvetica", "", 14)
-		pdf.CellFormat(0, 8, fmt.Sprintf("%d. %s (%s)", i+1, m.Name, m.IdNumber), "", 1, "", false, 0, "")
+		pdf.CellFormat(0, 8, tr(fmt.Sprintf("%d. %s (%s)", i+1, m.Name, m.IdNumber)), "", 1, "", false, 0, "")
 		pdf.Ln(5)
 	}
 
 	pdf.Line(10, pdf.GetY(), 200, pdf.GetY())
 	pdf.Ln(5)
 	pdf.SetFont("Helvetica", "B", 14)
-	pdf.Cell(0, 10, "Contact Person:")
+	pdf.Cell(0, 10, tr("Contact Person:"))
 	pdf.Ln(10)
 	pdf.SetFont("Helvetica", "", 14)
-	pdf.CellFormat(0, 8, participant.Region.ContactNumber+fmt.Sprintf(" (%s)", participant.Region.ContactName), "", 1, "", false, 0, "")
+	pdf.CellFormat(0, 8, tr(participant.Region.ContactNumber+fmt.Sprintf(" (%s)", participant.Region.ContactName)), "", 1, "", false, 0, "")
 
 	var buf bytes.Buffer
 	err := pdf.Output(&buf)
 	if err != nil {
-		log.Printf("PDF DIAG: Output failed: %v", err)
 		return nil, err
 	}
 
-	pdfBytes := buf.Bytes()
-	log.Printf("PDF DIAG: generated %d bytes, first 8 hex = %x",
-		len(pdfBytes), pdfBytes[:min(8, len(pdfBytes))])
-
-	return pdfBytes, nil
+	return buf.Bytes(), nil
 }
