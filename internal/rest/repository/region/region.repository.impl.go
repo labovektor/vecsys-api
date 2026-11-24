@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/labovector/vecsys-api/entity"
+	repoerrors "github.com/labovector/vecsys-api/internal/rest/repository"
 	"gorm.io/gorm"
 )
 
@@ -46,7 +47,7 @@ func (r *RegionRepositoryImpl) GetAllActiveRegion(eventId ...string) ([]entity.R
 // GetRegion implements RegionRepository.
 func (r *RegionRepositoryImpl) GetRegion(id string) (entity.Region, error) {
 	var region entity.Region
-	err := r.db.First(&region, "id = ?", id).Error
+	err := repoerrors.MapNotFound(r.db.First(&region, "id = ?", id).Error)
 	return region, err
 }
 

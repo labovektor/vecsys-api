@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/labovector/vecsys-api/entity"
+	repoerrors "github.com/labovector/vecsys-api/internal/rest/repository"
 	"gorm.io/gorm"
 )
 
@@ -24,7 +25,7 @@ func (a adminRepositoryImpl) DeleteAdmin(id string) error {
 func (a adminRepositoryImpl) FindAdminById(id string) (*entity.Admin, error) {
 	admin := &entity.Admin{}
 	if err := a.db.First(admin, "id = ?", id).Error; err != nil {
-		return nil, err
+		return nil, repoerrors.MapNotFound(err)
 	}
 	return admin, nil
 }
@@ -33,7 +34,7 @@ func (a adminRepositoryImpl) FindAdminById(id string) (*entity.Admin, error) {
 func (a adminRepositoryImpl) FindAdminByUsername(username string) (*entity.Admin, error) {
 	admin := &entity.Admin{}
 	if err := a.db.First(admin, "username = ?", username).Error; err != nil {
-		return nil, err
+		return nil, repoerrors.MapNotFound(err)
 	}
 	return admin, nil
 }

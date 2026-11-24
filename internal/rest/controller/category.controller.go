@@ -35,9 +35,7 @@ func (cc *CategoryController) GetCategoryById(c *fiber.Ctx) error {
 	categoryId := c.Params("id")
 	category, err := cc.categoryRepo.GetCategory(categoryId)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Something wrong when getting category"),
-		})
+		return respondError(c, err, "Category tidak ditemukan", "Something wrong when getting category")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{

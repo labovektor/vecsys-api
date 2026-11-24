@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/labovector/vecsys-api/entity"
+	repoerrors "github.com/labovector/vecsys-api/internal/rest/repository"
 	"gorm.io/gorm"
 )
 
@@ -68,10 +69,10 @@ func (v *ReferalRepositoryImpl) GetAllVoucher(eventId ...string) ([]entity.Refer
 func (v *ReferalRepositoryImpl) GetVoucherByCode(code string, eventId ...string) (*entity.Referal, error) {
 	voucher := &entity.Referal{}
 	if len(eventId) > 0 {
-		err := v.db.First(voucher, "code = ? AND event_id = ?", code, eventId[0]).Error
+		err := repoerrors.MapNotFound(v.db.First(voucher, "code = ? AND event_id = ?", code, eventId[0]).Error)
 		return voucher, err
 	}
-	err := v.db.First(voucher, "code = ?", code).Error
+	err := repoerrors.MapNotFound(v.db.First(voucher, "code = ?", code).Error)
 	return voucher, err
 }
 

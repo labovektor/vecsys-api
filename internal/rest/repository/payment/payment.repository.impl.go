@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/labovector/vecsys-api/entity"
+	repoerrors "github.com/labovector/vecsys-api/internal/rest/repository"
 	"gorm.io/gorm"
 )
 
@@ -33,7 +34,7 @@ func (p *paymentRepositoryImpl) DeletePaymentOption(paymentOptionId string) erro
 // GetPaymentOptionById implements PaymentRepository.
 func (p *paymentRepositoryImpl) GetPaymentOptionById(id string) (entity.PaymentOption, error) {
 	var paymentOption entity.PaymentOption
-	err := p.db.First(&paymentOption, "id = ?", id).Error
+	err := repoerrors.MapNotFound(p.db.First(&paymentOption, "id = ?", id).Error)
 	return paymentOption, err
 }
 
@@ -72,14 +73,14 @@ func (p *paymentRepositoryImpl) DeletePayment(paymentId string) error {
 // GetPaymentById implements PaymentRepository.
 func (p *paymentRepositoryImpl) GetPaymentById(id string) (entity.Payment, error) {
 	var payment entity.Payment
-	err := p.db.First(&payment, "id = ?", id).Error
+	err := repoerrors.MapNotFound(p.db.First(&payment, "id = ?", id).Error)
 	return payment, err
 }
 
 // GetPaymentByParticipantId implements PaymentRepository.
 func (p *paymentRepositoryImpl) GetPaymentByParticipantId(participantId string) (entity.Payment, error) {
 	var payment entity.Payment
-	err := p.db.Preload("Referal").First(&payment, "participant_id = ?", participantId).Error
+	err := repoerrors.MapNotFound(p.db.Preload("Referal").First(&payment, "participant_id = ?", participantId).Error)
 	return payment, err
 }
 

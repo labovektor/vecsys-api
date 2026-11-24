@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/labovector/vecsys-api/entity"
+	repoerrors "github.com/labovector/vecsys-api/internal/rest/repository"
 	"gorm.io/gorm"
 )
 
@@ -56,11 +57,11 @@ func (e *eventRepositoryImpl) FindEventById(id string, adminId ...string) (*enti
 	event := &entity.Event{}
 	if len(adminId) > 0 {
 		if err := e.db.First(event, "id = ? AND admin_id = ?", id, adminId[0]).Error; err != nil {
-			return nil, err
+			return nil, repoerrors.MapNotFound(err)
 		}
 	} else {
 		if err := e.db.First(event, "id = ?", id).Error; err != nil {
-			return nil, err
+			return nil, repoerrors.MapNotFound(err)
 		}
 	}
 	return event, nil
@@ -71,11 +72,11 @@ func (e *eventRepositoryImpl) FindEventBySlug(slug string, adminId ...string) (*
 	event := &entity.Event{}
 	if len(adminId) > 0 {
 		if err := e.db.First(event, "slug = ? AND admin_id = ?", slug, adminId[0]).Error; err != nil {
-			return nil, err
+			return nil, repoerrors.MapNotFound(err)
 		}
 	} else {
 		if err := e.db.First(event, "slug = ?", slug).Error; err != nil {
-			return nil, err
+			return nil, repoerrors.MapNotFound(err)
 		}
 	}
 	return event, nil

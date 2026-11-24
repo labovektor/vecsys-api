@@ -1,12 +1,14 @@
 package controller
 
 import (
+	"errors"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/entity"
 	"github.com/labovector/vecsys-api/infrastructure/email"
 	"github.com/labovector/vecsys-api/internal/rest/dto"
+	repoerrors "github.com/labovector/vecsys-api/internal/rest/repository"
 	adminRepo "github.com/labovector/vecsys-api/internal/rest/repository/admin"
 	eventRepo "github.com/labovector/vecsys-api/internal/rest/repository/event"
 	userRepo "github.com/labovector/vecsys-api/internal/rest/repository/user"
@@ -48,9 +50,7 @@ func (ac *AuthController) LoginAdmin(c *fiber.Ctx) error {
 
 	admin, err := ac.adminRepo.FindAdminByUsername(req.Username)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Username atau password tidak sesuai"),
-		})
+		return respondError(c, err, "Username atau password tidak sesuai", "Kesalahan saat mengambil data admin")
 	}
 
 	match := util.CheckPasswordHash(req.Password, admin.Password)
@@ -94,6 +94,9 @@ func (ac *AuthController) RegisterAdmin(c *fiber.Ctx) error {
 			Status: dto.ErrorStatus.WithMessage("Username tersebut telah dipakai"),
 		})
 	}
+	if !errors.Is(err, repoerrors.ErrNotFound) {
+		return respondError(c, err, "", "Kesalahan saat memeriksa username")
+	}
 
 	passwordHash, err := util.HashPassword(req.Password)
 	if err != nil {
@@ -119,9 +122,7 @@ func (ac *AuthController) RegisterAdmin(c *fiber.Ctx) error {
 
 		profileUrl, err := util.FileSaver(file, admin.Username, "profile/")
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-				Status: dto.ErrorStatus.WithMessage(err.Error()),
-			})
+			return respondError(c, err, "", "Something wrong when saving profile picture")
 		}
 
 		admin.ProfilePicture = profileUrl
@@ -169,9 +170,7 @@ func (ac *AuthController) LoginUser(c *fiber.Ctx) error {
 
 	user, err := ac.userRepo.FindParticipantByEmail(req.Email)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Email atau password tidak sesuai"),
-		})
+		return respondError(c, err, "Email atau password tidak sesuai", "Kesalahan saat mengambil data user")
 	}
 
 	match := util.CheckPasswordHash(req.Password, user.Password)
@@ -215,12 +214,13 @@ func (ac *AuthController) RegisterUser(c *fiber.Ctx) error {
 			Status: dto.ErrorStatus.WithMessage("Email tersebut telah dipakai"),
 		})
 	}
+	if !errors.Is(err, repoerrors.ErrNotFound) {
+		return respondError(c, err, "", "Kesalahan saat memeriksa email")
+	}
 
 	event, err := ac.eventRepo.FindEventBySlug(req.EventSlug)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Event tidak valid!"),
-		})
+		return respondError(c, err, "Event tidak valid!", "Kesalahan saat mengambil event")
 	}
 
 	passwordHash, err := util.HashPassword(req.Password)
@@ -279,9 +279,7 @@ func (ac *AuthController) ForgotPasswordUser(c *fiber.Ctx) error {
 
 	user, err := ac.userRepo.FindParticipantByEmail(req.Email)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Email tidak ditemukan"),
-		})
+		return respondError(c, err, "Email tidak ditemukan", "Kesalahan saat mengambil data user")
 	}
 
 	token, err := ac.jwtMaker.GenerateResetPasswordToken(user.Id.String())

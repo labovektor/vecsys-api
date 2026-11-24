@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/labovector/vecsys-api/entity"
+	repoerrors "github.com/labovector/vecsys-api/internal/rest/repository"
 	"gorm.io/gorm"
 )
 
@@ -86,7 +87,7 @@ func (u *userRepositoryImpl) UpdateBiodata(id string, biodata *entity.Biodata) e
 func (u *userRepositoryImpl) FindBiodataById(id string) (*entity.Biodata, error) {
 	biodata := &entity.Biodata{}
 	if err := u.db.First(biodata, "id = ?", id).Error; err != nil {
-		return nil, err
+		return nil, repoerrors.MapNotFound(err)
 	}
 	return biodata, nil
 }
@@ -171,12 +172,12 @@ func (u *userRepositoryImpl) FindParticipantById(id string, preload bool) (*enti
 	participant := &entity.Participant{}
 	if preload {
 		if err := u.db.Preload("Event").Preload("Biodata").Preload("Institution").Preload("Region").Preload("Category").Preload("Payment").First(participant, "id = ?", id).Error; err != nil {
-			return nil, err
+			return nil, repoerrors.MapNotFound(err)
 		}
 		return participant, nil
 	}
 	if err := u.db.Preload("Event").First(participant, "id = ?", id).Error; err != nil {
-		return nil, err
+		return nil, repoerrors.MapNotFound(err)
 	}
 	return participant, nil
 }
@@ -185,7 +186,7 @@ func (u *userRepositoryImpl) FindParticipantById(id string, preload bool) (*enti
 func (u *userRepositoryImpl) FindParticipantByEmail(email string) (*entity.Participant, error) {
 	participant := &entity.Participant{}
 	if err := u.db.First(participant, "email = ?", email).Error; err != nil {
-		return nil, err
+		return nil, repoerrors.MapNotFound(err)
 	}
 	return participant, nil
 }

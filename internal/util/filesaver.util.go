@@ -13,7 +13,7 @@ func FileSaver(fh *multipart.FileHeader, name string, saveTo ...string) (string,
 	// Open the uploaded file
 	srcFile, err := fh.Open()
 	if err != nil {
-		return "", fmt.Errorf("could not open uploaded file: %v", err)
+		return "", fmt.Errorf("could not open uploaded file: %w", err)
 	}
 	defer srcFile.Close()
 
@@ -28,7 +28,7 @@ func FileSaver(fh *multipart.FileHeader, name string, saveTo ...string) (string,
 	if _, err := os.Stat(destDir); os.IsNotExist(err) {
 		err = os.MkdirAll(destDir, os.ModePerm)
 		if err != nil {
-			return "", fmt.Errorf("could not create destination directory: %v", err)
+			return "", fmt.Errorf("could not create destination directory: %w", err)
 		}
 	}
 
@@ -42,14 +42,14 @@ func FileSaver(fh *multipart.FileHeader, name string, saveTo ...string) (string,
 	// Create the destination file
 	destFile, err := os.Create(destPath)
 	if err != nil {
-		return "", fmt.Errorf("could not create destination file: %v", err)
+		return "", fmt.Errorf("could not create destination file: %w", err)
 	}
 	defer destFile.Close()
 
 	// Copy the uploaded file's content to the destination file
 	_, err = io.Copy(destFile, srcFile)
 	if err != nil {
-		return "", fmt.Errorf("could not copy file: %v", err)
+		return "", fmt.Errorf("could not copy file: %w", err)
 	}
 
 	return fmt.Sprintf("%s?t=%d", urlPath, time.Now().Unix()), nil

@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/csv"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -29,9 +30,7 @@ func (ac *UserController) GetUser(c *fiber.Ctx) error {
 
 	participant, err := ac.userRepo.FindParticipantById(participantId, false)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
-		})
+		return respondError(c, err, "User tidak ditemukan", "Kesalahan saat mengambil data user")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
@@ -45,9 +44,7 @@ func (ac *UserController) GetAllParticipantData(c *fiber.Ctx) error {
 
 	participant, err := ac.userRepo.FindParticipantById(participantId, true)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
-		})
+		return respondError(c, err, "User tidak ditemukan", "Kesalahan saat mengambil data user")
 	}
 
 	res := fiber.Map{
@@ -67,9 +64,7 @@ func (ac *UserController) GetParticipantState(c *fiber.Ctx) error {
 
 	participant, err := ac.userRepo.FindParticipantById(participantId, false)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
-		})
+		return respondError(c, err, "User tidak ditemukan", "Kesalahan saat mengambil data user")
 	}
 
 	res := fiber.Map{
@@ -136,9 +131,7 @@ func (ac *UserController) GetParticipantByID(c *fiber.Ctx) error {
 	ID := c.Params("id")
 	participant, err := ac.userRepo.FindParticipantById(ID, true)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
-		})
+		return respondError(c, err, "User tidak ditemukan", "Kesalahan saat mengambil data user")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
@@ -151,9 +144,7 @@ func (ac *UserController) VerifyParticipant(c *fiber.Ctx) error {
 	ID := c.Params("id")
 	participant, err := ac.userRepo.FindParticipantById(ID, true)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
-		})
+		return respondError(c, err, "User tidak ditemukan", "Kesalahan saat mengambil data user")
 	}
 
 	if participant.IsVerified() {
@@ -191,9 +182,7 @@ func (ac *UserController) GeneratePdfParticipant(c *fiber.Ctx) error {
 	id := c.Params("id")
 	participant, err := ac.userRepo.FindParticipantById(id, true)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
-		})
+		return respondError(c, err, "User tidak ditemukan", "Kesalahan saat mengambil data user")
 	}
 
 	if !participant.IsLocked() {
@@ -204,7 +193,7 @@ func (ac *UserController) GeneratePdfParticipant(c *fiber.Ctx) error {
 
 	cardBytes, err := util.GenerateCard(participant)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Printf("generate card: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Kesalahan saat membuat kartu peserta"),
 		})

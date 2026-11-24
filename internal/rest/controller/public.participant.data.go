@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -197,9 +198,7 @@ func (p *ParticipantDataController) AddMembers(c *fiber.Ctx) error {
 		idCardUrl, err := util.FileSaver(file, "id_card_"+biodataId, "id_card/")
 		if err != nil {
 			tx.Rollback()
-			return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-				Status: dto.ErrorStatus.WithMessage(err.Error()),
-			})
+			return respondError(c, err, "", "Kesalahan saat menyimpan kartu identitas")
 		}
 
 		biodata.IdCardPicture = idCardUrl
@@ -269,9 +268,7 @@ func (p *ParticipantDataController) GenerateCard(c *fiber.Ctx) error {
 
 	participant, err := p.ParticipantRepository.FindParticipantById(participantId, true)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Kesalahan saat mengambil data user"),
-		})
+		return respondError(c, err, "User tidak ditemukan", "Kesalahan saat mengambil data user")
 	}
 
 	if !participant.IsLocked() {
@@ -282,7 +279,7 @@ func (p *ParticipantDataController) GenerateCard(c *fiber.Ctx) error {
 
 	cardBytes, err := util.GenerateCard(participant)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Printf("generate card: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
 			Status: dto.ErrorStatus.WithMessage("Kesalahan saat membuat kartu peserta"),
 		})

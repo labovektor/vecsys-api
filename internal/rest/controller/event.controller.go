@@ -71,9 +71,7 @@ func (ec *EventController) GetEventById(c *fiber.Ctx) error {
 	id := c.Params("id")
 	event, err := ec.eventRepo.FindEventById(id)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Something wrong when getting event"),
-		})
+		return respondError(c, err, "Event tidak ditemukan", "Something wrong when getting event")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
@@ -86,9 +84,7 @@ func (ec *EventController) GetEventBySlug(c *fiber.Ctx) error {
 	slug := c.Params("slug")
 	event, err := ec.eventRepo.FindEventBySlug(slug)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Something wrong when getting event"),
-		})
+		return respondError(c, err, "Event tidak ditemukan", "Something wrong when getting event")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
@@ -172,9 +168,7 @@ func (ec *EventController) ToggleEventActive(c *fiber.Ctx) error {
 	id := c.Params("id")
 	event, err := ec.eventRepo.FindEventById(id)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Something wrong when getting event"),
-		})
+		return respondError(c, err, "Event tidak ditemukan", "Something wrong when getting event")
 	}
 
 	newStatus := !*event.Active

@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/labovector/vecsys-api/entity"
 	"github.com/labovector/vecsys-api/internal/rest/dto"
+	repoerrors "github.com/labovector/vecsys-api/internal/rest/repository"
 	cr "github.com/labovector/vecsys-api/internal/rest/repository/category"
 	pr "github.com/labovector/vecsys-api/internal/rest/repository/payment"
 	vr "github.com/labovector/vecsys-api/internal/rest/repository/referal"
@@ -141,9 +142,7 @@ func (p *ParticipantAdministrationController) ValidateReferal(c *fiber.Ctx) erro
 
 	referal, err := p.ReferalRepository.GetVoucherByCode(req.Code, eventId)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Referal tidak valid"),
-		})
+		return respondError(c, err, "Referal tidak valid", "Kesalahan saat mengambil referal")
 	}
 
 	if !referal.IsAvailableToClaim() {
@@ -164,7 +163,7 @@ func (p *ParticipantAdministrationController) ValidateReferal(c *fiber.Ctx) erro
 	// Jika sudah punya maka cek apakah paymentnya punya referal
 	currentParticipantPayment, err := p.PaymentRepository.WithDB(tx).GetPaymentByParticipantId(participantId)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, repoerrors.ErrNotFound) {
 			referalId := referal.Id.String()
 			payment := entity.Payment{
 				ParticipantId: &participantId,
@@ -278,9 +277,7 @@ func (p *ParticipantAdministrationController) Payment(c *fiber.Ctx) error {
 
 		invoiceUrl, err := util.FileSaver(file, "invoice"+participantId, "invoice/")
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-				Status: dto.ErrorStatus.WithMessage(err.Error()),
-			})
+			return respondError(c, err, "", "Kesalahan saat menyimpan invoice")
 		}
 
 		payment.Invoice = invoiceUrl
@@ -298,7 +295,7 @@ func (p *ParticipantAdministrationController) Payment(c *fiber.Ctx) error {
 	// Jika sudah punya maka update paymentnya
 	currentParticipantPayment, err := p.PaymentRepository.WithDB(tx).GetPaymentByParticipantId(participantId)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, repoerrors.ErrNotFound) {
 			_, err = p.PaymentRepository.WithDB(tx).CreatePayment(&payment)
 			if err != nil {
 				tx.Rollback()

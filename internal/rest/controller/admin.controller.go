@@ -57,9 +57,7 @@ func (ac *AdminController) UpdateAdminProfile(c *fiber.Ctx) error {
 
 		profileUrl, err := util.FileSaver(file, cAdmin.Username, "profile/")
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-				Status: dto.ErrorStatus.WithMessage(err.Error()),
-			})
+			return respondError(c, err, "", "Something wrong when saving profile picture")
 		}
 
 		admin.ProfilePicture = profileUrl
@@ -81,9 +79,7 @@ func (ac *AdminController) GetAdmin(c *fiber.Ctx) error {
 
 	admin, err := ac.adminRepo.FindAdminByUsername(usernameSession)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Something wrong when getting user data"),
-		})
+		return respondError(c, err, "Admin tidak ditemukan", "Something wrong when getting user data")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{

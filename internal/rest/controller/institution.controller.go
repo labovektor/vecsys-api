@@ -35,9 +35,7 @@ func (cc *InstitutionController) GetInstitutions(c *fiber.Ctx) error {
 	institutionId := c.Params("id")
 	institution, err := cc.institutionRepo.GetInstitution(institutionId)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Something wrong when getting institution"),
-		})
+		return respondError(c, err, "Institution tidak ditemukan", "Something wrong when getting institution")
 	}
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
 		Status: dto.SuccessStatus,

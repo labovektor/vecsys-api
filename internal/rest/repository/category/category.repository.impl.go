@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/labovector/vecsys-api/entity"
+	repoerrors "github.com/labovector/vecsys-api/internal/rest/repository"
 	"gorm.io/gorm"
 )
 
@@ -46,7 +47,7 @@ func (c *categoryRepositoryImpl) GetAllActiveCategories(eventId ...string) ([]en
 // GetCategory implements CategoryRepository.
 func (c *categoryRepositoryImpl) GetCategory(id string) (entity.Category, error) {
 	var category entity.Category
-	err := c.db.First(&category, "id = ?", id).Error
+	err := repoerrors.MapNotFound(c.db.First(&category, "id = ?", id).Error)
 	return category, err
 }
 

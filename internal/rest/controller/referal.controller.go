@@ -36,9 +36,7 @@ func (r *ReferalController) GetReferalByCode(c *fiber.Ctx) error {
 	referalCode := c.Params("code")
 	referal, err := r.referalRepo.GetVoucherByCode(referalCode)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Something wrong when getting referal"),
-		})
+		return respondError(c, err, "Referal tidak ditemukan", "Something wrong when getting referal")
 	}
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
 		Status: dto.SuccessStatus,

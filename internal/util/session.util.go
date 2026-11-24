@@ -1,12 +1,20 @@
 package util
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/labovector/vecsys-api/entity"
+)
+
+var (
+	// ErrUnauthorized means the request has no valid session (or the wrong role).
+	ErrUnauthorized = errors.New("unauthorized")
+	// ErrSessionStore means the session backend failed.
+	ErrSessionStore = errors.New("session store error")
 )
 
 const (
@@ -31,7 +39,7 @@ func GenerateSessionAdmin(c *fiber.Ctx, admin *entity.Admin) error {
 
 	// Save session
 	if err := sess.Save(); err != nil {
-		return fmt.Errorf("failed to create session")
+		return fmt.Errorf("%w: %w", ErrSessionStore, err)
 	}
 
 	return nil
@@ -47,7 +55,7 @@ func GenerateSessionUser(c *fiber.Ctx, participant *entity.Participant) error {
 
 	// Save session
 	if err := sess.Save(); err != nil {
-		return fmt.Errorf("failed to create session")
+		return fmt.Errorf("%w: %w", ErrSessionStore, err)
 	}
 
 	return nil
@@ -60,17 +68,17 @@ func ValidateSessionAdmin(c *fiber.Ctx) error {
 	id := sess.Get("id")
 	role := sess.Get("role")
 	if username == nil || id == nil || role == nil {
-		return fmt.Errorf("failed to get session")
+		return fmt.Errorf("%w: missing session values", ErrUnauthorized)
 	}
 
 	if role.(string) != ROLE_ADMIN {
-		return fmt.Errorf("role is not admin")
+		return fmt.Errorf("%w: role is not admin", ErrUnauthorized)
 	}
 
 	sess.SetExpiry(EXP)
 
 	if err := sess.Save(); err != nil {
-		return fmt.Errorf("failed to save session")
+		return fmt.Errorf("%w: %w", ErrSessionStore, err)
 	}
 
 	c.Locals(CurrentUserIdKey, id)
@@ -87,12 +95,12 @@ func ValidateSessionUser(c *fiber.Ctx) error {
 	eventId := sess.Get("event_id")
 	role := sess.Get("role")
 	if username == nil || id == nil || role == nil {
-		return fmt.Errorf("failed to get session")
+		return fmt.Errorf("%w: missing session values", ErrUnauthorized)
 	}
 	sess.SetExpiry(EXP)
 
 	if err := sess.Save(); err != nil {
-		return fmt.Errorf("failed to save session")
+		return fmt.Errorf("%w: %w", ErrSessionStore, err)
 	}
 
 	c.Locals(CurrentUserIdKey, id)
@@ -106,7 +114,7 @@ func InvalidateSession(c *fiber.Ctx) error {
 	sess := c.Locals("session").(*session.Session)
 
 	if err := sess.Destroy(); err != nil {
-		return fmt.Errorf("failed to destroy session")
+		return fmt.Errorf("%w: %w", ErrSessionStore, err)
 	}
 
 	return nil

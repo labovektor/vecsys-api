@@ -34,9 +34,7 @@ func (cc *PaymentOptionController) GetPaymentOptionById(c *fiber.Ctx) error {
 	paymentOptionId := c.Params("id")
 	paymentOption, err := cc.paymentRepo.GetPaymentOptionById(paymentOptionId)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Something wrong when getting payment option"),
-		})
+		return respondError(c, err, "Payment option tidak ditemukan", "Something wrong when getting payment option")
 	}
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
 		Status: dto.SuccessStatus,

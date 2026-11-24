@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/labovector/vecsys-api/entity"
+	repoerrors "github.com/labovector/vecsys-api/internal/rest/repository"
 	"gorm.io/gorm"
 )
 
@@ -42,7 +43,7 @@ func (i *institutionRepositoryImpl) GetAllInstitutions(eventId ...string) ([]ent
 // GetInstitution implements InstitutionRepository.
 func (i *institutionRepositoryImpl) GetInstitution(id string) (*entity.Institution, error) {
 	var institution entity.Institution
-	err := i.db.Preload("Participants").First(&institution, "id = ?", id).Error
+	err := repoerrors.MapNotFound(i.db.Preload("Participants").First(&institution, "id = ?", id).Error)
 	return &institution, err
 }
 

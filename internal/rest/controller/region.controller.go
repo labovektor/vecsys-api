@@ -35,9 +35,7 @@ func (rc *RegionController) GetRegionById(c *fiber.Ctx) error {
 	regionId := c.Params("id")
 	region, err := rc.regionRepo.GetRegion(regionId)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.APIResponse{
-			Status: dto.ErrorStatus.WithMessage("Something wrong when getting region"),
-		})
+		return respondError(c, err, "Region tidak ditemukan", "Something wrong when getting region")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.APIResponse{
